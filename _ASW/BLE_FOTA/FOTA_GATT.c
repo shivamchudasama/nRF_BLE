@@ -105,6 +105,10 @@ BT_GATT_SERVICE_DEFINE(gstar_FOTASvc,
 		// User data - NULL
 		NULL
 	),
+	BT_GATT_CUD(
+		"FOTA Control",
+		BT_GATT_PERM_READ
+	),
 	// Characteristic declaration for ECU ID
 	BT_GATT_CHARACTERISTIC(
 		// UUID
@@ -119,6 +123,10 @@ BT_GATT_SERVICE_DEFINE(gstar_FOTASvc,
 		st_ECUIdWrite, 
 		// User data - NULL
 		NULL
+	),
+	BT_GATT_CUD(
+		"ECU ID",
+		BT_GATT_PERM_READ
 	),
 	// Characteristic declaration for Image Metadata
 	BT_GATT_CHARACTERISTIC(
@@ -135,6 +143,10 @@ BT_GATT_SERVICE_DEFINE(gstar_FOTASvc,
 		// User data - NULL
 		NULL
 	),
+	BT_GATT_CUD(
+		"Image Metadata",
+		BT_GATT_PERM_READ
+	),
 	// Characteristic declaration for Active Block Address
 	BT_GATT_CHARACTERISTIC(
 		// UUID
@@ -149,6 +161,10 @@ BT_GATT_SERVICE_DEFINE(gstar_FOTASvc,
 		st_ActiveBlockAddrWrite,
 		// User data - NULL
 		NULL
+	),
+	BT_GATT_CUD(
+		"Active Block Address",
+		BT_GATT_PERM_READ
 	),
 	// Characteristic declaration for Firmware Data
 	BT_GATT_CHARACTERISTIC(
@@ -165,6 +181,10 @@ BT_GATT_SERVICE_DEFINE(gstar_FOTASvc,
 		// User data - NULL
 		NULL
 	),
+	BT_GATT_CUD(
+		"Firmware Data",
+		BT_GATT_PERM_READ
+	),
 	// Characteristic declaration for FOTA Status
 	BT_GATT_CHARACTERISTIC(
 		// UUID
@@ -179,6 +199,10 @@ BT_GATT_SERVICE_DEFINE(gstar_FOTASvc,
 		NULL,
 		// User data - NULL
 		NULL
+	),
+	BT_GATT_CUD(
+		"FOTA Status",
+		BT_GATT_PERM_READ
 	),
 	// Client Characteristic Configuration Descriptor for FOTA Status characteristic
 	BT_GATT_CCC(
@@ -202,6 +226,10 @@ BT_GATT_SERVICE_DEFINE(gstar_FOTASvc,
 		// User data - NULL
 		NULL
 	),
+	BT_GATT_CUD(
+		"FOTA Progress",
+		BT_GATT_PERM_READ
+	),
 	BT_GATT_CCC(
 		// Configuration changed callback - NULL
 		NULL, 
@@ -222,6 +250,10 @@ BT_GATT_SERVICE_DEFINE(gstar_FOTASvc,
 		NULL, 
 		// User data - NULL
 		NULL
+	),
+	BT_GATT_CUD(
+		"Resume Offset",
+		BT_GATT_PERM_READ
 	)
 );
 
