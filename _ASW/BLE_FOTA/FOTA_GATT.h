@@ -15,7 +15,6 @@
 /*                                                                            */
 /******************************************************************************/
 #include <zephyr/bluetooth/gatt.h>
-#include "BALOS_types.h"
 
 /******************************************************************************/
 /*                                                                            */
@@ -25,7 +24,8 @@
 /* ================= FOTA SERVICE UUID ================= */
 /**
  * @def           BT_UUID_FOTA_SERVICE
- * @brief         <Define details>.
+ * @brief         Creating UUID structure pointer (const struct bt_uuid *) for
+ * 					FOTA service.
  */
 #define BT_UUID_FOTA_SERVICE                 BT_UUID_DECLARE_128( \
 		                                          0xFB, 0x34, 0x9B, 0x5F, 0x80, 0x00, 0x00, 0x80, \
@@ -34,7 +34,8 @@
 /* ================= CHARACTERISTIC UUIDs ============== */
 /**
  * @def           BT_UUID_FOTA_CONTROL
- * @brief         <Define details>.
+ * @brief         Creating UUID structure pointer (const struct bt_uuid *) for
+ * 					FOTA control characteristic.
  */
 #define BT_UUID_FOTA_CONTROL                 BT_UUID_DECLARE_128( \
                                                 0xFB, 0x34, 0x9B, 0x5F, 0x80, 0x00, 0x00, 0x80, \
@@ -42,7 +43,8 @@
 
 /**
  * @def           BT_UUID_FOTA_ECU_ID
- * @brief         <Define details>.
+ * @brief         Creating UUID structure pointer (const struct bt_uuid *) for
+ * 					ECU ID characteristic.
  */
 #define BT_UUID_ECU_ID                       BT_UUID_DECLARE_128( \
                                                 0xFB, 0x34, 0x9B, 0x5F, 0x80, 0x00, 0x00, 0x80, \
@@ -50,7 +52,8 @@
 
 /**
  * @def           BT_UUID_FOTA_IMAGE_METADATA
- * @brief         <Define details>.
+ * @brief         Creating UUID structure pointer (const struct bt_uuid *) for
+ * 					FOTA image metadata characteristic.
  */
 #define BT_UUID_IMAGE_METADATA               BT_UUID_DECLARE_128( \
                                                 0xFB, 0x34, 0x9B, 0x5F, 0x80, 0x00, 0x00, 0x80, \
@@ -58,7 +61,8 @@
 
 /**
  * @def           BT_UUID_FIRMWARE_DATA
- * @brief         <Define details>.
+ * @brief         Creating UUID structure pointer (const struct bt_uuid *) for
+ * 					FOTA firmware data characteristic.
  */
 #define BT_UUID_FIRMWARE_DATA                BT_UUID_DECLARE_128( \
 		                                          0xFB, 0x34, 0x9B, 0x5F, 0x80, 0x00, 0x00, 0x80, \
@@ -66,7 +70,8 @@
 
 /**
  * @def           BT_UUID_FOTA_STATUS
- * @brief         <Define details>.
+ * @brief         Creating UUID structure pointer (const struct bt_uuid *) for
+ * 					FOTA status characteristic.
  */
 #define BT_UUID_FOTA_STATUS                  BT_UUID_DECLARE_128( \
                                                 0xFB, 0x34, 0x9B, 0x5F, 0x80, 0x00, 0x00, 0x80, \
@@ -74,7 +79,8 @@
 
 /**
  * @def           BT_UUID_FOTA_PROGRESS
- * @brief         <Define details>.
+ * @brief         Creating UUID structure pointer (const struct bt_uuid *) for
+ * 					FOTA progress characteristic.
  */
 #define BT_UUID_FOTA_PROGRESS                BT_UUID_DECLARE_128( \
                                                 0xFB, 0x34, 0x9B, 0x5F, 0x80, 0x00, 0x00, 0x80, \
@@ -82,7 +88,8 @@
 
 /**
  * @def           BT_UUID_FOTA_RESUME_OFFSET
- * @brief         <Define details>.
+ * @brief         Creating UUID structure pointer (const struct bt_uuid *) for
+ * 					FOTA resume offset characteristic.
  */
 #define BT_UUID_RESUME_OFFSET                BT_UUID_DECLARE_128( \
                                                 0xFB, 0x34, 0x9B, 0x5F, 0x80, 0x00, 0x00, 0x80, \
@@ -90,7 +97,8 @@
 
 /**
  * @def           BT_UUID_FOTA_ACTIVE_BLOCK_ADDR
- * @brief         <Define details>.
+ * @brief         Creating UUID structure pointer (const struct bt_uuid *) for
+ * 					FOTA active block address characteristic.
  */
 #define BT_UUID_ACTIVE_BLOCK_ADDR            BT_UUID_DECLARE_128( \
                                                 0xFB, 0x34, 0x9B, 0x5F, 0x80, 0x00, 0x00, 0x80, \

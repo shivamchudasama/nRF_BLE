@@ -150,21 +150,22 @@ static struct bt_uuid_128 sst_customCharUUID = BT_UUID_INIT_128(BT_UUID_CUSTOM_C
  */
 static uint8_t su8_charVal = 0x00;
 
-/**
- * @var           gstar_customSvc
- * @brief         Custom service instance. It statically define and register a GATT service.
- */
-BT_GATT_SERVICE_DEFINE(gstar_customSvc,
-   // Primary service declaration with custom service UUID
-   BT_GATT_PRIMARY_SERVICE(&sst_customSvcUUID),
-   // Characteristic declaration with custom characteristic UUID, read/write/notify properties and permissions
-   BT_GATT_CHARACTERISTIC(&sst_customCharUUID.uuid,
-                  BT_GATT_CHRC_READ | BT_GATT_CHRC_WRITE | BT_GATT_CHRC_NOTIFY,
-                  BT_GATT_PERM_READ | BT_GATT_PERM_WRITE,
-                  st_ReadChar, st_WriteChar, &su8_charVal),
-   // Client Characteristic Configuration Descriptor for enabling notifications
-   BT_GATT_CCC(NULL, BT_GATT_PERM_READ | BT_GATT_PERM_WRITE)
-);
+// /**
+//  * @var           gstar_customSvc
+//  * @brief         Custom service instance. Creates a structure of bt_gatt_attr type.
+//  *                It statically define and register a GATT service.
+//  */
+// BT_GATT_SERVICE_DEFINE(gstar_customSvc,
+//    // Primary service declaration with custom service UUID
+//    BT_GATT_PRIMARY_SERVICE(&sst_customSvcUUID),
+//    // Characteristic declaration with custom characteristic UUID, read/write/notify properties and permissions
+//    BT_GATT_CHARACTERISTIC(&sst_customCharUUID.uuid,
+//                   BT_GATT_CHRC_READ | BT_GATT_CHRC_WRITE | BT_GATT_CHRC_NOTIFY,
+//                   BT_GATT_PERM_READ | BT_GATT_PERM_WRITE,
+//                   st_ReadChar, st_WriteChar, &su8_charVal),
+//    // Client Characteristic Configuration Descriptor for enabling notifications
+//    BT_GATT_CCC(NULL, BT_GATT_PERM_READ | BT_GATT_PERM_WRITE)
+// );
 
 /******************************************************************************/
 /*                                                                            */
