@@ -112,6 +112,12 @@ LOG_MODULE_REGISTER(APP_LOG, LOG_LEVEL_INF);
 /*                       PRIVATE FUNCTION DECLARATIONS                        */
 /*                                                                            */
 /******************************************************************************/
+static ssize_t st_ReadChar(struct bt_conn *stpt_conn, const struct bt_gatt_attr *stpt_attr,
+   void *vpt_buf, uint16_t u16_len, uint16_t u16_offset);
+static ssize_t st_WriteChar(struct bt_conn *stpt_conn, const struct bt_gatt_attr *stpt_attr,
+    const void *vpt_buf, uint16_t u16_len, uint16_t u16_offset);
+static void sv_Connected(struct bt_conn *conn, uint8_t err);
+static void sv_Disconnected(struct bt_conn *conn, uint8_t reason);
 
 /******************************************************************************/
 /*                                                                            */
@@ -122,27 +128,6 @@ LOG_MODULE_REGISTER(APP_LOG, LOG_LEVEL_INF);
 /******************************************************************************/
 /*                                                                            */
 /*                              PUBLIC VARIABLES                              */
-/*                                                                            */
-/******************************************************************************/
-/**
- * @var           gstar_customSvc
- * @brief         Custom service instance. It statically define and register a GATT service.
- */
-BT_GATT_SERVICE_DEFINE(gstar_customSvc,
-   // Primary service declaration with custom service UUID
-   BT_GATT_PRIMARY_SERVICE(&sst_customSvcUUID),
-   // Characteristic declaration with custom characteristic UUID, read/write/notify properties and permissions
-   BT_GATT_CHARACTERISTIC(&sst_customCharUUID.uuid,
-                  BT_GATT_CHRC_READ | BT_GATT_CHRC_WRITE | BT_GATT_CHRC_NOTIFY,
-                  BT_GATT_PERM_READ | BT_GATT_PERM_WRITE,
-                  st_ReadChar, st_WriteChar, &su8_charVal),
-   // Client Characteristic Configuration Descriptor for enabling notifications
-   BT_GATT_CCC(NULL, BT_GATT_PERM_READ | BT_GATT_PERM_WRITE)
-);
-
-/******************************************************************************/
-/*                                                                            */
-/*                             PRIVATE VARIABLES                              */
 /*                                                                            */
 /******************************************************************************/
 /**
@@ -165,6 +150,27 @@ static struct bt_uuid_128 sst_customCharUUID = BT_UUID_INIT_128(BT_UUID_CUSTOM_C
  */
 static uint8_t su8_charVal = 0x00;
 
+/**
+ * @var           gstar_customSvc
+ * @brief         Custom service instance. It statically define and register a GATT service.
+ */
+BT_GATT_SERVICE_DEFINE(gstar_customSvc,
+   // Primary service declaration with custom service UUID
+   BT_GATT_PRIMARY_SERVICE(&sst_customSvcUUID),
+   // Characteristic declaration with custom characteristic UUID, read/write/notify properties and permissions
+   BT_GATT_CHARACTERISTIC(&sst_customCharUUID.uuid,
+                  BT_GATT_CHRC_READ | BT_GATT_CHRC_WRITE | BT_GATT_CHRC_NOTIFY,
+                  BT_GATT_PERM_READ | BT_GATT_PERM_WRITE,
+                  st_ReadChar, st_WriteChar, &su8_charVal),
+   // Client Characteristic Configuration Descriptor for enabling notifications
+   BT_GATT_CCC(NULL, BT_GATT_PERM_READ | BT_GATT_PERM_WRITE)
+);
+
+/******************************************************************************/
+/*                                                                            */
+/*                             PRIVATE VARIABLES                              */
+/*                                                                            */
+/******************************************************************************/
 /**
  * @var           sst_connCallbacks
  * @brief         Connection callbacks for the custom service.
@@ -282,7 +288,7 @@ int main(void)
    int i_err = bt_enable(NULL);
 	if (i_err)
    {
-		LOG_ERR("Bluetooth init failed (err %d)", err);
+		LOG_ERR("Bluetooth init failed (err %d)", i_err);
 		return 0;
 	}
 
@@ -310,7 +316,7 @@ int main(void)
    // Start advertising by setting advertisement data, scan response data,
    // and advertisement parameters.
    i_err = bt_le_adv_start(
-      BT_LE_ADV_CONN,                        // Advertising parameters: Connectable undirected advertising
+      BT_LE_ADV_CONN_FAST_1,                 // Advertising parameters: Connectable undirected advertising
       star_advData,                          // Advertising data
       ARRAY_SIZE(star_advData),              // Length of advertising data
       star_scanRespData,                     // Scan response data
@@ -318,7 +324,7 @@ int main(void)
    );
 	if (i_err)
    {
-		LOG_ERR("Advertising failed to start (err %d)", err);
+		LOG_ERR("Advertising failed to start (err %d)", i_err);
 		return 0;
 	}
 
