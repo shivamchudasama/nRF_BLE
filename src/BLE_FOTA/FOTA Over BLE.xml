@@ -1,0 +1,160 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<!-- ===================================================== -->
+<!-- BLE ECU FOTA GATT DATABASE                            -->
+<!-- Target: Zephyr RTOS                                   -->
+<!-- ===================================================== -->
+
+<gatt
+    name="BLE_ECU_FOTA"
+    header="gatt_fota.h"
+    out="gatt_fota.c"
+    prefix="fota_"
+    gatt_caching="true"
+    generic_attribute_service="true">
+
+  <!-- =================================================== -->
+  <!-- FOTA SERVICE                                        -->
+  <!-- =================================================== -->
+  <service
+      name="FOTA_Service"
+      uuid="12345678-0000-1000-8000-00805F9B34FB"
+      advertise="true">
+
+    <!-- ================================================= -->
+    <!-- FOTA CONTROL CHARACTERISTIC                       -->
+    <!-- ================================================= -->
+    <characteristic
+        name="FOTA_Control"
+        uuid="12345678-0001-1000-8000-00805F9B34FB"
+        properties="write"
+        permissions="write">
+
+      <value
+          type="uint8"
+          length="4"
+          variable_length="false"/>
+    </characteristic>
+
+    <!-- ================================================= -->
+    <!-- ECU IDENTIFIER (TLS STRING)                       -->
+    <!-- ================================================= -->
+    <characteristic
+        name="ECU_ID"
+        uuid="12345678-0002-1000-8000-00805F9B34FB"
+        properties="write"
+        permissions="write">
+
+      <value
+          type="utf8"
+          max_length="64"
+          variable_length="true"/>
+    </characteristic>
+
+    <!-- ================================================= -->
+    <!-- IMAGE METADATA                                    -->
+    <!-- ================================================= -->
+    <!-- struct: total_size | total_blocks | image_crc32   -->
+    <characteristic
+        name="Image_Metadata"
+        uuid="12345678-0003-1000-8000-00805F9B34FB"
+        properties="write"
+        permissions="write">
+
+      <value
+          type="uint8"
+          length="12"
+          variable_length="false"/>
+    </characteristic>
+
+    <!-- ================================================= -->
+    <!-- ACTIVE BLOCK ADDRESS                              -->
+    <!-- ================================================= -->
+    <!-- Absolute address of the upcoming data block       -->
+    <characteristic
+        name="Active_Block_Address"
+        uuid="12345678-0008-1000-8000-00805F9B34FB"
+        properties="write"
+        permissions="write">
+
+      <value
+          type="uint32"
+          length="4"
+          variable_length="false"/>
+    </characteristic>
+    
+    <!-- ================================================= -->
+    <!-- FIRMWARE DATA                                     -->
+    <!-- ================================================= -->
+    <!-- Raw binary data for current block                 -->
+    <characteristic
+        name="Firmware_Data"
+        uuid="12345678-0004-1000-8000-00805F9B34FB"
+        properties="write-without-response"
+        permissions="write">
+
+      <value
+          type="uint8"
+          max_length="244"
+          variable_length="true"/>
+    </characteristic>
+
+    <!-- ================================================= -->
+    <!-- FOTA STATUS                                       -->
+    <!-- ================================================= -->
+    <!-- enum: IDLE / RECEIVING / READY / ERROR            -->
+    <characteristic
+        name="FOTA_Status"
+        uuid="12345678-0005-1000-8000-00805F9B34FB"
+        properties="read notify"
+        permissions="read">
+
+      <value
+          type="uint8"
+          length="4"
+          variable_length="false"/>
+
+      <cccd
+          read="true"
+          write="true"/>
+    </characteristic>
+
+    <!-- ================================================= -->
+    <!-- FOTA PROGRESS                                     -->
+    <!-- ================================================= -->
+    <!-- blocks_received | bytes_received | error_code     -->
+    <characteristic
+        name="FOTA_Progress"
+        uuid="12345678-0006-1000-8000-00805F9B34FB"
+        properties="notify"
+        permissions="none">
+
+      <value
+          type="uint8"
+          length="12"
+          variable_length="false"/>
+
+      <cccd
+          read="true"
+          write="true"/>
+    </characteristic>
+
+    <!-- ================================================= -->
+    <!-- RESUME OFFSET                                     -->
+    <!-- ================================================= -->
+    <!-- Block index + byte offset within block            -->
+    <characteristic
+        name="Resume_Offset"
+        uuid="12345678-0007-1000-8000-00805F9B34FB"
+        properties="read"
+        permissions="read">
+
+      <value
+          type="uint32"
+          length="4"
+          variable_length="false"/>
+    </characteristic>
+
+  </service>
+
+</gatt>
