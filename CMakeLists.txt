@@ -3,4 +3,12 @@ find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 
 project(EmptyApp)
 
-target_sources(app PRIVATE src/main.c)
+# Add source files for application
+target_sources(app PRIVATE
+   src/main.c
+   src/FOTA_GATT.c
+   src/FW_Update.c)
+
+# Add include directories for application
+target_include_directories(app PRIVATE
+   src)
