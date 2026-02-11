@@ -3,4 +3,4 @@ find_package(Zephyr REQUIRED HINTS $ENV{ZEPHYR_BASE})
 
 project(EmptyApp)
 
-add_subdirectory("src" "${CMAKE_CURRENT_BINARY_DIR}/src")
+add_subdirectory("_ASW" "${CMAKE_CURRENT_BINARY_DIR}/_ASW")
