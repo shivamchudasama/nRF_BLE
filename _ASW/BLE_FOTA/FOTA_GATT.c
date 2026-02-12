@@ -296,10 +296,6 @@ BT_GATT_SERVICE_DEFINE(gstar_FOTASvc,
 /*                                                                            */
 /******************************************************************************/
 /**
- * @var           <Variable name>
- * @brief         <Variable details>.
- */
-/**
  * @var           su8ar_FOTACtrl
  * @brief         <Variable details>.
  */

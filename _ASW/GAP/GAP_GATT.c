@@ -18,10 +18,7 @@
 /*                                  DEFINES                                   */
 /*                                                                            */
 /******************************************************************************/
-/**
- * @def           <Define name>
- * @brief         <Define details>.
- */
+LOG_MODULE_DECLARE(APP_LOG);
 
 /******************************************************************************/
 /*                                                                            */
@@ -45,40 +42,44 @@
 /*                       PRIVATE FUNCTION DECLARATIONS                        */
 /*                                                                            */
 /******************************************************************************/
-static ssize_t st_FOTACtrlWrite(struct bt_conn *conn,
-	const struct bt_gatt_attr *attr,
-	const void *buf, uint16_t len,
-	uint16_t offset, uint8_t flags);
-static ssize_t st_ECUIdWrite(struct bt_conn *conn,
-	const struct bt_gatt_attr *attr,
-	const void *buf, uint16_t len,
-	uint16_t offset, uint8_t flags);
-static ssize_t st_ImageMetadataWrite(struct bt_conn *conn,
-	const struct bt_gatt_attr *attr,
-	const void *buf, uint16_t len,
-	uint16_t offset, uint8_t flags);
-static ssize_t st_ActiveBlockAddrWrite(struct bt_conn *conn,
-	const struct bt_gatt_attr *attr,
-	const void *buf, uint16_t len,
-	uint16_t offset, uint8_t flags);
-static ssize_t st_FWDataWrite(struct bt_conn *conn,
-	const struct bt_gatt_attr *attr,
-	const void *buf, uint16_t len,
-	uint16_t offset, uint8_t flags);
-static ssize_t st_FOTAStsRead(struct bt_conn *conn,
+static ssize_t st_DeviceNameRead(struct bt_conn *conn,
 	const struct bt_gatt_attr *attr,
 	void *buf, uint16_t len,
 	uint16_t offset);
-static ssize_t st_ResumeOffsetRead(struct bt_conn *conn,
+static ssize_t st_AppearanceRead(struct bt_conn *conn,
+	const struct bt_gatt_attr *attr,
+	void *buf, uint16_t len,
+	uint16_t offset);
+static ssize_t st_ManufacturerNameRead(struct bt_conn *conn,
+	const struct bt_gatt_attr *attr,
+	void *buf, uint16_t len,
+	uint16_t offset);
+static ssize_t st_HWRevisionRead(struct bt_conn *conn,
+	const struct bt_gatt_attr *attr,
+	void *buf, uint16_t len,
+	uint16_t offset);
+static ssize_t st_FWRevisionRead(struct bt_conn *conn,
 	const struct bt_gatt_attr *attr,
 	void *buf, uint16_t len,
 	uint16_t offset);
 
 /******************************************************************************/
 /*                                                                            */
-/*                                 STRUCTURES                                 */
+/*                              PUBLIC VARIABLES                              */
 /*                                                                            */
 /******************************************************************************/
+/**
+ * @var           su8ar_deviceName
+ * @brief         Name of the device.
+ */
+static const uint8_t su8ar_deviceName[] = "BLE FOTA Server";
+
+/**
+ * @var           su16_appearance
+ * @brief         Appearance of the device.
+ */
+static const uint16_t su16_appearance = 0x0000;
+
 /**
  * @var           gstar_GAPSvc
  * @brief         GAP service instance. Creates a structure of bt_gatt_attr type.
@@ -88,173 +89,134 @@ BT_GATT_SERVICE_DEFINE(gstar_GAPSvc,
 	// Primary service declaration with GAP service UUID
 	BT_GATT_PRIMARY_SERVICE(
 		// UUID
-		BT_UUID_GAP_SERVICE
+		BT_UUID_DECLARE_16(BLE_SERVICE_GAP_UUID)
 	),
-	// Characteristic declaration for FOTA control
+	// Characteristic declaration for device name
 	BT_GATT_CHARACTERISTIC(
 		// UUID
-		BT_UUID_FOTA_CONTROL,
-		// Properties - Write
-		BT_GATT_CHRC_WRITE,
-		// Permissions - Write
-		BT_GATT_PERM_WRITE,
-		// Read callback - NULL
-		NULL, 
-		// Write callback - st_FOTACtrlWrite
-		st_FOTACtrlWrite, 
-		// User data - NULL
-		NULL
-	),
-	BT_GATT_CUD(
-		"FOTA Control",
-		BT_GATT_PERM_READ
-	),
-	// Characteristic declaration for ECU ID
-	BT_GATT_CHARACTERISTIC(
-		// UUID
-		BT_UUID_ECU_ID,
-		// Properties - Write
-		BT_GATT_CHRC_WRITE,
-		// Permissions - Write
-		BT_GATT_PERM_WRITE,
-		// Read callback - NULL
-		NULL,
-		// Write callback - st_ECUIdWrite
-		st_ECUIdWrite, 
-		// User data - NULL
-		NULL
-	),
-	BT_GATT_CUD(
-		"ECU ID",
-		BT_GATT_PERM_READ
-	),
-	// Characteristic declaration for Image Metadata
-	BT_GATT_CHARACTERISTIC(
-		// UUID
-		BT_UUID_IMAGE_METADATA,
-		// Properties - Write
-		BT_GATT_CHRC_WRITE,
-		// Permissions - Write
-		BT_GATT_PERM_WRITE,
-		// Read callback - NULL
-		NULL,
-		// Write callback - st_ImageMetadataWrite
-		st_ImageMetadataWrite, 
-		// User data - NULL
-		NULL
-	),
-	BT_GATT_CUD(
-		"Image Metadata",
-		BT_GATT_PERM_READ
-	),
-	// Characteristic declaration for Active Block Address
-	BT_GATT_CHARACTERISTIC(
-		// UUID
-		BT_UUID_ACTIVE_BLOCK_ADDR,
-		// Properties - Write
-		BT_GATT_CHRC_WRITE,
-		// Permissions - Write
-		BT_GATT_PERM_WRITE,
-		// Read callback - NULL
-		NULL,
-		// Write callback - st_ActiveBlockAddrWrite
-		st_ActiveBlockAddrWrite,
-		// User data - NULL
-		NULL
-	),
-	BT_GATT_CUD(
-		"Active Block Address",
-		BT_GATT_PERM_READ
-	),
-	// Characteristic declaration for Firmware Data
-	BT_GATT_CHARACTERISTIC(
-		// UUID
-		BT_UUID_FIRMWARE_DATA,
-		// Properties - Write without response
-		BT_GATT_CHRC_WRITE_WITHOUT_RESP,
-		// Permissions - Write
-		BT_GATT_PERM_WRITE,
-		// Read callback - NULL
-		NULL, 
-		// Write callback - st_FWDataWrite
-		st_FWDataWrite,
-		// User data - NULL
-		NULL
-	),
-	BT_GATT_CUD(
-		"Firmware Data",
-		BT_GATT_PERM_READ
-	),
-	// Characteristic declaration for FOTA Status
-	BT_GATT_CHARACTERISTIC(
-		// UUID
-		BT_UUID_FOTA_STATUS,
-		// Properties - Read and Notify
-		BT_GATT_CHRC_READ | BT_GATT_CHRC_NOTIFY,
-		// Permissions - Read
-		BT_GATT_PERM_READ,
-		// Read callback - st_FOTAStsRead
-		st_FOTAStsRead,
-		// Write callback - NULL
-		NULL,
-		// User data - NULL
-		NULL
-	),
-	BT_GATT_CUD(
-		"FOTA Status",
-		BT_GATT_PERM_READ
-	),
-	// Client Characteristic Configuration Descriptor for FOTA Status characteristic
-	BT_GATT_CCC(
-		// Configuration changed callback - NULL
-		NULL, 
-		// Permissions - Read and Write
-		BT_GATT_PERM_READ | BT_GATT_PERM_WRITE
-	),
-	// Characteristic declaration for FOTA Progress
-	BT_GATT_CHARACTERISTIC(
-		// UUID
-		BT_UUID_FOTA_PROGRESS,
-		// Properties - Notify
-		BT_GATT_CHRC_NOTIFY,
-		// Permissions - None
-		BT_GATT_PERM_NONE,
-		// Read callback - NULL
-		NULL,
-		// Write callback - NULL
-		NULL, 
-		// User data - NULL
-		NULL
-	),
-	BT_GATT_CUD(
-		"FOTA Progress",
-		BT_GATT_PERM_READ
-	),
-	BT_GATT_CCC(
-		// Configuration changed callback - NULL
-		NULL, 
-		// Permissions - Read and Write
-		BT_GATT_PERM_READ | BT_GATT_PERM_WRITE
-	),
-	// Characteristic declaration for Resume Offset
-	BT_GATT_CHARACTERISTIC(
-		// UUID
-		BT_UUID_RESUME_OFFSET,
+		BT_UUID_DECLARE_16(BLE_CHAR_DEVICE_NAME_UUID),
 		// Properties - Read
 		BT_GATT_CHRC_READ,
 		// Permissions - Read
 		BT_GATT_PERM_READ,
-		// Read callback - st_ResumeOffsetRead
-		st_ResumeOffsetRead, 
+		// Read callback - st_DeviceNameRead
+		st_DeviceNameRead, 
 		// Write callback - NULL
 		NULL, 
-		// User data - NULL
-		NULL
+		// User data - su8ar_deviceName
+		su8ar_deviceName
 	),
 	BT_GATT_CUD(
-		"Resume Offset",
+		"Device Name",
 		BT_GATT_PERM_READ
-	)
+	),
+	// Characteristic declaration for appearance
+	BT_GATT_CHARACTERISTIC(
+		// UUID
+		BT_UUID_DECLARE_16(BLE_CHAR_APPEARANCE_UUID),
+		// Properties - Read
+		BT_GATT_CHRC_READ,
+		// Permissions - Read
+		BT_GATT_PERM_READ,
+		// Read callback - st_AppearanceRead
+		st_AppearanceRead,
+		// Write callback - NULL
+		NULL, 
+		// User data - su16_appearance
+		&su16_appearance
+	),
+	BT_GATT_CUD(
+		"Appearance",
+		BT_GATT_PERM_READ
+	),
+);
+
+/**
+ * @var           scar_manufacturerName
+ * @brief         Name of the manufacturer.
+ */
+static const char scar_manufacturerName[] = "Bajaj Auto Technology Limited";
+
+/**
+ * @var           scar_HWRevision
+ * @brief         Revision of the hardware.
+ */
+static const char scar_HWRevision[] = "0.1.1";
+
+/**
+ * @var           scar_FWRevision
+ * @brief         Revision of the firmware.
+ */
+static const char scar_FWRevision[] = "0.1.1";
+
+/**
+ * @var           gstar_deviceInfoSvc
+ * @brief         GAP service instance. Creates a structure of bt_gatt_attr type.
+ *                It statically define and register this GATT service.
+ */
+BT_GATT_SERVICE_DEFINE(gstar_deviceInfoSvc,
+	// Primary service declaration with device information service UUID
+	BT_GATT_PRIMARY_SERVICE(
+		// UUID
+		BT_UUID_DECLARE_16(BLE_SERVICE_DEVICE_INFORMATION_UUID)
+	),
+	// Characteristic declaration for manufacturer name
+	BT_GATT_CHARACTERISTIC(
+		// UUID
+		BT_UUID_DECLARE_16(BLE_CHAR_MANUFACTURER_NAME_STRING_UUID),
+		// Properties - Read
+		BT_GATT_CHRC_READ,
+		// Permissions - Read
+		BT_GATT_PERM_READ,
+		// Read callback - st_ManufacturerNameRead
+		st_ManufacturerNameRead,
+		// Write callback - NULL
+		NULL, 
+		// User data - scar_manufacturerName
+		scar_manufacturerName
+	),
+	BT_GATT_CUD(
+		"Manufacturer Name",
+		BT_GATT_PERM_READ
+	),
+	// Characteristic declaration for HW revision
+	BT_GATT_CHARACTERISTIC(
+		// UUID
+		BT_UUID_DECLARE_16(BLE_CHAR_HARDWARE_REVISION_STRING_UUID),
+		// Properties - Read
+		BT_GATT_CHRC_READ,
+		// Permissions - Read
+		BT_GATT_PERM_READ,
+		// Read callback - st_HWRevisionRead
+		st_HWRevisionRead,
+		// Write callback - NULL
+		NULL,
+		// User data - scar_HWRevision
+		scar_HWRevision
+	),
+	BT_GATT_CUD(
+		"Hardware Revision",
+		BT_GATT_PERM_READ
+	),
+	// Characteristic declaration for FW revision
+	BT_GATT_CHARACTERISTIC(
+		// UUID
+		BT_UUID_DECLARE_16(BLE_CHAR_FIRMWARE_REVISION_STRING_UUID),
+		// Properties - Read
+		BT_GATT_CHRC_READ,
+		// Permissions - Read
+		BT_GATT_PERM_READ,
+		// Read callback - st_FWRevisionRead
+		st_FWRevisionRead, 
+		// Write callback - NULL
+		NULL,
+		// User data - scar_FWRevision
+		scar_FWRevision
+	),
+	BT_GATT_CUD(
+		"Firmware Revision",
+		BT_GATT_PERM_READ
+	),
 );
 
 /******************************************************************************/
@@ -292,63 +254,6 @@ BT_GATT_SERVICE_DEFINE(gstar_GAPSvc,
 
 /******************************************************************************/
 /*                                                                            */
-/*                             PRIVATE VARIABLES                              */
-/*                                                                            */
-/******************************************************************************/
-/**
- * @var           <Variable name>
- * @brief         <Variable details>.
- */
-/**
- * @var           su8ar_FOTACtrl
- * @brief         <Variable details>.
- */
-static uint8_t su8ar_FOTACtrl[4];
-
-/**
- * @var           su8ar_ECUId
- * @brief         <Variable details>.
- */
-static uint8_t su8ar_ECUId[64];
-
-/**
- * @var           su8ar_imageMetadata
- * @brief         <Variable details>.
- */
-static uint8_t su8ar_imageMetadata[12];
-
-/**
- * @var           su32_activeBlockAddr
- * @brief         <Variable details>.
- */
-static uint32_t su32_activeBlockAddr;
-
-/**
- * @var           su8ar_firmwareData
- * @brief         <Variable details>.
- */
-static uint8_t su8ar_firmwareData[244];
-
-/**
- * @var           su8ar_FOTAStatus
- * @brief         <Variable details>.
- */
-static uint8_t su8ar_FOTAStatus[4];
-
-/**
- * @var           su8ar_FOTAProgress
- * @brief         <Variable details>.
- */
-static uint8_t su8ar_FOTAProgress[12];
-
-/**
- * @var           su8ar_resumeOffset
- * @brief         <Variable details>.
- */
-static uint8_t su8ar_resumeOffset[8];
-
-/******************************************************************************/
-/*                                                                            */
 /*                              EXTERN FUNCTIONS                              */
 /*                                                                            */
 /******************************************************************************/
@@ -358,142 +263,115 @@ static uint8_t su8ar_resumeOffset[8];
 /*                        PRIVATE FUNCTION DEFINITIONS                        */
 /*                                                                            */
 /******************************************************************************/
-/**
- * @private       st_FOTACtrlWrite
- * @brief         <Function details>.
- * @param[in]     <Input parameter details>.
- * @param[out]    <Output parameter details>.
- * @param[inout]  <Input-Output parameter details>.
- * @return        <Return details>.
- */
-static ssize_t st_FOTACtrlWrite(struct bt_conn *conn,
-	const struct bt_gatt_attr *attr,
-	const void *buf, uint16_t len,
-	uint16_t offset, uint8_t flags)
-{
-	if (len != sizeof(su8ar_FOTACtrl)) {
-		return BT_GATT_ERR(BT_ATT_ERR_INVALID_ATTRIBUTE_LEN);
-	}
-	memcpy(su8ar_FOTACtrl, buf, len);
-	return len;
-}
-
-/**
- * @private       st_ECUIdWrite
- * @brief         <Function details>.
- * @param[in]     <Input parameter details>.
- * @param[out]    <Output parameter details>.
- * @param[inout]  <Input-Output parameter details>.
- * @return        <Return details>.
- */
-static ssize_t st_ECUIdWrite(struct bt_conn *conn,
-	const struct bt_gatt_attr *attr,
-	const void *buf, uint16_t len,
-	uint16_t offset, uint8_t flags)
-{
-	if (len > sizeof(su8ar_ECUId)) {
-		return BT_GATT_ERR(BT_ATT_ERR_INVALID_ATTRIBUTE_LEN);
-	}
-	memcpy(su8ar_ECUId, buf, len);
-	return len;
-}
-
-/**
- * @private       st_ImageMetadataWrite
- * @brief         <Function details>.
- * @param[in]     <Input parameter details>.
- * @param[out]    <Output parameter details>.
- * @param[inout]  <Input-Output parameter details>.
- * @return        <Return details>.
- */
-static ssize_t st_ImageMetadataWrite(struct bt_conn *conn,
-	const struct bt_gatt_attr *attr,
-	const void *buf, uint16_t len,
-	uint16_t offset, uint8_t flags)
-{
-	if (len != sizeof(su8ar_imageMetadata)) {
-		return BT_GATT_ERR(BT_ATT_ERR_INVALID_ATTRIBUTE_LEN);
-	}
-	memcpy(su8ar_imageMetadata, buf, len);
-	return len;
-}
-
-/**
- * @private       st_ActiveBlockAddrWrite
- * @brief         <Function details>.
- * @param[in]     <Input parameter details>.
- * @param[out]    <Output parameter details>.
- * @param[inout]  <Input-Output parameter details>.
- * @return        <Return details>.
- */
-static ssize_t st_ActiveBlockAddrWrite(struct bt_conn *conn,
-	const struct bt_gatt_attr *attr,
-	const void *buf, uint16_t len,
-	uint16_t offset, uint8_t flags)
-{
-	if (len != sizeof(uint32_t)) {
-		return BT_GATT_ERR(BT_ATT_ERR_INVALID_ATTRIBUTE_LEN);
-	}
-	memcpy(&su32_activeBlockAddr, buf, len);
-	return len;
-}
-
-/**
- * @private       st_FWDataWrite
- * @brief         <Function details>.
- * @param[in]     <Input parameter details>.
- * @param[out]    <Output parameter details>.
- * @param[inout]  <Input-Output parameter details>.
- * @return        <Return details>.
- */
-static ssize_t st_FWDataWrite(struct bt_conn *conn,
-	const struct bt_gatt_attr *attr,
-	const void *buf, uint16_t len,
-	uint16_t offset, uint8_t flags)
-{
-	if (len > sizeof(su8ar_firmwareData)) {
-		return BT_GATT_ERR(BT_ATT_ERR_INVALID_ATTRIBUTE_LEN);
-	}
-	memcpy(su8ar_firmwareData, buf, len);
-	/* Data handling / flash write goes here */
-	return len;
-}
-
 /* ================= Read Handlers ================= */
 /**
- * @private       st_FOTAStsRead
+ * @private       st_DeviceNameRead
  * @brief         <Function details>.
  * @param[in]     <Input parameter details>.
  * @param[out]    <Output parameter details>.
  * @param[inout]  <Input-Output parameter details>.
  * @return        <Return details>.
  */
-static ssize_t st_FOTAStsRead(struct bt_conn *conn,
+static ssize_t st_DeviceNameRead(struct bt_conn *conn,
 	const struct bt_gatt_attr *attr,
 	void *buf, uint16_t len,
 	uint16_t offset)
 {
+	const char *cpt_value = attr->user_data;
+	uint16_t u16_valueLen = sizeof(su8ar_deviceName);
+
+	LOG_INF("Device Name read requested, Handle is: %u", attr->handle);
+
 	return bt_gatt_attr_read(conn, attr, buf, len, offset,
-	                         su8ar_FOTAStatus,
-	                         sizeof(su8ar_FOTAStatus));
+	                         cpt_value, u16_valueLen);
 }
 
 /**
- * @private       st_ResumeOffsetRead
+ * @private       st_AppearanceRead
  * @brief         <Function details>.
  * @param[in]     <Input parameter details>.
  * @param[out]    <Output parameter details>.
  * @param[inout]  <Input-Output parameter details>.
  * @return        <Return details>.
  */
-static ssize_t st_ResumeOffsetRead(struct bt_conn *conn,
+static ssize_t st_AppearanceRead(struct bt_conn *conn,
 	const struct bt_gatt_attr *attr,
 	void *buf, uint16_t len,
 	uint16_t offset)
 {
+	const char *cpt_value = attr->user_data;
+	uint16_t u16_valueLen = sizeof(su16_appearance);
+
+	LOG_INF("Appearance read requested, Handle is: %u", attr->handle);
+
 	return bt_gatt_attr_read(conn, attr, buf, len, offset,
-	                         su8ar_resumeOffset,
-	                         sizeof(su8ar_resumeOffset));
+	                         cpt_value, u16_valueLen);
+}
+
+/**
+ * @private       st_ManufacturerNameRead
+ * @brief         <Function details>.
+ * @param[in]     <Input parameter details>.
+ * @param[out]    <Output parameter details>.
+ * @param[inout]  <Input-Output parameter details>.
+ * @return        <Return details>.
+ */
+static ssize_t st_ManufacturerNameRead(struct bt_conn *conn,
+	const struct bt_gatt_attr *attr,
+	void *buf, uint16_t len,
+	uint16_t offset)
+{
+	const char *cpt_value = attr->user_data;
+	uint16_t u16_valueLen = (uint16_t)strlen(cpt_value);
+
+	LOG_INF("Manufacturer Name read requested, Handle is: %u", attr->handle);
+
+	return bt_gatt_attr_read(conn, attr, buf, len, offset,
+	                         cpt_value, u16_valueLen);
+}
+
+/**
+ * @private       st_HWRevisionRead
+ * @brief         <Function details>.
+ * @param[in]     <Input parameter details>.
+ * @param[out]    <Output parameter details>.
+ * @param[inout]  <Input-Output parameter details>.
+ * @return        <Return details>.
+ */
+static ssize_t st_HWRevisionRead(struct bt_conn *conn,
+	const struct bt_gatt_attr *attr,
+	void *buf, uint16_t len,
+	uint16_t offset)
+{
+	const char *cpt_value = attr->user_data;
+	uint16_t u16_valueLen = (uint16_t)strlen(cpt_value);
+
+	LOG_INF("Hardware Revision read requested, Handle is: %u", attr->handle);
+
+	return bt_gatt_attr_read(conn, attr, buf, len, offset,
+	                         cpt_value, u16_valueLen);
+}
+
+/**
+ * @private       st_FWRevisionRead
+ * @brief         <Function details>.
+ * @param[in]     <Input parameter details>.
+ * @param[out]    <Output parameter details>.
+ * @param[inout]  <Input-Output parameter details>.
+ * @return        <Return details>.
+ */
+static ssize_t st_FWRevisionRead(struct bt_conn *conn,
+	const struct bt_gatt_attr *attr,
+	void *buf, uint16_t len,
+	uint16_t offset)
+{
+	const char *cpt_value = attr->user_data;
+	uint16_t u16_valueLen = (uint16_t)strlen(cpt_value);
+
+	LOG_INF("Firmware Revision read requested, Handle is: %u", attr->handle);
+
+	return bt_gatt_attr_read(conn, attr, buf, len, offset,
+	                         cpt_value, u16_valueLen);
 }
 
 /******************************************************************************/

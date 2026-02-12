@@ -15,6 +15,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include <zephyr/bluetooth/gatt.h>
+#include <zephyr/logging/log.h>
 
 /******************************************************************************/
 /*                                                                            */
@@ -23,13 +24,22 @@
 /******************************************************************************/
 /* ================= FOTA SERVICE UUID ================= */
 /**
+ * @def           BT_UUID_FOTA_SERVICE_VAL
+ * @brief         128-bit value encoding for FOTA service UUID.
+ */
+#define BT_UUID_FOTA_SERVICE_VAL            	BT_UUID_128_ENCODE( \
+                                                0x12345678, \
+                                                0x0010, \
+                                                0x8000, \
+                                                0x0080, \
+                                                0x5F9B34FB)
+
+/**
  * @def           BT_UUID_FOTA_SERVICE
  * @brief         Creating UUID structure pointer (const struct bt_uuid *) for
  * 					FOTA service.
  */
-#define BT_UUID_FOTA_SERVICE                 BT_UUID_DECLARE_128( \
-		                                          0xFB, 0x34, 0x9B, 0x5F, 0x80, 0x00, 0x00, 0x80, \
-		                                          0x00, 0x10, 0x00, 0x00, 0x78, 0x56, 0x34, 0x12)
+#define BT_UUID_FOTA_SERVICE                	BT_UUID_DECLARE_128(BT_UUID_FOTA_SERVICE_VAL)
 
 /* ================= CHARACTERISTIC UUIDs ============== */
 /**
