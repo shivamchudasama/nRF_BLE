@@ -280,7 +280,8 @@ static ssize_t st_DeviceNameRead(struct bt_conn *conn,
 	const char *cpt_value = attr->user_data;
 	uint16_t u16_valueLen = sizeof(su8ar_deviceName);
 
-	LOG_INF("Device Name read requested, Handle is: %u", attr->handle);
+	LOG_INF("Device Name read requested, UUID is: %x", (BT_UUID_16(attr->uuid))->val);
+	LOG_INF("Device Name read requested, Handle is: %u", bt_gatt_attr_get_handle(attr));
 
 	return bt_gatt_attr_read(conn, attr, buf, len, offset,
 	                         cpt_value, u16_valueLen);
@@ -302,7 +303,8 @@ static ssize_t st_AppearanceRead(struct bt_conn *conn,
 	const char *cpt_value = attr->user_data;
 	uint16_t u16_valueLen = sizeof(su16_appearance);
 
-	LOG_INF("Appearance read requested, Handle is: %u", attr->handle);
+	LOG_INF("Appearance read requested, UUID is: %x", (BT_UUID_16(attr->uuid))->val);
+	LOG_INF("Appearance read requested, Handle is: %u", bt_gatt_attr_get_handle(attr));
 
 	return bt_gatt_attr_read(conn, attr, buf, len, offset,
 	                         cpt_value, u16_valueLen);
@@ -324,7 +326,8 @@ static ssize_t st_ManufacturerNameRead(struct bt_conn *conn,
 	const char *cpt_value = attr->user_data;
 	uint16_t u16_valueLen = (uint16_t)strlen(cpt_value);
 
-	LOG_INF("Manufacturer Name read requested, Handle is: %u", attr->handle);
+	LOG_INF("Manufacturer Name read requested, UUID is: %x", (BT_UUID_16(attr->uuid))->val);
+	LOG_INF("Manufacturer Name read requested, Handle is: %u", bt_gatt_attr_get_handle(attr));
 
 	return bt_gatt_attr_read(conn, attr, buf, len, offset,
 	                         cpt_value, u16_valueLen);
@@ -346,7 +349,8 @@ static ssize_t st_HWRevisionRead(struct bt_conn *conn,
 	const char *cpt_value = attr->user_data;
 	uint16_t u16_valueLen = (uint16_t)strlen(cpt_value);
 
-	LOG_INF("Hardware Revision read requested, Handle is: %u", attr->handle);
+	LOG_INF("Hardware Revision read requested, UUID is: %x", (BT_UUID_16(attr->uuid))->val);
+	LOG_INF("Hardware Revision read requested, Handle is: %u", bt_gatt_attr_get_handle(attr));
 
 	return bt_gatt_attr_read(conn, attr, buf, len, offset,
 	                         cpt_value, u16_valueLen);
@@ -368,7 +372,8 @@ static ssize_t st_FWRevisionRead(struct bt_conn *conn,
 	const char *cpt_value = attr->user_data;
 	uint16_t u16_valueLen = (uint16_t)strlen(cpt_value);
 
-	LOG_INF("Firmware Revision read requested, Handle is: %u", attr->handle);
+	LOG_INF("Firmware Revision read requested, UUID is: %x", (BT_UUID_16(attr->uuid))->val);
+	LOG_INF("Firmware Revision read requested, Handle is: %u", bt_gatt_attr_get_handle(attr));
 
 	return bt_gatt_attr_read(conn, attr, buf, len, offset,
 	                         cpt_value, u16_valueLen);
