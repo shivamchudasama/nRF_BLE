@@ -367,7 +367,13 @@ static ssize_t st_FOTACtrlWrite(struct bt_conn *conn,
 	const void *buf, uint16_t len,
 	uint16_t offset, uint8_t flags)
 {
-	if (len != sizeof(su8ar_FOTACtrl)) {
+	if (offset != 0U)
+	{
+		return BT_GATT_ERR(BT_ATT_ERR_INVALID_OFFSET);
+	}
+
+	if (len != sizeof(su8ar_FOTACtrl))
+	{
 		return BT_GATT_ERR(BT_ATT_ERR_INVALID_ATTRIBUTE_LEN);
 	}
 	memcpy(su8ar_FOTACtrl, buf, len);
@@ -387,7 +393,13 @@ static ssize_t st_ECUIdWrite(struct bt_conn *conn,
 	const void *buf, uint16_t len,
 	uint16_t offset, uint8_t flags)
 {
-	if (len > sizeof(su8ar_ECUId)) {
+	if (offset != 0U)
+	{
+		return BT_GATT_ERR(BT_ATT_ERR_INVALID_OFFSET);
+	}
+
+	if (len > sizeof(su8ar_ECUId))
+	{
 		return BT_GATT_ERR(BT_ATT_ERR_INVALID_ATTRIBUTE_LEN);
 	}
 	memcpy(su8ar_ECUId, buf, len);
@@ -407,7 +419,13 @@ static ssize_t st_ImageMetadataWrite(struct bt_conn *conn,
 	const void *buf, uint16_t len,
 	uint16_t offset, uint8_t flags)
 {
-	if (len != sizeof(su8ar_imageMetadata)) {
+	if (offset != 0U)
+	{
+		return BT_GATT_ERR(BT_ATT_ERR_INVALID_OFFSET);
+	}
+
+	if (len != sizeof(su8ar_imageMetadata))
+	{
 		return BT_GATT_ERR(BT_ATT_ERR_INVALID_ATTRIBUTE_LEN);
 	}
 	memcpy(su8ar_imageMetadata, buf, len);
@@ -427,7 +445,13 @@ static ssize_t st_ActiveBlockAddrWrite(struct bt_conn *conn,
 	const void *buf, uint16_t len,
 	uint16_t offset, uint8_t flags)
 {
-	if (len != sizeof(uint32_t)) {
+	if (offset != 0U)
+	{
+		return BT_GATT_ERR(BT_ATT_ERR_INVALID_OFFSET);
+	}
+
+	if (len != sizeof(uint32_t))
+	{
 		return BT_GATT_ERR(BT_ATT_ERR_INVALID_ATTRIBUTE_LEN);
 	}
 	memcpy(&su32_activeBlockAddr, buf, len);
@@ -447,7 +471,13 @@ static ssize_t st_FWDataWrite(struct bt_conn *conn,
 	const void *buf, uint16_t len,
 	uint16_t offset, uint8_t flags)
 {
-	if (len > sizeof(su8ar_firmwareData)) {
+	if (offset != 0U)
+	{
+		return BT_GATT_ERR(BT_ATT_ERR_INVALID_OFFSET);
+	}
+
+	if (len > sizeof(su8ar_firmwareData))
+	{
 		return BT_GATT_ERR(BT_ATT_ERR_INVALID_ATTRIBUTE_LEN);
 	}
 	memcpy(su8ar_firmwareData, buf, len);
