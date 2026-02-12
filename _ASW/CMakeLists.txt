@@ -12,3 +12,4 @@ target_include_directories(app PRIVATE
 
 add_subdirectory(BLE_FOTA)
 add_subdirectory(GAP)
+add_subdirectory(FOTA_FSM)

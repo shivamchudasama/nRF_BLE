@@ -14,16 +14,14 @@
 /*                                  INCLUDES                                  */
 /*                                                                            */
 /******************************************************************************/
+#include <zephyr/smf.h>
+#include <zephyr/logging/log.h>
 
 /******************************************************************************/
 /*                                                                            */
 /*                                  DEFINES                                   */
 /*                                                                            */
 /******************************************************************************/
-/**
- * @def           <Define name>
- * @brief         <Define details>.
- */
 
 /******************************************************************************/
 /*                                                                            */
@@ -31,9 +29,17 @@
 /*                                                                            */
 /******************************************************************************/
 /**
- * @enum          <Enum name>
- * @brief         <Enum details>.
+ * @enum          FOTAState_E
+ * @brief         FOTA state machine states.
  */
+typedef enum
+{
+   eFS_STATE_IDLE,                           /**< Idle state */
+   eFS_STATE_RECEIVING,                      /**< Receiving firmware data */
+   eFS_STATE_VERIFY,                         /**< Verifying received firmware */
+   eFS_STATE_DONE,                           /**< Update process completed */
+   eFS_STATE_MAX                             /**< Maximum state value */
+} FOTAState_E;
 
 /******************************************************************************/
 /*                                                                            */
@@ -41,9 +47,16 @@
 /*                                                                            */
 /******************************************************************************/
 /**
- * @struct        <Structure name>
- * @brief         <Structure details>.
+ * @struct        FOTACtx_T
+ * @brief         FOTA context structure.
  */
+typedef struct
+{
+   struct smf_ctx st_SMFCtx;                 /**< State machine context */
+   bool b_startReq;                          /**< Flag to indicate if start request is received */
+   bool b_dataComplete;                      /**< Flag to indicate if all firmware data is received */
+   bool b_verifyOk;                          /**< Flag to indicate if firmware verification is successful */
+} FOTACtx_T;
 
 /******************************************************************************/
 /*                                                                            */
@@ -60,6 +73,7 @@
 /*                              EXTERN VARIABLES                              */
 /*                                                                            */
 /******************************************************************************/
+extern const struct smf_state gst_FOTAStates[eFS_STATE_MAX];
 
 /******************************************************************************/
 /*                                                                            */

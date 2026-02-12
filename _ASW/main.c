@@ -20,6 +20,7 @@
 #include <zephyr/bluetooth/gatt.h>
 #include "FOTA_GATT.h"
 #include "GAP_GATT.h"
+#include "FOTA_FSM.h"
 
 /******************************************************************************/
 /*                                                                            */
@@ -57,6 +58,18 @@ LOG_MODULE_REGISTER(APP_LOG, LOG_LEVEL_INF);
                                                 0x4b4f, \
                                                 0x9e36, \
                                                 0x6b1c6a5b9f01)
+
+/**
+ * @def           FOTA_THREAD_STACK_SIZE
+ * @brief         Stack size of the thread running the FOTA state machine.
+ */
+#define FOTA_THREAD_STACK_SIZE               (1024)
+
+/**
+ * @def           FOTA_THREAD_PRIO
+ * @brief         Priority of the thread running the FOTA state machine.
+ */
+#define FOTA_THREAD_PRIO                     (5)
 
 /******************************************************************************/
 /*                                                                            */
@@ -177,6 +190,24 @@ BT_CONN_CB_DEFINE(sst_connCallbacks) = {
    .recycled = sv_Recycled,
 };
 
+/**
+ * @var           sst_FOTACtx
+ * @brief         FOTA context structure.
+ */
+static FOTACtx_T sst_FOTACtx = { 0 };
+
+/**
+ * @var           sst_FOTAThreadData
+ * @brief         FOTA state machine thread structure.
+ */
+static struct k_thread sst_FOTAThreadData;
+
+/**
+ * @var           sst_FOTAThreadStack
+ * @brief         FOTA state machine thread stack.
+ */
+K_THREAD_STACK_DEFINE(sst_FOTAThreadStack, FOTA_THREAD_STACK_SIZE);
+
 /******************************************************************************/
 /*                                                                            */
 /*                              EXTERN FUNCTIONS                              */
@@ -296,6 +327,34 @@ static void sv_Recycled(void)
    LOG_INF("Advertising restarted");
 }
 
+/**
+ * @private       sv_FOTAThread
+ * @brief         Callback for handling FOTA thread operations. This function is
+ *                called when the FOTA thread is running.
+ * @return        Number of bytes written.
+ */
+static void sv_FOTAThread(void *p1, void *p2, void *p3)
+{
+   ARG_UNUSED(p1);
+   ARG_UNUSED(p2);
+   ARG_UNUSED(p3);
+
+   while (1)
+   {
+      smf_run_state(SMF_CTX(&sst_FOTACtx));
+
+      /* test triggers (keep only for bring-up) */
+      static int si_counter;
+      si_counter++;
+
+      if (si_counter == 3) { sst_FOTACtx.b_startReq = true; }
+      if (si_counter == 6) { sst_FOTACtx.b_dataComplete = true; }
+      if (si_counter == 9) { sst_FOTACtx.b_verifyOk = true; }
+
+      k_sleep(K_SECONDS(1));
+   }
+}
+
 /******************************************************************************/
 /*                                                                            */
 /*                        PUBLIC FUNCTION DEFINITIONS                         */
@@ -340,11 +399,21 @@ int main(void)
 
    LOG_INF("Advertising started");
 
-	while (1)
-   {
-      // Put the current thread to sleep for 1 second
-		k_sleep(K_SECONDS(1));
-	}
+   LOG_INF("Initializing FOTA state machine");
+   smf_set_initial(SMF_CTX(&sst_FOTACtx), &gst_FOTAStates[eFS_STATE_IDLE]);
+
+   // Create a thread to run the FOTA state machine
+   k_thread_create(&sst_FOTAThreadData,
+                    sst_FOTAThreadStack,
+                    K_THREAD_STACK_SIZEOF(sst_FOTAThreadStack),
+                    sv_FOTAThread,
+                    NULL, NULL, NULL,
+                    FOTA_THREAD_PRIO,
+                    0,
+                    K_NO_WAIT);
+
+   // Set the name of the FOTA thread for debugging purposes
+   k_thread_name_set(&sst_FOTAThreadData, "FOTAThread");
 
    return 0;
 }
