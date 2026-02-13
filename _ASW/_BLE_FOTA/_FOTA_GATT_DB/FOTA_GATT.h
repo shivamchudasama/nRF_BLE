@@ -29,7 +29,7 @@
  */
 #define BT_UUID_FOTA_SERVICE_VAL            	BT_UUID_128_ENCODE( \
                                                 0x12345678, \
-                                                0x0010, \
+                                                0x0001, \
                                                 0x8000, \
                                                 0x0080, \
                                                 0x5F9B34FB)
@@ -43,76 +43,76 @@
 
 /* ================= CHARACTERISTIC UUIDs ============== */
 /**
+ * @def           BT_UUID_FOTA_CONTROL_CHAR_VAL
+ * @brief         128-bit value encoding for FOTA control characteristic UUID.
+ */
+#define BT_UUID_FOTA_CONTROL_CHAR_VAL        BT_UUID_128_ENCODE( \
+                                                0x12345678, \
+                                                0x0002, \
+                                                0x8000, \
+                                                0x0080, \
+                                                0x5F9B34FB)
+
+/**
  * @def           BT_UUID_FOTA_CONTROL
  * @brief         Creating UUID structure pointer (const struct bt_uuid *) for
  * 					FOTA control characteristic.
  */
-#define BT_UUID_FOTA_CONTROL                 BT_UUID_DECLARE_128( \
-                                                0xFB, 0x34, 0x9B, 0x5F, 0x80, 0x00, 0x00, 0x80, \
-	                                             0x00, 0x10, 0x00, 0x01, 0x78, 0x56, 0x34, 0x12)
+#define BT_UUID_FOTA_CONTROL_CHAR            BT_UUID_DECLARE_128(BT_UUID_FOTA_CONTROL_CHAR_VAL)
 
 /**
- * @def           BT_UUID_FOTA_ECU_ID
- * @brief         Creating UUID structure pointer (const struct bt_uuid *) for
- * 					ECU ID characteristic.
+ * @def           BT_UUID_FOTA_DATA_TRANSFER_CHAR_VAL
+ * @brief         128-bit value encoding for FOTA data transfer characteristic UUID.
  */
-#define BT_UUID_ECU_ID                       BT_UUID_DECLARE_128( \
-                                                0xFB, 0x34, 0x9B, 0x5F, 0x80, 0x00, 0x00, 0x80, \
-	                                             0x00, 0x10, 0x00, 0x02, 0x78, 0x56, 0x34, 0x12)
+#define BT_UUID_FOTA_DATA_TRANSFER_CHAR_VAL  BT_UUID_128_ENCODE( \
+                                                0x12345678, \
+                                                0x0003, \
+                                                0x8000, \
+                                                0x0080, \
+                                                0x5F9B34FB)
 
 /**
- * @def           BT_UUID_FOTA_IMAGE_METADATA
+ * @def           BT_UUID_FOTA_DATA_TRANSFER_CHAR
  * @brief         Creating UUID structure pointer (const struct bt_uuid *) for
- * 					FOTA image metadata characteristic.
+ * 					FOTA data transfer characteristic.
  */
-#define BT_UUID_IMAGE_METADATA               BT_UUID_DECLARE_128( \
-                                                0xFB, 0x34, 0x9B, 0x5F, 0x80, 0x00, 0x00, 0x80, \
-	                                             0x00, 0x10, 0x00, 0x03, 0x78, 0x56, 0x34, 0x12)
+#define BT_UUID_FOTA_DATA_TRANSFER_CHAR      BT_UUID_DECLARE_128(BT_UUID_FOTA_DATA_TRANSFER_CHAR_VAL)
 
 /**
- * @def           BT_UUID_FIRMWARE_DATA
- * @brief         Creating UUID structure pointer (const struct bt_uuid *) for
- * 					FOTA firmware data characteristic.
+ * @def           BT_UUID_FOTA_STATUS_CHAR_VAL
+ * @brief         128-bit value encoding for FOTA status characteristic UUID.
  */
-#define BT_UUID_FIRMWARE_DATA                BT_UUID_DECLARE_128( \
-		                                          0xFB, 0x34, 0x9B, 0x5F, 0x80, 0x00, 0x00, 0x80, \
-		                                          0x00, 0x10, 0x00, 0x04, 0x78, 0x56, 0x34, 0x12)
+#define BT_UUID_FOTA_STATUS_CHAR_VAL         BT_UUID_128_ENCODE( \
+                                                0x12345678, \
+                                                0x0004, \
+                                                0x8000, \
+                                                0x0080, \
+                                                0x5F9B34FB)
 
 /**
- * @def           BT_UUID_FOTA_STATUS
+ * @def           BT_UUID_FOTA_STATUS_CHAR
  * @brief         Creating UUID structure pointer (const struct bt_uuid *) for
  * 					FOTA status characteristic.
  */
-#define BT_UUID_FOTA_STATUS                  BT_UUID_DECLARE_128( \
-                                                0xFB, 0x34, 0x9B, 0x5F, 0x80, 0x00, 0x00, 0x80, \
-	                                             0x00, 0x10, 0x00, 0x05, 0x78, 0x56, 0x34, 0x12)
+#define BT_UUID_FOTA_STATUS_CHAR             BT_UUID_DECLARE_128(BT_UUID_FOTA_STATUS_CHAR_VAL)
 
 /**
- * @def           BT_UUID_FOTA_PROGRESS
+ * @def           BT_UUID_FOTA_PROGRESS_CHAR_VAL
+ * @brief         128-bit value encoding for FOTA progress characteristic UUID.
+ */
+#define BT_UUID_FOTA_PROGRESS_CHAR_VAL       BT_UUID_128_ENCODE( \
+                                                0x12345678, \
+                                                0x0005, \
+                                                0x8000, \
+                                                0x0080, \
+                                                0x5F9B34FB)
+
+/**
+ * @def           BT_UUID_FOTA_PROGRESS_CHAR
  * @brief         Creating UUID structure pointer (const struct bt_uuid *) for
  * 					FOTA progress characteristic.
  */
-#define BT_UUID_FOTA_PROGRESS                BT_UUID_DECLARE_128( \
-                                                0xFB, 0x34, 0x9B, 0x5F, 0x80, 0x00, 0x00, 0x80, \
-	                                             0x00, 0x10, 0x00, 0x06, 0x78, 0x56, 0x34, 0x12)
-
-/**
- * @def           BT_UUID_FOTA_RESUME_OFFSET
- * @brief         Creating UUID structure pointer (const struct bt_uuid *) for
- * 					FOTA resume offset characteristic.
- */
-#define BT_UUID_RESUME_OFFSET                BT_UUID_DECLARE_128( \
-                                                0xFB, 0x34, 0x9B, 0x5F, 0x80, 0x00, 0x00, 0x80, \
-	                                             0x00, 0x10, 0x00, 0x07, 0x78, 0x56, 0x34, 0x12)
-
-/**
- * @def           BT_UUID_FOTA_ACTIVE_BLOCK_ADDR
- * @brief         Creating UUID structure pointer (const struct bt_uuid *) for
- * 					FOTA active block address characteristic.
- */
-#define BT_UUID_ACTIVE_BLOCK_ADDR            BT_UUID_DECLARE_128( \
-                                                0xFB, 0x34, 0x9B, 0x5F, 0x80, 0x00, 0x00, 0x80, \
-	                                             0x00, 0x10, 0x00, 0x08, 0x78, 0x56, 0x34, 0x12)
+#define BT_UUID_FOTA_PROGRESS_CHAR           BT_UUID_DECLARE_128(BT_UUID_FOTA_PROGRESS_CHAR_VAL)
 
 /******************************************************************************/
 /*                                                                            */

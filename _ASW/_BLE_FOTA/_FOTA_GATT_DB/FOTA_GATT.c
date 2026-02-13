@@ -49,19 +49,7 @@ static ssize_t st_FOTACtrlWrite(struct bt_conn *conn,
 	const struct bt_gatt_attr *attr,
 	const void *buf, uint16_t len,
 	uint16_t offset, uint8_t flags);
-static ssize_t st_ECUIdWrite(struct bt_conn *conn,
-	const struct bt_gatt_attr *attr,
-	const void *buf, uint16_t len,
-	uint16_t offset, uint8_t flags);
-static ssize_t st_ImageMetadataWrite(struct bt_conn *conn,
-	const struct bt_gatt_attr *attr,
-	const void *buf, uint16_t len,
-	uint16_t offset, uint8_t flags);
-static ssize_t st_ActiveBlockAddrWrite(struct bt_conn *conn,
-	const struct bt_gatt_attr *attr,
-	const void *buf, uint16_t len,
-	uint16_t offset, uint8_t flags);
-static ssize_t st_FWDataWrite(struct bt_conn *conn,
+static ssize_t st_FOTADataTransferWrite(struct bt_conn *conn,
 	const struct bt_gatt_attr *attr,
 	const void *buf, uint16_t len,
 	uint16_t offset, uint8_t flags);
@@ -69,7 +57,7 @@ static ssize_t st_FOTAStsRead(struct bt_conn *conn,
 	const struct bt_gatt_attr *attr,
 	void *buf, uint16_t len,
 	uint16_t offset);
-static ssize_t st_ResumeOffsetRead(struct bt_conn *conn,
+static ssize_t st_FOTAProgressRead(struct bt_conn *conn,
 	const struct bt_gatt_attr *attr,
 	void *buf, uint16_t len,
 	uint16_t offset);
@@ -93,7 +81,7 @@ BT_GATT_SERVICE_DEFINE(gstar_FOTASvc,
 	// Characteristic declaration for FOTA control
 	BT_GATT_CHARACTERISTIC(
 		// UUID
-		BT_UUID_FOTA_CONTROL,
+		BT_UUID_FOTA_CONTROL_CHAR,
 		// Properties - Write
 		BT_GATT_CHRC_WRITE,
 		// Permissions - Write
@@ -109,94 +97,37 @@ BT_GATT_SERVICE_DEFINE(gstar_FOTASvc,
 		"FOTA Control",
 		BT_GATT_PERM_READ
 	),
-	// Characteristic declaration for ECU ID
+	// Characteristic declaration for FOTA data transfer
 	BT_GATT_CHARACTERISTIC(
 		// UUID
-		BT_UUID_ECU_ID,
+		BT_UUID_FOTA_DATA_TRANSFER_CHAR,
 		// Properties - Write
 		BT_GATT_CHRC_WRITE,
 		// Permissions - Write
 		BT_GATT_PERM_WRITE,
 		// Read callback - NULL
 		NULL,
-		// Write callback - st_ECUIdWrite
-		st_ECUIdWrite, 
+		// Write callback - st_FOTADataTransferWrite
+		st_FOTADataTransferWrite, 
 		// User data - NULL
 		NULL
 	),
 	BT_GATT_CUD(
-		"ECU ID",
-		BT_GATT_PERM_READ
-	),
-	// Characteristic declaration for Image Metadata
-	BT_GATT_CHARACTERISTIC(
-		// UUID
-		BT_UUID_IMAGE_METADATA,
-		// Properties - Write
-		BT_GATT_CHRC_WRITE,
-		// Permissions - Write
-		BT_GATT_PERM_WRITE,
-		// Read callback - NULL
-		NULL,
-		// Write callback - st_ImageMetadataWrite
-		st_ImageMetadataWrite, 
-		// User data - NULL
-		NULL
-	),
-	BT_GATT_CUD(
-		"Image Metadata",
-		BT_GATT_PERM_READ
-	),
-	// Characteristic declaration for Active Block Address
-	BT_GATT_CHARACTERISTIC(
-		// UUID
-		BT_UUID_ACTIVE_BLOCK_ADDR,
-		// Properties - Write
-		BT_GATT_CHRC_WRITE,
-		// Permissions - Write
-		BT_GATT_PERM_WRITE,
-		// Read callback - NULL
-		NULL,
-		// Write callback - st_ActiveBlockAddrWrite
-		st_ActiveBlockAddrWrite,
-		// User data - NULL
-		NULL
-	),
-	BT_GATT_CUD(
-		"Active Block Address",
-		BT_GATT_PERM_READ
-	),
-	// Characteristic declaration for Firmware Data
-	BT_GATT_CHARACTERISTIC(
-		// UUID
-		BT_UUID_FIRMWARE_DATA,
-		// Properties - Write without response
-		BT_GATT_CHRC_WRITE_WITHOUT_RESP,
-		// Permissions - Write
-		BT_GATT_PERM_WRITE,
-		// Read callback - NULL
-		NULL, 
-		// Write callback - st_FWDataWrite
-		st_FWDataWrite,
-		// User data - NULL
-		NULL
-	),
-	BT_GATT_CUD(
-		"Firmware Data",
+		"FOTA Data Transfer",
 		BT_GATT_PERM_READ
 	),
 	// Characteristic declaration for FOTA Status
 	BT_GATT_CHARACTERISTIC(
 		// UUID
-		BT_UUID_FOTA_STATUS,
-		// Properties - Read and Notify
-		BT_GATT_CHRC_READ | BT_GATT_CHRC_NOTIFY,
+		BT_UUID_FOTA_STATUS_CHAR,
+		// Properties - Read
+		BT_GATT_CHRC_READ,
 		// Permissions - Read
 		BT_GATT_PERM_READ,
 		// Read callback - st_FOTAStsRead
 		st_FOTAStsRead,
 		// Write callback - NULL
-		NULL,
+		NULL, 
 		// User data - NULL
 		NULL
 	),
@@ -214,15 +145,15 @@ BT_GATT_SERVICE_DEFINE(gstar_FOTASvc,
 	// Characteristic declaration for FOTA Progress
 	BT_GATT_CHARACTERISTIC(
 		// UUID
-		BT_UUID_FOTA_PROGRESS,
-		// Properties - Notify
-		BT_GATT_CHRC_NOTIFY,
-		// Permissions - None
-		BT_GATT_PERM_NONE,
-		// Read callback - NULL
-		NULL,
+		BT_UUID_FOTA_PROGRESS_CHAR,
+		// Properties - Read
+		BT_GATT_CHRC_READ,
+		// Permissions - Read
+		BT_GATT_PERM_READ,
+		// Read callback - st_FOTAProgressRead
+		st_FOTAProgressRead,
 		// Write callback - NULL
-		NULL, 
+		NULL,
 		// User data - NULL
 		NULL
 	),
@@ -236,25 +167,6 @@ BT_GATT_SERVICE_DEFINE(gstar_FOTASvc,
 		// Permissions - Read and Write
 		BT_GATT_PERM_READ | BT_GATT_PERM_WRITE
 	),
-	// Characteristic declaration for Resume Offset
-	BT_GATT_CHARACTERISTIC(
-		// UUID
-		BT_UUID_RESUME_OFFSET,
-		// Properties - Read
-		BT_GATT_CHRC_READ,
-		// Permissions - Read
-		BT_GATT_PERM_READ,
-		// Read callback - st_ResumeOffsetRead
-		st_ResumeOffsetRead, 
-		// Write callback - NULL
-		NULL, 
-		// User data - NULL
-		NULL
-	),
-	BT_GATT_CUD(
-		"Resume Offset",
-		BT_GATT_PERM_READ
-	)
 );
 
 /******************************************************************************/
@@ -381,14 +293,14 @@ static ssize_t st_FOTACtrlWrite(struct bt_conn *conn,
 }
 
 /**
- * @private       st_ECUIdWrite
+ * @private       st_FOTADataTransferWrite
  * @brief         <Function details>.
  * @param[in]     <Input parameter details>.
  * @param[out]    <Output parameter details>.
  * @param[inout]  <Input-Output parameter details>.
  * @return        <Return details>.
  */
-static ssize_t st_ECUIdWrite(struct bt_conn *conn,
+static ssize_t st_FOTADataTransferWrite(struct bt_conn *conn,
 	const struct bt_gatt_attr *attr,
 	const void *buf, uint16_t len,
 	uint16_t offset, uint8_t flags)
@@ -505,14 +417,14 @@ static ssize_t st_FOTAStsRead(struct bt_conn *conn,
 }
 
 /**
- * @private       st_ResumeOffsetRead
+ * @private       st_FOTAProgressRead
  * @brief         <Function details>.
  * @param[in]     <Input parameter details>.
  * @param[out]    <Output parameter details>.
  * @param[inout]  <Input-Output parameter details>.
  * @return        <Return details>.
  */
-static ssize_t st_ResumeOffsetRead(struct bt_conn *conn,
+static ssize_t st_FOTAProgressRead(struct bt_conn *conn,
 	const struct bt_gatt_attr *attr,
 	void *buf, uint16_t len,
 	uint16_t offset)
