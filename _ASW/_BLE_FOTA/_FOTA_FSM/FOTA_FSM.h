@@ -34,10 +34,14 @@
  */
 typedef enum
 {
-   eFS_STATE_IDLE,                           /**< Idle state */
-   eFS_STATE_RECEIVING,                      /**< Receiving firmware data */
-   eFS_STATE_VERIFY,                         /**< Verifying received firmware */
-   eFS_STATE_DONE,                           /**< Update process completed */
+   eFS_IDLE,                                 /**< Idle state */
+   eFS_RECEIVING_METADATA,                   /**< Receiving firmware metadata */
+   eFS_RECEIVING_MANIFEST,                   /**< Receiving firmware manifest */
+   eFS_RECEIVING_DATA,                       /**< Receiving firmware data */
+   eFS_VALIDATE_IMAGE,                       /**< Validating received firmware image */
+   eFS_STAGE_IMAGE,                          /**< Staging firmware image for update */
+   eFS_COMPLETED,                            /**< FOTA completed */
+   eFS_ABORT,                                /**< FOTA aborted */
    eFS_STATE_MAX                             /**< Maximum state value */
 } FOTAState_E;
 

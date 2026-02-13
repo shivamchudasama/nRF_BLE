@@ -76,21 +76,37 @@ LOG_MODULE_DECLARE(APP_LOG);
 /*                       PRIVATE FUNCTION DECLARATIONS                        */
 /*                                                                            */
 /******************************************************************************/
-static void sv_eFS_STATE_IDLE_Entry(void *obj);
-static enum smf_state_result se_eFS_STATE_IDLE_Run(void *obj);
-static void sv_eFS_STATE_IDLE_Exit(void *obj);
+static void sv_eFS_IDLE_Entry(void *obj);
+static enum smf_state_result se_eFS_IDLE_Run(void *obj);
+static void sv_eFS_IDLE_Exit(void *obj);
 
-static void sv_eFS_STATE_RECEIVING_Entry(void *obj);
-static enum smf_state_result se_eFS_STATE_RECEIVING_Run(void *obj);
-static void sv_eFS_STATE_RECEIVING_Exit(void *obj);
+static void sv_eFS_RECEIVING_METADATA_Entry(void *obj);
+static enum smf_state_result se_eFS_RECEIVING_METADATA_Run(void *obj);
+static void sv_eFS_RECEIVING_METADATA_Exit(void *obj);
 
-static void sv_eFS_STATE_VERIFY_Entry(void *obj);
-static enum smf_state_result se_eFS_STATE_VERIFY_Run(void *obj);
-static void sv_eFS_STATE_VERIFY_Exit(void *obj);
+static void sv_eFS_RECEIVING_MANIFEST_Entry(void *obj);
+static enum smf_state_result se_eFS_RECEIVING_MANIFEST_Run(void *obj);
+static void sv_eFS_RECEIVING_MANIFEST_Exit(void *obj);
 
-static void sv_eFS_STATE_DONE_Entry(void *obj);
-static enum smf_state_result se_eFS_STATE_DONE_Run(void *obj);
-static void sv_eFS_STATE_DONE_Exit(void *obj);
+static void sv_eFS_RECEIVING_DATA_Entry(void *obj);
+static enum smf_state_result se_eFS_RECEIVING_DATA_Run(void *obj);
+static void sv_eFS_RECEIVING_DATA_Exit(void *obj);
+
+static void sv_eFS_VALIDATE_IMAGE_Entry(void *obj);
+static enum smf_state_result se_eFS_VALIDATE_IMAGE_Run(void *obj);
+static void sv_eFS_VALIDATE_IMAGE_Exit(void *obj);
+
+static void sv_eFS_STAGE_IMAGE_Entry(void *obj);
+static enum smf_state_result se_eFS_STAGE_IMAGE_Run(void *obj);
+static void sv_eFS_STAGE_IMAGE_Exit(void *obj);
+
+static void sv_eFS_COMPLETED_Entry(void *obj);
+static enum smf_state_result se_eFS_COMPLETED_Run(void *obj);
+static void sv_eFS_COMPLETED_Exit(void *obj);
+
+static void sv_eFS_ABORT_Entry(void *obj);
+static enum smf_state_result se_eFS_ABORT_Run(void *obj);
+static void sv_eFS_ABORT_Exit(void *obj);
 
 /******************************************************************************/
 /*                                                                            */
@@ -119,10 +135,14 @@ static void sv_eFS_STATE_DONE_Exit(void *obj);
  */
 const struct smf_state gst_FOTAStates[eFS_STATE_MAX] =
 {
-   [eFS_STATE_IDLE] = SMF_CREATE_STATE(sv_eFS_STATE_IDLE_Entry, se_eFS_STATE_IDLE_Run, sv_eFS_STATE_IDLE_Exit, NULL, NULL),
-   [eFS_STATE_RECEIVING] = SMF_CREATE_STATE(sv_eFS_STATE_RECEIVING_Entry, se_eFS_STATE_RECEIVING_Run, sv_eFS_STATE_RECEIVING_Exit, NULL, NULL),
-   [eFS_STATE_VERIFY] = SMF_CREATE_STATE(sv_eFS_STATE_VERIFY_Entry, se_eFS_STATE_VERIFY_Run, sv_eFS_STATE_VERIFY_Exit, NULL, NULL),
-   [eFS_STATE_DONE] = SMF_CREATE_STATE(sv_eFS_STATE_DONE_Entry, se_eFS_STATE_DONE_Run, sv_eFS_STATE_DONE_Exit, NULL, NULL)
+   [eFS_IDLE] = SMF_CREATE_STATE(sv_eFS_IDLE_Entry, se_eFS_IDLE_Run, sv_eFS_IDLE_Exit, NULL, NULL),
+   [eFS_RECEIVING_METADATA] = SMF_CREATE_STATE(sv_eFS_RECEIVING_METADATA_Entry, se_eFS_RECEIVING_METADATA_Run, sv_eFS_RECEIVING_METADATA_Exit, NULL, NULL),
+   [eFS_RECEIVING_MANIFEST] = SMF_CREATE_STATE(sv_eFS_RECEIVING_MANIFEST_Entry, se_eFS_RECEIVING_MANIFEST_Run, sv_eFS_RECEIVING_MANIFEST_Exit, NULL, NULL),
+   [eFS_RECEIVING_DATA] = SMF_CREATE_STATE(sv_eFS_RECEIVING_DATA_Entry, se_eFS_RECEIVING_DATA_Run, sv_eFS_RECEIVING_DATA_Exit, NULL, NULL),
+   [eFS_VALIDATE_IMAGE] = SMF_CREATE_STATE(sv_eFS_VALIDATE_IMAGE_Entry, se_eFS_VALIDATE_IMAGE_Run, sv_eFS_VALIDATE_IMAGE_Exit, NULL, NULL),
+   [eFS_STAGE_IMAGE] = SMF_CREATE_STATE(sv_eFS_STAGE_IMAGE_Entry, se_eFS_STAGE_IMAGE_Run, sv_eFS_STAGE_IMAGE_Exit, NULL, NULL),
+   [eFS_COMPLETED] = SMF_CREATE_STATE(sv_eFS_COMPLETED_Entry, se_eFS_COMPLETED_Run, sv_eFS_COMPLETED_Exit, NULL, NULL),
+   [eFS_ABORT] = SMF_CREATE_STATE(sv_eFS_ABORT_Entry, se_eFS_ABORT_Run, sv_eFS_ABORT_Exit, NULL, NULL),
 };
 
 /******************************************************************************/
@@ -136,39 +156,39 @@ const struct smf_state gst_FOTAStates[eFS_STATE_MAX] =
 /*                        PRIVATE FUNCTION DEFINITIONS                        */
 /*                                                                            */
 /******************************************************************************/
-// eFS_STATE_IDLE state handlers
+// eFS_IDLE state handlers
 /**
- * @private       sv_eFS_STATE_IDLE_Entry
+ * @private       sv_eFS_IDLE_Entry
  * @brief         <Function details>.
  * @param[in]     <Input parameter details>.
  * @param[out]    <Output parameter details>.
  * @param[inout]  <Input-Output parameter details>.
  * @return        <Return details>.
  */
-static void sv_eFS_STATE_IDLE_Entry(void *obj)
+static void sv_eFS_IDLE_Entry(void *obj)
 {
-   LOG_INF("sv_eFS_STATE_IDLE entry");
+   LOG_INF("sv_eFS_IDLE entry");
 }
 
 /**
- * @private       sv_eFS_STATE_IDLE_Run
+ * @private       sv_eFS_IDLE_Run
  * @brief         <Function details>.
  * @param[in]     <Input parameter details>.
  * @param[out]    <Output parameter details>.
  * @param[inout]  <Input-Output parameter details>.
  * @return        <Return details>.
  */
-static enum smf_state_result se_eFS_STATE_IDLE_Run(void *obj)
+static enum smf_state_result se_eFS_IDLE_Run(void *obj)
 {
    FOTACtx_T *stpt_FOTACtx = (FOTACtx_T *)obj;
    enum smf_state_result e_retVal = SMF_EVENT_PROPAGATE;
 
-   LOG_INF("sv_eFS_STATE_IDLE running");
+   LOG_INF("sv_eFS_IDLE running");
 
    if (stpt_FOTACtx->b_startReq)
    {
-      LOG_INF("Start request received, transitioning to eFS_STATE_RECEIVING state");
-      smf_set_state(SMF_CTX(stpt_FOTACtx), &gst_FOTAStates[eFS_STATE_RECEIVING]);
+      LOG_INF("Start request received, transitioning to eFS_RECEIVING_METADATA state");
+      smf_set_state(SMF_CTX(stpt_FOTACtx), &gst_FOTAStates[eFS_RECEIVING_METADATA]);
       e_retVal = SMF_EVENT_HANDLED;
    }
 
@@ -176,51 +196,51 @@ static enum smf_state_result se_eFS_STATE_IDLE_Run(void *obj)
 }
 
 /**
- * @private       sv_eFS_STATE_IDLE_Exit
+ * @private       sv_eFS_IDLE_Exit
  * @brief         <Function details>.
  * @param[in]     <Input parameter details>.
  * @param[out]    <Output parameter details>.
  * @param[inout]  <Input-Output parameter details>.
  * @return        <Return details>.
  */
-static void sv_eFS_STATE_IDLE_Exit(void *obj)
+static void sv_eFS_IDLE_Exit(void *obj)
 {
-   LOG_INF("sv_eFS_STATE_IDLE exit");
+   LOG_INF("sv_eFS_IDLE exit");
 }
 
-// eFS_STATE_RECEIVING state handlers
+// eFS_RECEIVING_METADATA state handlers
 /**
- * @private       sv_eFS_STATE_RECEIVING_Entry
+ * @private       sv_eFS_RECEIVING_METADATA_Entry
  * @brief         <Function details>.
  * @param[in]     <Input parameter details>.
  * @param[out]    <Output parameter details>.
  * @param[inout]  <Input-Output parameter details>.
  * @return        <Return details>.
  */
-static void sv_eFS_STATE_RECEIVING_Entry(void *obj)
+static void sv_eFS_RECEIVING_METADATA_Entry(void *obj)
 {
-   LOG_INF("sv_eFS_STATE_RECEIVING entry");
+   LOG_INF("sv_eFS_RECEIVING_METADATA entry");
 }
 
 /**
- * @private       sv_eFS_STATE_RECEIVING_Run
+ * @private       sv_eFS_RECEIVING_METADATA_Run
  * @brief         <Function details>.
  * @param[in]     <Input parameter details>.
  * @param[out]    <Output parameter details>.
  * @param[inout]  <Input-Output parameter details>.
  * @return        <Return details>.
  */
-static enum smf_state_result se_eFS_STATE_RECEIVING_Run(void *obj)
+static enum smf_state_result se_eFS_RECEIVING_METADATA_Run(void *obj)
 {
    FOTACtx_T *stpt_FOTACtx = (FOTACtx_T *)obj;
    enum smf_state_result e_retVal = SMF_EVENT_PROPAGATE;
 
-   LOG_INF("sv_eFS_STATE_RECEIVING running");
+   LOG_INF("sv_eFS_RECEIVING_METADATA running");
 
    if (stpt_FOTACtx->b_dataComplete)
    {
-      LOG_INF("Data complete received, transitioning to eFS_STATE_VERIFY state");
-      smf_set_state(SMF_CTX(stpt_FOTACtx), &gst_FOTAStates[eFS_STATE_VERIFY]);
+      LOG_INF("Data complete received, transitioning to eFS_RECEIVING_MANIFEST state");
+      smf_set_state(SMF_CTX(stpt_FOTACtx), &gst_FOTAStates[eFS_RECEIVING_MANIFEST]);
       e_retVal = SMF_EVENT_HANDLED;
    }
 
@@ -228,51 +248,51 @@ static enum smf_state_result se_eFS_STATE_RECEIVING_Run(void *obj)
 }
 
 /**
- * @private       sv_eFS_STATE_RECEIVING_Exit
+ * @private       sv_eFS_RECEIVING_METADATA_Exit
  * @brief         <Function details>.
  * @param[in]     <Input parameter details>.
  * @param[out]    <Output parameter details>.
  * @param[inout]  <Input-Output parameter details>.
  * @return        <Return details>.
  */
-static void sv_eFS_STATE_RECEIVING_Exit(void *obj)
+static void sv_eFS_RECEIVING_METADATA_Exit(void *obj)
 {
-   LOG_INF("sv_eFS_STATE_RECEIVING exit");
+   LOG_INF("sv_eFS_RECEIVING_METADATA exit");
 }
 
-// eFS_STATE_VERIFY state handlers
+// eFS_RECEIVING_MANIFEST state handlers
 /**
- * @private       sv_eFS_STATE_VERIFY_Entry
+ * @private       sv_eFS_RECEIVING_MANIFEST_Entry
  * @brief         <Function details>.
  * @param[in]     <Input parameter details>.
  * @param[out]    <Output parameter details>.
  * @param[inout]  <Input-Output parameter details>.
  * @return        <Return details>.
  */
-static void sv_eFS_STATE_VERIFY_Entry(void *obj)
+static void sv_eFS_RECEIVING_MANIFEST_Entry(void *obj)
 {
-   LOG_INF("sv_eFS_STATE_VERIFY entry");
+   LOG_INF("sv_eFS_RECEIVING_MANIFEST entry");
 }
 
 /**
- * @private       sv_eFS_STATE_VERIFY_Run
+ * @private       sv_eFS_RECEIVING_MANIFEST_Run
  * @brief         <Function details>.
  * @param[in]     <Input parameter details>.
  * @param[out]    <Output parameter details>.
  * @param[inout]  <Input-Output parameter details>.
  * @return        <Return details>.
  */
-static enum smf_state_result se_eFS_STATE_VERIFY_Run(void *obj)
+static enum smf_state_result se_eFS_RECEIVING_MANIFEST_Run(void *obj)
 {
    FOTACtx_T *stpt_FOTACtx = (FOTACtx_T *)obj;
    enum smf_state_result e_retVal = SMF_EVENT_PROPAGATE;
 
-   LOG_INF("sv_eFS_STATE_VERIFY running");
+   LOG_INF("sv_eFS_RECEIVING_MANIFEST running");
 
    if (stpt_FOTACtx->b_verifyOk)
    {
-      LOG_INF("Verify OK received, transitioning to eFS_STATE_DONE state");
-      smf_set_state(SMF_CTX(stpt_FOTACtx), &gst_FOTAStates[eFS_STATE_DONE]);
+      LOG_INF("Verify OK received, transitioning to eFS_RECEIVING_DATA state");
+      smf_set_state(SMF_CTX(stpt_FOTACtx), &gst_FOTAStates[eFS_RECEIVING_DATA]);
       e_retVal = SMF_EVENT_HANDLED;
    }
 
@@ -280,51 +300,51 @@ static enum smf_state_result se_eFS_STATE_VERIFY_Run(void *obj)
 }
 
 /**
- * @private       sv_eFS_STATE_VERIFY_Exit
+ * @private       sv_eFS_RECEIVING_MANIFEST_Exit
  * @brief         <Function details>.
  * @param[in]     <Input parameter details>.
  * @param[out]    <Output parameter details>.
  * @param[inout]  <Input-Output parameter details>.
  * @return        <Return details>.
  */
-static void sv_eFS_STATE_VERIFY_Exit(void *obj)
+static void sv_eFS_RECEIVING_MANIFEST_Exit(void *obj)
 {
-   LOG_INF("sv_eFS_STATE_VERIFY exit");
+   LOG_INF("sv_eFS_RECEIVING_MANIFEST exit");
 }
 
-// eFS_STATE_DONE state handlers
+// eFS_RECEIVING_DATA state handlers
 /**
- * @private       sv_eFS_STATE_DONE_Entry
+ * @private       sv_eFS_RECEIVING_DATA_Entry
  * @brief         <Function details>.
  * @param[in]     <Input parameter details>.
  * @param[out]    <Output parameter details>.
  * @param[inout]  <Input-Output parameter details>.
  * @return        <Return details>.
  */
-static void sv_eFS_STATE_DONE_Entry(void *obj)
+static void sv_eFS_RECEIVING_DATA_Entry(void *obj)
 {
-   LOG_INF("sv_eFS_STATE_DONE entry");
+   LOG_INF("sv_eFS_RECEIVING_DATA entry");
 }
 
 /**
- * @private       sv_eFS_STATE_DONE_Run
+ * @private       sv_eFS_RECEIVING_DATA_Run
  * @brief         <Function details>.
  * @param[in]     <Input parameter details>.
  * @param[out]    <Output parameter details>.
  * @param[inout]  <Input-Output parameter details>.
  * @return        <Return details>.
  */
-static enum smf_state_result se_eFS_STATE_DONE_Run(void *obj)
+static enum smf_state_result se_eFS_RECEIVING_DATA_Run(void *obj)
 {
    FOTACtx_T *stpt_FOTACtx = (FOTACtx_T *)obj;
    enum smf_state_result e_retVal = SMF_EVENT_PROPAGATE;
 
-   LOG_INF("sv_eFS_STATE_DONE running");
+   LOG_INF("sv_eFS_RECEIVING_DATA running");
 
-   if (stpt_FOTACtx->b_startReq)
+   if (stpt_FOTACtx->b_verifyOk)
    {
-      LOG_INF("Start request received, transitioning to eFS_STATE_IDLE state");
-      smf_set_state(SMF_CTX(stpt_FOTACtx), &gst_FOTAStates[eFS_STATE_IDLE]);
+      LOG_INF("Verify OK received, transitioning to eFS_VALIDATE_IMAGE state");
+      smf_set_state(SMF_CTX(stpt_FOTACtx), &gst_FOTAStates[eFS_VALIDATE_IMAGE]);
       e_retVal = SMF_EVENT_HANDLED;
    }
 
@@ -332,16 +352,224 @@ static enum smf_state_result se_eFS_STATE_DONE_Run(void *obj)
 }
 
 /**
- * @private       sv_eFS_STATE_DONE_Exit
+ * @private       sv_eFS_RECEIVING_DATA_Exit
  * @brief         <Function details>.
  * @param[in]     <Input parameter details>.
  * @param[out]    <Output parameter details>.
  * @param[inout]  <Input-Output parameter details>.
  * @return        <Return details>.
  */
-static void sv_eFS_STATE_DONE_Exit(void *obj)
+static void sv_eFS_RECEIVING_DATA_Exit(void *obj)
 {
-   LOG_INF("sv_eFS_STATE_DONE exit");
+   LOG_INF("sv_eFS_RECEIVING_DATA exit");
+}
+
+// eFS_VALIDATE_IMAGE state handlers
+/**
+ * @private       sv_eFS_VALIDATE_IMAGE_Entry
+ * @brief         <Function details>.
+ * @param[in]     <Input parameter details>.
+ * @param[out]    <Output parameter details>.
+ * @param[inout]  <Input-Output parameter details>.
+ * @return        <Return details>.
+ */
+static void sv_eFS_VALIDATE_IMAGE_Entry(void *obj)
+{
+   LOG_INF("sv_eFS_VALIDATE_IMAGE entry");
+}
+
+/**
+ * @private       sv_eFS_VALIDATE_IMAGE_Run
+ * @brief         <Function details>.
+ * @param[in]     <Input parameter details>.
+ * @param[out]    <Output parameter details>.
+ * @param[inout]  <Input-Output parameter details>.
+ * @return        <Return details>.
+ */
+static enum smf_state_result se_eFS_VALIDATE_IMAGE_Run(void *obj)
+{
+   FOTACtx_T *stpt_FOTACtx = (FOTACtx_T *)obj;
+   enum smf_state_result e_retVal = SMF_EVENT_PROPAGATE;
+
+   LOG_INF("sv_eFS_VALIDATE_IMAGE running");
+
+   if (stpt_FOTACtx->b_verifyOk)
+   {
+      LOG_INF("Verify OK received, transitioning to eFS_STAGE_IMAGE state");
+      smf_set_state(SMF_CTX(stpt_FOTACtx), &gst_FOTAStates[eFS_STAGE_IMAGE]);
+      e_retVal = SMF_EVENT_HANDLED;
+   }
+
+   return e_retVal;
+}
+
+/**
+ * @private       sv_eFS_VALIDATE_IMAGE_Exit
+ * @brief         <Function details>.
+ * @param[in]     <Input parameter details>.
+ * @param[out]    <Output parameter details>.
+ * @param[inout]  <Input-Output parameter details>.
+ * @return        <Return details>.
+ */
+static void sv_eFS_VALIDATE_IMAGE_Exit(void *obj)
+{
+   LOG_INF("sv_eFS_VALIDATE_IMAGE exit");
+}
+
+// eFS_STAGE_IMAGE state handlers
+/**
+ * @private       sv_eFS_STAGE_IMAGE_Entry
+ * @brief         <Function details>.
+ * @param[in]     <Input parameter details>.
+ * @param[out]    <Output parameter details>.
+ * @param[inout]  <Input-Output parameter details>.
+ * @return        <Return details>.
+ */
+static void sv_eFS_STAGE_IMAGE_Entry(void *obj)
+{
+   LOG_INF("sv_eFS_STAGE_IMAGE entry");
+}
+
+/**
+ * @private       sv_eFS_STAGE_IMAGE_Run
+ * @brief         <Function details>.
+ * @param[in]     <Input parameter details>.
+ * @param[out]    <Output parameter details>.
+ * @param[inout]  <Input-Output parameter details>.
+ * @return        <Return details>.
+ */
+static enum smf_state_result se_eFS_STAGE_IMAGE_Run(void *obj)
+{
+   FOTACtx_T *stpt_FOTACtx = (FOTACtx_T *)obj;
+   enum smf_state_result e_retVal = SMF_EVENT_PROPAGATE;
+
+   LOG_INF("sv_eFS_STAGE_IMAGE running");
+
+   if (stpt_FOTACtx->b_verifyOk)
+   {
+      LOG_INF("Verify OK received, transitioning to eFS_COMPLETED state");
+      smf_set_state(SMF_CTX(stpt_FOTACtx), &gst_FOTAStates[eFS_COMPLETED]);
+      e_retVal = SMF_EVENT_HANDLED;
+   }
+
+   return e_retVal;
+}
+
+/**
+ * @private       sv_eFS_STAGE_IMAGE_Exit
+ * @brief         <Function details>.
+ * @param[in]     <Input parameter details>.
+ * @param[out]    <Output parameter details>.
+ * @param[inout]  <Input-Output parameter details>.
+ * @return        <Return details>.
+ */
+static void sv_eFS_STAGE_IMAGE_Exit(void *obj)
+{
+   LOG_INF("sv_eFS_STAGE_IMAGE exit");
+}
+
+// eFS_COMPLETED state handlers
+/**
+ * @private       sv_eFS_COMPLETED_Entry
+ * @brief         <Function details>.
+ * @param[in]     <Input parameter details>.
+ * @param[out]    <Output parameter details>.
+ * @param[inout]  <Input-Output parameter details>.
+ * @return        <Return details>.
+ */
+static void sv_eFS_COMPLETED_Entry(void *obj)
+{
+   LOG_INF("sv_eFS_COMPLETED entry");
+}
+
+/**
+ * @private       sv_eFS_COMPLETED_Run
+ * @brief         <Function details>.
+ * @param[in]     <Input parameter details>.
+ * @param[out]    <Output parameter details>.
+ * @param[inout]  <Input-Output parameter details>.
+ * @return        <Return details>.
+ */
+static enum smf_state_result se_eFS_COMPLETED_Run(void *obj)
+{
+   FOTACtx_T *stpt_FOTACtx = (FOTACtx_T *)obj;
+   enum smf_state_result e_retVal = SMF_EVENT_PROPAGATE;
+
+   LOG_INF("sv_eFS_COMPLETED running");
+
+   if (stpt_FOTACtx->b_verifyOk)
+   {
+      LOG_INF("Verify OK received, transitioning to eFS_IDLE state");  
+      smf_set_state(SMF_CTX(stpt_FOTACtx), &gst_FOTAStates[eFS_IDLE]);
+      e_retVal = SMF_EVENT_HANDLED;
+   }
+
+   return e_retVal;
+}
+
+/**
+ * @private       sv_eFS_COMPLETED_Exit
+ * @brief         <Function details>.
+ * @param[in]     <Input parameter details>.
+ * @param[out]    <Output parameter details>.
+ * @param[inout]  <Input-Output parameter details>.
+ * @return        <Return details>.
+ */
+static void sv_eFS_COMPLETED_Exit(void *obj)
+{
+   LOG_INF("sv_eFS_COMPLETED exit");
+}
+
+// eFS_ABORT state handlers
+/**
+ * @private       sv_eFS_ABORT_Entry
+ * @brief         <Function details>.
+ * @param[in]     <Input parameter details>.
+ * @param[out]    <Output parameter details>.
+ * @param[inout]  <Input-Output parameter details>.
+ * @return        <Return details>.
+ */
+static void sv_eFS_ABORT_Entry(void *obj)
+{
+   LOG_INF("sv_eFS_ABORT entry");
+}
+
+/**
+ * @private       sv_eFS_ABORT_Run
+ * @brief         <Function details>.
+ * @param[in]     <Input parameter details>.
+ * @param[out]    <Output parameter details>.
+ * @param[inout]  <Input-Output parameter details>.
+ * @return        <Return details>.
+ */
+static enum smf_state_result se_eFS_ABORT_Run(void *obj)
+{
+   FOTACtx_T *stpt_FOTACtx = (FOTACtx_T *)obj;
+   enum smf_state_result e_retVal = SMF_EVENT_PROPAGATE;
+
+   LOG_INF("sv_eFS_ABORT running");
+
+   if (stpt_FOTACtx->b_startReq)
+   {
+      LOG_INF("Start request received, transitioning to eFS_COMPLETED state");
+      smf_set_state(SMF_CTX(stpt_FOTACtx), &gst_FOTAStates[eFS_COMPLETED]);
+      e_retVal = SMF_EVENT_HANDLED;
+   }
+
+   return e_retVal;
+}
+
+/**
+ * @private       sv_eFS_ABORT_Exit
+ * @brief         <Function details>.
+ * @param[in]     <Input parameter details>.
+ * @param[out]    <Output parameter details>.
+ * @param[inout]  <Input-Output parameter details>.
+ * @return        <Return details>.
+ */
+static void sv_eFS_ABORT_Exit(void *obj)
+{
+   LOG_INF("sv_eFS_ABORT exit");
 }
 
 /******************************************************************************/

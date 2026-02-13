@@ -400,7 +400,7 @@ int main(void)
    LOG_INF("Advertising started");
 
    LOG_INF("Initializing FOTA state machine");
-   smf_set_initial(SMF_CTX(&sst_FOTACtx), &gst_FOTAStates[eFS_STATE_IDLE]);
+   smf_set_initial(SMF_CTX(&sst_FOTACtx), &gst_FOTAStates[eFS_IDLE]);
 
    // Create a thread to run the FOTA state machine
    k_thread_create(&sst_FOTAThreadData,
