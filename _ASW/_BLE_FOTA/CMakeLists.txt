@@ -10,6 +10,6 @@ target_include_directories(app PRIVATE
    ${CMAKE_CURRENT_LIST_DIR}
 )
 
-add_subdirectory(_BLE_FOTA)
-add_subdirectory(_BLE_GENERIX)
-add_subdirectory(_GAP)
+add_subdirectory(_BLE_FOTA_TP)
+add_subdirectory(_FOTA_FSM)
+add_subdirectory(_FOTA_GATT_DB)

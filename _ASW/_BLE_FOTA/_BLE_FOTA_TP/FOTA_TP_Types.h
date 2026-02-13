@@ -57,16 +57,20 @@
  */
 typedef enum
 {
-   eCPT_FOTA_CONTROL = 0x01,                 /**< FOTA Control Packet */
-   eCPT_IMAGE_TYPE = 0x02,                   /**< Firmware Data Packet */
-   eCPT_IMAGE_SIZE = 0x03,                   /**< Image Size Packet */
-   eCPT_TARGET_ECU = 0x04,                   /**< Target ECU Identifier Packet */
-   eCPT_FW_VERSION = 0x05,                   /**< Firmware Version Packet */
-   eCPT_HW_VERSION = 0x06,                   /**< Hardware Version Packet */
-   eCPT_CRC = 0x07,                          /**< Checksum Packet */
-   eCPT_HASH = 0x08,                         /**< Hash Packet */
-   eCPT_SIGNATURE = 0x09,                    /**< Signature Packet */
-   eCPT_DEPENDENCY_INFO = 0x0A,              /**< Dependency Information Packet */
+   eCPT_FOTA_CONTROL = 0x01,                 /**< FOTA control packet */
+   eCPT_FOTA_START,                          /**< FOTA start packet */
+   eCPT_SEND_METADATA,                       /**< Metadata packet */
+   eCPT_TARGET_ECU,                          /**< Target ECU identifier packet */
+   eCPT_IMAGE_SIZE,                          /**< Image size packet */
+   eCPT_FW_VERSION,                          /**< Firmware version packet */
+   eCPT_HW_VERSION,                          /**< Hardware version packet */
+   eCPT_CRC,                                 /**< Checksum packet */
+   eCPT_HASH,                                /**< Hash packet */
+   eCPT_SIGNATURE,                           /**< Signature packet */
+   eCPT_DEPENDENCY_INFO,                     /**< Dependency information packet */
+   eCPT_SEND_MANIFEST,                       /**< Manifest packet */
+   eCPT_SECTION_START_ADDR,                  /**< Section start address packet */
+   eCPT_SECTION_SIZE,                        /**< Section size packet */
    // More CP types can be added here as needed
 } CPTypes_E;
 
