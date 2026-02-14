@@ -320,24 +320,24 @@ static ssize_t st_FOTACtrlWrite(struct bt_conn *stpt_connHandle,
 	if (!stpt_connHandle || !stpt_attr || !vpt_buf || !stpt_charCtx)
 	{
 		t_retVal = BT_GATT_ERR(BT_ATT_ERR_UNLIKELY);
-		LOG_INF("Invalid parameters in FOTA Control characteristic write. \
-			Connection Handle: %p, Attribute: %p, Buffer: %p", stpt_connHandle, stpt_attr, vpt_buf);
+		LOG_INF("Invalid parameters in FOTA Control characteristic write. "
+			"Connection Handle: %p, Attribute: %p, Buffer: %p", stpt_connHandle, stpt_attr, vpt_buf);
 	}
 	// Check if the write operation is not starting at offset 0, as we do not support
 	//	offset writes for this characteristic.
 	else if (u16_offset != 0U)
 	{
 		t_retVal = BT_GATT_ERR(BT_ATT_ERR_INVALID_OFFSET);
-		LOG_INF("Offset write not supported for FOTA Control characteristic. \
-			Received u16_offset: %u", u16_offset);
+		LOG_INF("Offset write not supported for FOTA Control characteristic. "
+			"Received u16_offset: %u", u16_offset);
 	}
 	// We want to keep writing to this characteristic with variable length data,
 	// so we will only check if the length of incoming data is more than the buffer size.
 	else if (u16_length > stpt_charCtx->u16_maxLen)
 	{
 		t_retVal = BT_GATT_ERR(BT_ATT_ERR_INVALID_ATTRIBUTE_LEN);
-		LOG_INF("FOTA Control characteristic write length exceeds buffer size. \
-			Received length: %u", u16_length);
+		LOG_INF("FOTA Control characteristic write length exceeds buffer size. "
+			"Received length: %u", u16_length);
 	}
 
 	// Check if there is not any error in parameters
@@ -346,7 +346,7 @@ static ssize_t st_FOTACtrlWrite(struct bt_conn *stpt_connHandle,
 		// Actual code
 		// Writing to this characteristic will considered as an input to FOTA state machine.
 
-		LOG_INF("Received write to FOTA Control characteristic.");
+		LOG_INF("Received data from FOTA Control characteristic.");
 
 		// Copy the incoming data to the mapped data buffer of this characteristic.
 		// This will be used as input to FOTA FSM.
@@ -392,24 +392,24 @@ static ssize_t st_FOTADataTransferWrite(struct bt_conn *stpt_connHandle,
 	if (!stpt_connHandle || !stpt_attr || !vpt_buf || !stpt_charCtx)
 	{
 		t_retVal = BT_GATT_ERR(BT_ATT_ERR_UNLIKELY);
-		LOG_INF("Invalid parameters in FOTA Data Transfer characteristic write. \
-			Connection Handle: %p, Attribute: %p, Buffer: %p", stpt_connHandle, stpt_attr, vpt_buf);
+		LOG_INF("Invalid parameters in FOTA Data Transfer characteristic write. "
+			"Connection Handle: %p, Attribute: %p, Buffer: %p", stpt_connHandle, stpt_attr, vpt_buf);
 	}
 	// Check if the write operation is not starting at offset 0, as we do not support
 	//	offset writes for this characteristic.
 	else if (u16_offset != 0U)
 	{
 		t_retVal = BT_GATT_ERR(BT_ATT_ERR_INVALID_OFFSET);
-		LOG_INF("Offset write not supported for FOTA Data Transfer characteristic. \
-			Received u16_offset: %u", u16_offset);
+		LOG_INF("Offset write not supported for FOTA Data Transfer characteristic. "
+			"Received u16_offset: %u", u16_offset);
 	}
 	// We want to keep writing to this characteristic with variable length data,
 	// so we will only check if the length of incoming data is more than the buffer size.
 	else if (u16_length > stpt_charCtx->u16_maxLen)
 	{
 		t_retVal = BT_GATT_ERR(BT_ATT_ERR_INVALID_ATTRIBUTE_LEN);
-		LOG_INF("FOTA Data Transfer characteristic write length exceeds buffer size. \
-			Received length: %u", u16_length);
+		LOG_INF("FOTA Data Transfer characteristic write length exceeds buffer size. "
+			"Received length: %u", u16_length);
 	}
 
 	// Check if there is not any error in parameters
@@ -418,7 +418,7 @@ static ssize_t st_FOTADataTransferWrite(struct bt_conn *stpt_connHandle,
 		// Actual code
 		// Writing to this characteristic will considered as an input to FOTA state machine.
 
-		LOG_INF("Received write to FOTA Data Transfer characteristic.");
+		LOG_INF("Received data from FOTA Data Transfer characteristic.");
 
 		// Copy the incoming data to the mapped data buffer of this characteristic.
 		// This will be used as input to FOTA FSM.
@@ -464,24 +464,16 @@ static ssize_t st_FOTAStsRead(struct bt_conn *stpt_connHandle,
 	if (!stpt_connHandle || !stpt_attr || !vpt_buf || !stpt_charCtx)
 	{
 		t_retVal = BT_GATT_ERR(BT_ATT_ERR_UNLIKELY);
-		LOG_INF("Invalid parameters in FOTA Status characteristic read. \
-			Connection Handle: %p, Attribute: %p, Buffer: %p", stpt_connHandle, stpt_attr, vpt_buf);
+		LOG_INF("Invalid parameters in FOTA Status characteristic read. "
+			"Connection Handle: %p, Attribute: %p, Buffer: %p", stpt_connHandle, stpt_attr, vpt_buf);
 	}
 	// Check if the read operation is not starting at offset 0, as we do not support
 	//	offset reads for this characteristic.
 	else if (u16_offset != 0U)
 	{
 		t_retVal = BT_GATT_ERR(BT_ATT_ERR_INVALID_OFFSET);
-		LOG_INF("Offset read not supported for FOTA Status characteristic. \
-			Received u16_offset: %u", u16_offset);
-	}
-	// We want to keep reading to this characteristic with variable length data,
-	// so we will only check if the length of requested data read is more than the buffer size.
-	else if (u16_length > stpt_charCtx->u16_maxLen)
-	{
-		t_retVal = BT_GATT_ERR(BT_ATT_ERR_INVALID_ATTRIBUTE_LEN);
-		LOG_INF("FOTA Status characteristic read length exceeds buffer size. \
-			Received length: %u", u16_length);
+		LOG_INF("Offset read not supported for FOTA Status characteristic. "
+			"Received u16_offset: %u", u16_offset);
 	}
 
 	// Check if there is not any error in parameters
@@ -520,24 +512,16 @@ static ssize_t st_FOTAProgressRead(struct bt_conn *stpt_connHandle,
 	if (!stpt_connHandle || !stpt_attr || !vpt_buf || !stpt_charCtx)
 	{
 		t_retVal = BT_GATT_ERR(BT_ATT_ERR_UNLIKELY);
-		LOG_INF("Invalid parameters in FOTA Progress characteristic read. \
-			Connection Handle: %p, Attribute: %p, Buffer: %p", stpt_connHandle, stpt_attr, vpt_buf);
+		LOG_INF("Invalid parameters in FOTA Progress characteristic read. "
+			"Connection Handle: %p, Attribute: %p, Buffer: %p", stpt_connHandle, stpt_attr, vpt_buf);
 	}
 	// Check if the read operation is not starting at offset 0, as we do not support
 	//	offset reads for this characteristic.
 	else if (u16_offset != 0U)
 	{
 		t_retVal = BT_GATT_ERR(BT_ATT_ERR_INVALID_OFFSET);
-		LOG_INF("Offset read not supported for FOTA Progress characteristic. \
-			Received u16_offset: %u", u16_offset);
-	}
-	// We want to keep reading to this characteristic with variable length data,
-	// so we will only check if the length of requested data read is more than the buffer size.
-	else if (u16_length > stpt_charCtx->u16_maxLen)
-	{
-		t_retVal = BT_GATT_ERR(BT_ATT_ERR_INVALID_ATTRIBUTE_LEN);
-		LOG_INF("FOTA Progress characteristic read length exceeds buffer size. \
-			Received length: %u", u16_length);
+		LOG_INF("Offset read not supported for FOTA Progress characteristic. "
+			"Received u16_offset: %u", u16_offset);
 	}
 
 	// Check if there is not any error in parameters
