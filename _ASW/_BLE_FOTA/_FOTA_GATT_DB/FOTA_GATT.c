@@ -19,9 +19,11 @@
 /*                                                                            */
 /******************************************************************************/
 /**
- * @def           <Define name>
- * @brief         <Define details>.
+ * @def           APP_LOG
+ * @brief         Declare - already registered - the application log module.
+ *                Module name is APP_LOG. Log level is set to INFO.
  */
+LOG_MODULE_DECLARE(APP_LOG);
 
 /******************************************************************************/
 /*                                                                            */
@@ -45,22 +47,101 @@
 /*                       PRIVATE FUNCTION DECLARATIONS                        */
 /*                                                                            */
 /******************************************************************************/
-static ssize_t st_FOTACtrlWrite(struct bt_conn *conn,
-	const struct bt_gatt_attr *attr,
-	const void *buf, uint16_t len,
-	uint16_t offset, uint8_t flags);
-static ssize_t st_FOTADataTransferWrite(struct bt_conn *conn,
-	const struct bt_gatt_attr *attr,
-	const void *buf, uint16_t len,
-	uint16_t offset, uint8_t flags);
-static ssize_t st_FOTAStsRead(struct bt_conn *conn,
-	const struct bt_gatt_attr *attr,
-	void *buf, uint16_t len,
-	uint16_t offset);
-static ssize_t st_FOTAProgressRead(struct bt_conn *conn,
-	const struct bt_gatt_attr *attr,
-	void *buf, uint16_t len,
-	uint16_t offset);
+static ssize_t st_FOTACtrlWrite(struct bt_conn *stpt_connHandle,
+	const struct bt_gatt_attr *stpt_attr, const void *vpt_buf, uint16_t u16_length, 
+	uint16_t u16_offset, uint8_t u8_flags);
+static ssize_t st_FOTADataTransferWrite(struct bt_conn *stpt_connHandle,
+	const struct bt_gatt_attr *stpt_attr, 	const void *vpt_buf, uint16_t u16_length,
+	uint16_t u16_offset, uint8_t u8_flags);
+static ssize_t st_FOTAStsRead(struct bt_conn *stpt_connHandle,
+	const struct bt_gatt_attr *stpt_attr, void *vpt_buf, uint16_t u16_length,
+	uint16_t u16_offset);
+static ssize_t st_FOTAProgressRead(struct bt_conn *stpt_connHandle,
+	const struct bt_gatt_attr *stpt_attr, void *vpt_buf, uint16_t u16_length,
+	uint16_t u16_offset);
+
+/******************************************************************************/
+/*                                                                            */
+/*                             PRIVATE VARIABLES                              */
+/*                                                                            */
+/******************************************************************************/
+/**
+ * @var           su8ar_FOTACtrl
+ * @brief         An array mapped with FOTA Control characteristic. All the
+ * 					Control Packets received from the peer device will be stored in
+ * 					this buffer by the write callback of FOTA Control characteristic.
+ */
+static uint8_t su8ar_FOTACtrl[MAX_MTU_SIZE_WITH_DLE];
+
+/**
+ * @var           sst_FOTACtrlCharCtx
+ * @brief         A structure mapped with FOTA Control characteristic. It contains
+ * 					pointer to the data buffer (su8ar_FOTACtrl) and its maximum and
+ * 					current length.
+ */
+static CharCtx_T sst_FOTACtrlCharCtx = {
+	.u8pt_data = su8ar_FOTACtrl,
+	.u16_maxLen = sizeof(su8ar_FOTACtrl),
+	.u16_curLen = 0U
+};
+
+/**
+ * @var           su8ar_FOTADataXfer
+ * @brief         An array mapped with FOTA Data Transfer characteristic. All the
+ * 					Data Packets received from the peer device will be stored in
+ * 					this buffer by the write callback of FOTA Data Transfer characteristic.
+ */
+static uint8_t su8ar_FOTADataXfer[MAX_MTU_SIZE_WITH_DLE];
+
+/**
+ * @var           sst_FOTADataXferCharCtx
+ * @brief         A structure mapped with FOTA Data Transfer characteristic. It contains
+ * 					pointer to the data buffer (su8ar_FOTADataXfer) and its maximum and
+ * 					current length.
+ */
+static CharCtx_T sst_FOTADataXferCharCtx = {
+	.u8pt_data = su8ar_FOTADataXfer,
+	.u16_maxLen = sizeof(su8ar_FOTADataXfer),
+	.u16_curLen = 0U
+};
+
+/**
+ * @var           su8ar_FOTAStatus
+ * @brief         An array mapped with FOTA Status characteristic. All the status
+ * 					inquired by FOTA Status characteristic will be stored in this buffer.
+ */
+static uint8_t su8ar_FOTAStatus[4];
+
+/**
+ * @var           sst_FOTAStatusCharCtx
+ * @brief         A structure mapped with FOTA Status characteristic. It contains
+ * 					pointer to the data buffer (su8ar_FOTAStatus) and its maximum and
+ * 					current length.
+ */
+static CharCtx_T sst_FOTAStatusCharCtx = {
+	.u8pt_data = su8ar_FOTAStatus,
+	.u16_maxLen = sizeof(su8ar_FOTAStatus),
+	.u16_curLen = 0U
+};
+
+/**
+ * @var           su8ar_FOTAProgress
+ * @brief         An array mapped with FOTA Progress characteristic. All the progress
+ * 					inquired by FOTA Progress characteristic will be stored in this buffer.
+ */
+static uint8_t su8ar_FOTAProgress[4];
+
+/**
+ * @var           sst_FOTAProgressCharCtx
+ * @brief         A structure mapped with FOTA Progress characteristic. It contains
+ * 					pointer to the data buffer (su8ar_FOTAProgress) and its maximum and
+ * 					current length.
+ */
+static CharCtx_T sst_FOTAProgressCharCtx = {
+	.u8pt_data = su8ar_FOTAProgress,
+	.u16_maxLen = sizeof(su8ar_FOTAProgress),
+	.u16_curLen = 0U
+};
 
 /******************************************************************************/
 /*                                                                            */
@@ -90,8 +171,8 @@ BT_GATT_SERVICE_DEFINE(gstar_FOTASvc,
 		NULL, 
 		// Write callback - st_FOTACtrlWrite
 		st_FOTACtrlWrite, 
-		// User data - NULL
-		NULL
+		// User data - sst_FOTACtrlCharCtx
+		&sst_FOTACtrlCharCtx
 	),
 	BT_GATT_CUD(
 		"FOTA Control",
@@ -109,8 +190,8 @@ BT_GATT_SERVICE_DEFINE(gstar_FOTASvc,
 		NULL,
 		// Write callback - st_FOTADataTransferWrite
 		st_FOTADataTransferWrite, 
-		// User data - NULL
-		NULL
+		// User data - sst_FOTADataXferCharCtx
+		&sst_FOTADataXferCharCtx
 	),
 	BT_GATT_CUD(
 		"FOTA Data Transfer",
@@ -128,8 +209,8 @@ BT_GATT_SERVICE_DEFINE(gstar_FOTASvc,
 		st_FOTAStsRead,
 		// Write callback - NULL
 		NULL, 
-		// User data - NULL
-		NULL
+		// User data - sst_FOTAStatusCharCtx
+		&sst_FOTAStatusCharCtx
 	),
 	BT_GATT_CUD(
 		"FOTA Status",
@@ -154,8 +235,8 @@ BT_GATT_SERVICE_DEFINE(gstar_FOTASvc,
 		st_FOTAProgressRead,
 		// Write callback - NULL
 		NULL,
-		// User data - NULL
-		NULL
+		// User data - sst_FOTAProgressCharCtx
+		&sst_FOTAProgressCharCtx
 	),
 	BT_GATT_CUD(
 		"FOTA Progress",
@@ -204,59 +285,6 @@ BT_GATT_SERVICE_DEFINE(gstar_FOTASvc,
 
 /******************************************************************************/
 /*                                                                            */
-/*                             PRIVATE VARIABLES                              */
-/*                                                                            */
-/******************************************************************************/
-/**
- * @var           su8ar_FOTACtrl
- * @brief         <Variable details>.
- */
-static uint8_t su8ar_FOTACtrl[4];
-
-/**
- * @var           su8ar_ECUId
- * @brief         <Variable details>.
- */
-static uint8_t su8ar_ECUId[64];
-
-/**
- * @var           su8ar_imageMetadata
- * @brief         <Variable details>.
- */
-static uint8_t su8ar_imageMetadata[12];
-
-/**
- * @var           su32_activeBlockAddr
- * @brief         <Variable details>.
- */
-static uint32_t su32_activeBlockAddr;
-
-/**
- * @var           su8ar_firmwareData
- * @brief         <Variable details>.
- */
-static uint8_t su8ar_firmwareData[244];
-
-/**
- * @var           su8ar_FOTAStatus
- * @brief         <Variable details>.
- */
-static uint8_t su8ar_FOTAStatus[4];
-
-/**
- * @var           su8ar_FOTAProgress
- * @brief         <Variable details>.
- */
-static uint8_t su8ar_FOTAProgress[12];
-
-/**
- * @var           su8ar_resumeOffset
- * @brief         <Variable details>.
- */
-static uint8_t su8ar_resumeOffset[8];
-
-/******************************************************************************/
-/*                                                                            */
 /*                              EXTERN FUNCTIONS                              */
 /*                                                                            */
 /******************************************************************************/
@@ -269,169 +297,258 @@ static uint8_t su8ar_resumeOffset[8];
 /**
  * @private       st_FOTACtrlWrite
  * @brief         <Function details>.
- * @param[in]     <Input parameter details>.
- * @param[out]    <Output parameter details>.
- * @param[inout]  <Input-Output parameter details>.
- * @return        <Return details>.
+ * @param[inout]  stpt_connHandle Connection handle.
+ * @param[in]    	stpt_attr The attribute being written to.
+ * @param[in]    	vpt_buf The buffer containing the data being written.
+ * @param[in]    	u16_length The length of the data being written.
+ * @param[in]    	u16_offset The offset at which the data is being written.
+ * @param[in]    	u8_flags Write flags, see @ref bt_gatt_attr_write_flag.
+ * @return        Either BT_GATT_ERR() or the number of bytes written.
  */
-static ssize_t st_FOTACtrlWrite(struct bt_conn *conn,
-	const struct bt_gatt_attr *attr,
-	const void *buf, uint16_t len,
-	uint16_t offset, uint8_t flags)
+static ssize_t st_FOTACtrlWrite(struct bt_conn *stpt_connHandle,
+	const struct bt_gatt_attr *stpt_attr, const void *vpt_buf, uint16_t u16_length, 
+	uint16_t u16_offset, uint8_t u8_flags)
 {
-	if (offset != 0U)
+	ssize_t t_retVal = 0;
+	// Take a pointer to the user data of this attribute and consider it as a byte array,
+	//	as we are expecting byte array input for this characteristic.
+	CharCtx_T *stpt_charCtx = stpt_attr->user_data;
+
+	// Perform all the basic checks for the incoming write request parameters before processing the data.
+	// Check if the connection handle, attribute pointer, input buffer pointer or
+	// characteristic context pointer is NULL.
+	if (!stpt_connHandle || !stpt_attr || !vpt_buf || !stpt_charCtx)
 	{
-		return BT_GATT_ERR(BT_ATT_ERR_INVALID_OFFSET);
+		t_retVal = BT_GATT_ERR(BT_ATT_ERR_UNLIKELY);
+		LOG_INF("Invalid parameters in FOTA Control characteristic write. \
+			Connection Handle: %p, Attribute: %p, Buffer: %p", stpt_connHandle, stpt_attr, vpt_buf);
+	}
+	// Check if the write operation is not starting at offset 0, as we do not support
+	//	offset writes for this characteristic.
+	else if (u16_offset != 0U)
+	{
+		t_retVal = BT_GATT_ERR(BT_ATT_ERR_INVALID_OFFSET);
+		LOG_INF("Offset write not supported for FOTA Control characteristic. \
+			Received u16_offset: %u", u16_offset);
+	}
+	// We want to keep writing to this characteristic with variable length data,
+	// so we will only check if the length of incoming data is more than the buffer size.
+	else if (u16_length > stpt_charCtx->u16_maxLen)
+	{
+		t_retVal = BT_GATT_ERR(BT_ATT_ERR_INVALID_ATTRIBUTE_LEN);
+		LOG_INF("FOTA Control characteristic write length exceeds buffer size. \
+			Received length: %u", u16_length);
 	}
 
-	if (len != sizeof(su8ar_FOTACtrl))
+	// Check if there is not any error in parameters
+	if (0 == t_retVal)
 	{
-		return BT_GATT_ERR(BT_ATT_ERR_INVALID_ATTRIBUTE_LEN);
+		// Actual code
+		// Writing to this characteristic will considered as an input to FOTA state machine.
+
+		LOG_INF("Received write to FOTA Control characteristic.");
+
+		// Copy the incoming data to the mapped data buffer of this characteristic.
+		// This will be used as input to FOTA FSM.
+		memcpy(stpt_charCtx->u8pt_data, vpt_buf, u16_length);
+
+		// Update the current length of the data in the buffer.
+		stpt_charCtx->u16_curLen = u16_length;
+
+		// Push this to FSM input queue for processing. This is just a placeholder,
+		// actual implementation may vary.
+
+		// Finally, after successful completion,  update the buffer with incoming data
+		// and return the length of data written.
+		t_retVal = u16_length;
 	}
-	memcpy(su8ar_FOTACtrl, buf, len);
-	return len;
+
+	return t_retVal;
 }
 
 /**
  * @private       st_FOTADataTransferWrite
  * @brief         <Function details>.
- * @param[in]     <Input parameter details>.
- * @param[out]    <Output parameter details>.
- * @param[inout]  <Input-Output parameter details>.
- * @return        <Return details>.
+ * @param[inout]  stpt_connHandle Connection handle.
+ * @param[in]    	stpt_attr The attribute being written to.
+ * @param[in]    	vpt_buf The buffer containing the data being written.
+ * @param[in]    	u16_length The length of the data being written.
+ * @param[in]    	u16_offset The offset at which the data is being written.
+ * @param[in]    	u8_flags Write flags, see @ref bt_gatt_attr_write_flag.
+ * @return        Either BT_GATT_ERR() or the number of bytes written.
  */
-static ssize_t st_FOTADataTransferWrite(struct bt_conn *conn,
-	const struct bt_gatt_attr *attr,
-	const void *buf, uint16_t len,
-	uint16_t offset, uint8_t flags)
+static ssize_t st_FOTADataTransferWrite(struct bt_conn *stpt_connHandle,
+	const struct bt_gatt_attr *stpt_attr, const void *vpt_buf, uint16_t u16_length,
+	uint16_t u16_offset, uint8_t u8_flags)
 {
-	if (offset != 0U)
+	ssize_t t_retVal = 0;
+	// Take a pointer to the user data of this attribute and consider it as a byte array,
+	//	as we are expecting byte array input for this characteristic.
+	CharCtx_T *stpt_charCtx = stpt_attr->user_data;
+	
+	// Perform all the basic checks for the incoming write request parameters before processing the data.
+	// Check if the connection handle, attribute pointer, input buffer pointer or
+	// characteristic context pointer is NULL.
+	if (!stpt_connHandle || !stpt_attr || !vpt_buf || !stpt_charCtx)
 	{
-		return BT_GATT_ERR(BT_ATT_ERR_INVALID_OFFSET);
+		t_retVal = BT_GATT_ERR(BT_ATT_ERR_UNLIKELY);
+		LOG_INF("Invalid parameters in FOTA Data Transfer characteristic write. \
+			Connection Handle: %p, Attribute: %p, Buffer: %p", stpt_connHandle, stpt_attr, vpt_buf);
+	}
+	// Check if the write operation is not starting at offset 0, as we do not support
+	//	offset writes for this characteristic.
+	else if (u16_offset != 0U)
+	{
+		t_retVal = BT_GATT_ERR(BT_ATT_ERR_INVALID_OFFSET);
+		LOG_INF("Offset write not supported for FOTA Data Transfer characteristic. \
+			Received u16_offset: %u", u16_offset);
+	}
+	// We want to keep writing to this characteristic with variable length data,
+	// so we will only check if the length of incoming data is more than the buffer size.
+	else if (u16_length > stpt_charCtx->u16_maxLen)
+	{
+		t_retVal = BT_GATT_ERR(BT_ATT_ERR_INVALID_ATTRIBUTE_LEN);
+		LOG_INF("FOTA Data Transfer characteristic write length exceeds buffer size. \
+			Received length: %u", u16_length);
 	}
 
-	if (len > sizeof(su8ar_ECUId))
+	// Check if there is not any error in parameters
+	if (0 == t_retVal)
 	{
-		return BT_GATT_ERR(BT_ATT_ERR_INVALID_ATTRIBUTE_LEN);
-	}
-	memcpy(su8ar_ECUId, buf, len);
-	return len;
-}
+		// Actual code
+		// Writing to this characteristic will considered as an input to FOTA state machine.
 
-/**
- * @private       st_ImageMetadataWrite
- * @brief         <Function details>.
- * @param[in]     <Input parameter details>.
- * @param[out]    <Output parameter details>.
- * @param[inout]  <Input-Output parameter details>.
- * @return        <Return details>.
- */
-static ssize_t st_ImageMetadataWrite(struct bt_conn *conn,
-	const struct bt_gatt_attr *attr,
-	const void *buf, uint16_t len,
-	uint16_t offset, uint8_t flags)
-{
-	if (offset != 0U)
-	{
-		return BT_GATT_ERR(BT_ATT_ERR_INVALID_OFFSET);
+		LOG_INF("Received write to FOTA Data Transfer characteristic.");
+
+		// Copy the incoming data to the mapped data buffer of this characteristic.
+		// This will be used as input to FOTA FSM.
+		memcpy(stpt_charCtx->u8pt_data, vpt_buf, u16_length);
+
+		// Update the current length of the data in the buffer.
+		stpt_charCtx->u16_curLen = u16_length;
+
+		// Push this to FSM input queue for processing. This is just a placeholder,
+		// actual implementation may vary.
+
+		// Finally, after successful completion,  update the buffer with incoming data
+		// and return the length of data written.
+		t_retVal = u16_length;
 	}
 
-	if (len != sizeof(su8ar_imageMetadata))
-	{
-		return BT_GATT_ERR(BT_ATT_ERR_INVALID_ATTRIBUTE_LEN);
-	}
-	memcpy(su8ar_imageMetadata, buf, len);
-	return len;
-}
-
-/**
- * @private       st_ActiveBlockAddrWrite
- * @brief         <Function details>.
- * @param[in]     <Input parameter details>.
- * @param[out]    <Output parameter details>.
- * @param[inout]  <Input-Output parameter details>.
- * @return        <Return details>.
- */
-static ssize_t st_ActiveBlockAddrWrite(struct bt_conn *conn,
-	const struct bt_gatt_attr *attr,
-	const void *buf, uint16_t len,
-	uint16_t offset, uint8_t flags)
-{
-	if (offset != 0U)
-	{
-		return BT_GATT_ERR(BT_ATT_ERR_INVALID_OFFSET);
-	}
-
-	if (len != sizeof(uint32_t))
-	{
-		return BT_GATT_ERR(BT_ATT_ERR_INVALID_ATTRIBUTE_LEN);
-	}
-	memcpy(&su32_activeBlockAddr, buf, len);
-	return len;
-}
-
-/**
- * @private       st_FWDataWrite
- * @brief         <Function details>.
- * @param[in]     <Input parameter details>.
- * @param[out]    <Output parameter details>.
- * @param[inout]  <Input-Output parameter details>.
- * @return        <Return details>.
- */
-static ssize_t st_FWDataWrite(struct bt_conn *conn,
-	const struct bt_gatt_attr *attr,
-	const void *buf, uint16_t len,
-	uint16_t offset, uint8_t flags)
-{
-	if (offset != 0U)
-	{
-		return BT_GATT_ERR(BT_ATT_ERR_INVALID_OFFSET);
-	}
-
-	if (len > sizeof(su8ar_firmwareData))
-	{
-		return BT_GATT_ERR(BT_ATT_ERR_INVALID_ATTRIBUTE_LEN);
-	}
-	memcpy(su8ar_firmwareData, buf, len);
-	/* Data handling / flash write goes here */
-	return len;
+	return t_retVal;
 }
 
 /* ================= Read Handlers ================= */
 /**
  * @private       st_FOTAStsRead
  * @brief         <Function details>.
- * @param[in]     <Input parameter details>.
- * @param[out]    <Output parameter details>.
- * @param[inout]  <Input-Output parameter details>.
- * @return        <Return details>.
+ * @param[inout]  stpt_connHandle Connection handle.
+ * @param[in]    	stpt_attr The attribute being read from.
+ * @param[in]    	vpt_buf The buffer to be filled with the data being read.
+ * @param[in]    	u16_length The length of the buffer.
+ * @param[in]    	u16_offset The offset at which the data is being read.
+ * @return        Either BT_GATT_ERR() or the number of bytes written.
  */
-static ssize_t st_FOTAStsRead(struct bt_conn *conn,
-	const struct bt_gatt_attr *attr,
-	void *buf, uint16_t len,
-	uint16_t offset)
+static ssize_t st_FOTAStsRead(struct bt_conn *stpt_connHandle,
+	const struct bt_gatt_attr *stpt_attr, void *vpt_buf, uint16_t u16_length,
+	uint16_t u16_offset)
 {
-	return bt_gatt_attr_read(conn, attr, buf, len, offset,
-	                         su8ar_FOTAStatus,
-	                         sizeof(su8ar_FOTAStatus));
+	ssize_t t_retVal = 0;
+	// Take a pointer to the user data of this attribute and consider it as a byte array,
+	//	as we are expecting byte array input for this characteristic.
+	CharCtx_T *stpt_charCtx = stpt_attr->user_data;
+
+	// Perform all the basic checks for the incoming read request parameters before processing the data.
+	// Check if the connection handle, attribute pointer, input buffer pointer or
+	// characteristic context pointer is NULL.
+	if (!stpt_connHandle || !stpt_attr || !vpt_buf || !stpt_charCtx)
+	{
+		t_retVal = BT_GATT_ERR(BT_ATT_ERR_UNLIKELY);
+		LOG_INF("Invalid parameters in FOTA Status characteristic read. \
+			Connection Handle: %p, Attribute: %p, Buffer: %p", stpt_connHandle, stpt_attr, vpt_buf);
+	}
+	// Check if the read operation is not starting at offset 0, as we do not support
+	//	offset reads for this characteristic.
+	else if (u16_offset != 0U)
+	{
+		t_retVal = BT_GATT_ERR(BT_ATT_ERR_INVALID_OFFSET);
+		LOG_INF("Offset read not supported for FOTA Status characteristic. \
+			Received u16_offset: %u", u16_offset);
+	}
+	// We want to keep reading to this characteristic with variable length data,
+	// so we will only check if the length of requested data read is more than the buffer size.
+	else if (u16_length > stpt_charCtx->u16_maxLen)
+	{
+		t_retVal = BT_GATT_ERR(BT_ATT_ERR_INVALID_ATTRIBUTE_LEN);
+		LOG_INF("FOTA Status characteristic read length exceeds buffer size. \
+			Received length: %u", u16_length);
+	}
+
+	// Check if there is not any error in parameters
+	if (0 == t_retVal)
+	{
+		// Read the local attribute value from the local database.
+		t_retVal = bt_gatt_attr_read(stpt_connHandle, stpt_attr, vpt_buf, u16_length,
+			u16_offset, stpt_charCtx->u8pt_data, stpt_charCtx->u16_maxLen);
+	}
+
+	return t_retVal;
 }
 
 /**
  * @private       st_FOTAProgressRead
  * @brief         <Function details>.
- * @param[in]     <Input parameter details>.
- * @param[out]    <Output parameter details>.
- * @param[inout]  <Input-Output parameter details>.
- * @return        <Return details>.
+ * @param[inout]  stpt_connHandle Connection handle.
+ * @param[in]    	stpt_attr The attribute being read from.
+ * @param[in]    	vpt_buf The buffer to be filled with the data being read.
+ * @param[in]    	u16_length The length of the buffer.
+ * @param[in]    	u16_offset The offset at which the data is being read.
+ * @return        Either BT_GATT_ERR() or the number of bytes written.
  */
-static ssize_t st_FOTAProgressRead(struct bt_conn *conn,
-	const struct bt_gatt_attr *attr,
-	void *buf, uint16_t len,
-	uint16_t offset)
+static ssize_t st_FOTAProgressRead(struct bt_conn *stpt_connHandle,
+	const struct bt_gatt_attr *stpt_attr, void *vpt_buf, uint16_t u16_length,
+	uint16_t u16_offset)
 {
-	return bt_gatt_attr_read(conn, attr, buf, len, offset,
-	                         su8ar_resumeOffset,
-	                         sizeof(su8ar_resumeOffset));
+	ssize_t t_retVal = 0;
+	// Take a pointer to the user data of this attribute and consider it as a byte array,
+	//	as we are expecting byte array input for this characteristic.
+	CharCtx_T *stpt_charCtx = stpt_attr->user_data;
+
+	// Perform all the basic checks for the incoming read request parameters before processing the data.
+	// Check if the connection handle, attribute pointer, input buffer pointer or
+	// characteristic context pointer is NULL.
+	if (!stpt_connHandle || !stpt_attr || !vpt_buf || !stpt_charCtx)
+	{
+		t_retVal = BT_GATT_ERR(BT_ATT_ERR_UNLIKELY);
+		LOG_INF("Invalid parameters in FOTA Progress characteristic read. \
+			Connection Handle: %p, Attribute: %p, Buffer: %p", stpt_connHandle, stpt_attr, vpt_buf);
+	}
+	// Check if the read operation is not starting at offset 0, as we do not support
+	//	offset reads for this characteristic.
+	else if (u16_offset != 0U)
+	{
+		t_retVal = BT_GATT_ERR(BT_ATT_ERR_INVALID_OFFSET);
+		LOG_INF("Offset read not supported for FOTA Progress characteristic. \
+			Received u16_offset: %u", u16_offset);
+	}
+	// We want to keep reading to this characteristic with variable length data,
+	// so we will only check if the length of requested data read is more than the buffer size.
+	else if (u16_length > stpt_charCtx->u16_maxLen)
+	{
+		t_retVal = BT_GATT_ERR(BT_ATT_ERR_INVALID_ATTRIBUTE_LEN);
+		LOG_INF("FOTA Progress characteristic read length exceeds buffer size. \
+			Received length: %u", u16_length);
+	}
+
+	// Check if there is not any error in parameters
+	if (0 == t_retVal)
+	{
+		// Read the local attribute value from the local database.
+		t_retVal = bt_gatt_attr_read(stpt_connHandle, stpt_attr, vpt_buf, u16_length,
+			u16_offset, stpt_charCtx->u8pt_data, stpt_charCtx->u16_maxLen);
+	}
+
+	return t_retVal;
 }
 
 /******************************************************************************/

@@ -18,6 +18,11 @@
 /*                                  DEFINES                                   */
 /*                                                                            */
 /******************************************************************************/
+/**
+ * @def           APP_LOG
+ * @brief         Declare - already registered - the application log module.
+ *                Module name is APP_LOG. Log level is set to INFO.
+ */
 LOG_MODULE_DECLARE(APP_LOG);
 
 /******************************************************************************/
