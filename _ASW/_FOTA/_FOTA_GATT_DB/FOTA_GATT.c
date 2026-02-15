@@ -313,6 +313,9 @@ static ssize_t st_FOTACtrlWrite(struct bt_conn *stpt_connHandle,
 	// Take a pointer to the user data of this attribute and consider it as a byte array,
 	//	as we are expecting byte array input for this characteristic.
 	CharCtx_T *stpt_charCtx = stpt_attr->user_data;
+	// Create a temporary CP list structure to hold the parsed Control Packets from the incoming data.
+	CPList_T st_CPList;
+	FOTAEvent_T st_FOTAEvent = { 0 };
 
 	// Perform all the basic checks for the incoming write request parameters before processing the data.
 	// Check if the connection handle, attribute pointer, input buffer pointer or
@@ -355,8 +358,72 @@ static ssize_t st_FOTACtrlWrite(struct bt_conn *stpt_connHandle,
 		// Update the current length of the data in the buffer.
 		stpt_charCtx->u16_curLen = u16_length;
 
-		// Push this to FSM input queue for processing. This is just a placeholder,
-		// actual implementation may vary.
+		// Check if parsing the Control Packets from the incoming data and
+		// populating the temporary CP list structure completed successfully. 
+		if (eTP_OK == ge_TP_ParseCPList(stpt_charCtx->u8pt_data, stpt_charCtx->u16_curLen, &st_CPList))
+		{
+			// Check if there is only 1 CP block in the parsed CP list
+			if (1 == st_CPList.u8_count)
+			{
+				// Populate the event
+				// Check if the CP type of the single CP block in the parsed CP list is FOTA Start
+				if (st_CPList.star_CPBlocks[0].e_CPType == eCPT_FOTA_START)
+				{
+					st_FOTAEvent.e_evt = eFE_FOTA_START;
+					memcpy(&st_FOTAEvent.u_FOTAEvents.st_FOTAStart, \
+						st_CPList.star_CPBlocks[0].u8ar_CPData, \
+						st_CPList.star_CPBlocks[0].u8_CPBlockLength);
+				}
+				// Check if the CP type of the single CP block in the parsed CP list is Metadata
+				else if (st_CPList.star_CPBlocks[0].e_CPType == eCPT_METADATA)
+				{
+					st_FOTAEvent.e_evt = eFE_METADATA;
+					memcpy(&st_FOTAEvent.u_FOTAEvents.st_metadata, \
+						st_CPList.star_CPBlocks[0].u8ar_CPData, \
+						st_CPList.star_CPBlocks[0].u8_CPBlockLength);
+				}
+				// Check if the CP type of the single CP block in the parsed CP list is Manifest
+				else if (st_CPList.star_CPBlocks[0].e_CPType == eCPT_MANIFEST)
+				{
+					st_FOTAEvent.e_evt = eFE_MANIFEST;
+					memcpy(&st_FOTAEvent.u_FOTAEvents.st_manifest, \
+						st_CPList.star_CPBlocks[0].u8ar_CPData, \
+						st_CPList.star_CPBlocks[0].u8_CPBlockLength);
+				}
+				// Check if the CP type of the single CP block in the parsed CP list is FOTA Data
+				else if (st_CPList.star_CPBlocks[0].e_CPType == eCPT_FOTA_DATA)
+				{
+					st_FOTAEvent.e_evt = eFE_FOTA_DATA;
+					memcpy(&st_FOTAEvent.u_FOTAEvents.st_FOTAData, \
+						st_CPList.star_CPBlocks[0].u8ar_CPData, \
+						st_CPList.star_CPBlocks[0].u8_CPBlockLength);
+				}
+				else
+				{
+					LOG_INF("Unsupported Control Packet type received in FOTA Control characteristic data. "
+						"Received CP type: %u", st_CPList.star_CPBlocks[0].e_CPType);
+				}
+
+				// Publish this event
+				if (0 == zbus_chan_pub(&FOTAEventChannel, &st_FOTAEvent, K_NO_WAIT))
+				{
+					LOG_INF("Published FOTA Event to ZBUS channel successfully.");
+				}
+				else
+				{
+					LOG_INF("Failed to publish FOTA Event to ZBUS channel.");
+				}
+			}
+			else
+			{
+				LOG_INF("Invalid number of CP blocks in FOTA Control characteristic data. "
+					"Parsed CP block count: %u", st_CPList.u8_count);
+			}
+		}
+		else
+		{
+			LOG_INF("Failed to parse Control Packets from FOTA Control characteristic data.");
+		}
 
 		// Finally, after successful completion,  update the buffer with incoming data
 		// and return the length of data written.

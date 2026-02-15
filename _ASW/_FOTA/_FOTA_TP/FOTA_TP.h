@@ -67,7 +67,7 @@
 /*                              EXTERN FUNCTIONS                              */
 /*                                                                            */
 /******************************************************************************/
-extern TPError_E ge_TP_ParseCtrlPktList(uint8_t *u8pt_data, uint8_t u8_dataLen, \
+extern TPError_E ge_TP_ParseCPList(uint8_t *u8pt_data, uint8_t u8_dataLen, \
    CPList_T *stpt_CPList);
 extern TPError_E ge_TP_FindCPByType(const CPList_T *stpt_CPList, CPTypes_E e_CPType, \
    CPBlock_T **stptpt_CPBlock);

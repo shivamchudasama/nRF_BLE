@@ -72,7 +72,7 @@ static ssize_t st_FWRevisionRead(struct bt_conn *conn,
  * @var           su8ar_deviceName
  * @brief         Name of the device.
  */
-static const uint8_t su8ar_deviceName[] = "BLE FOTA Server";
+static const uint8_t su8ar_deviceName[] = "FOTA Server";
 
 /**
  * @var           su16_appearance

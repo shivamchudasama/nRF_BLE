@@ -9,7 +9,3 @@ target_sources(app PRIVATE
 target_include_directories(app PRIVATE
    ${CMAKE_CURRENT_LIST_DIR}
 )
-
-add_subdirectory(_FOTA)
-add_subdirectory(_BLE_GENERIX)
-add_subdirectory(_GAP)
