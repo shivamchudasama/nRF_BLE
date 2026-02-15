@@ -344,26 +344,33 @@ static void sv_FOTAThread(void *p1, void *p2, void *p3)
    const struct zbus_channel *stpt_channel;
    FOTAEvent_T st_FOTAEvent;
 
-   // Wait for FOTA events from the FOTAEventChannel and process them
-	while (0 == zbus_sub_wait(&FOTAEventChannelSub, &stpt_channel, K_FOREVER))
-   {
-      // Check if the event is from FOTAEventChannel
-		if (&FOTAEventChannel == stpt_channel)
-      {
-			/* Read the latest message from the channel */
-			zbus_chan_read(&FOTAEventChannel, &st_FOTAEvent, K_NO_WAIT);
-
-         LOG_INF("Received FOTA Event from ZBUS channel: Event Type: %d", st_FOTAEvent.e_evt);
-         LOG_INF("Received FOTA Event payload: 0x%08x", st_FOTAEvent.u_FOTAEvents.st_FOTAStart.u32_FOTAStartSignal);
-		}
-	}
-
-   ARG_UNUSED(p1);
-   ARG_UNUSED(p2);
-   ARG_UNUSED(p3);
-
    while (1)
    {
+      LOG_INF("FOTA Thread started");
+
+      // Wait for FOTA events from the FOTAEventChannel and process them
+      if (0 == zbus_sub_wait(&FOTAEventChannelSub, &stpt_channel, K_NO_WAIT))
+      {
+         // Check if the event is from FOTAEventChannel
+         if (&FOTAEventChannel == stpt_channel)
+         {
+            /* Read the latest message from the channel */
+            zbus_chan_read(&FOTAEventChannel, &st_FOTAEvent, K_NO_WAIT);
+
+            LOG_INF("Received FOTA Event from ZBUS channel: Event Type: %d", st_FOTAEvent.e_evt);
+            LOG_INF("Received FOTA Event payload: 0x%08x", st_FOTAEvent.u_FOTAEvents.st_FOTAStart.u32_FOTAStartSignal);
+         }
+      }
+      else
+      {
+         LOG_INF("No FOTA Event received from ZBUS channel");
+      }
+
+      ARG_UNUSED(p1);
+      ARG_UNUSED(p2);
+      ARG_UNUSED(p3);
+
+      LOG_INF("Running FOTA state machine");
       smf_run_state(SMF_CTX(&sst_FOTACtx));
 
       /* test triggers (keep only for bring-up) */
@@ -374,7 +381,9 @@ static void sv_FOTAThread(void *p1, void *p2, void *p3)
       if (si_counter == 6) { sst_FOTACtx.b_dataComplete = true; }
       if (si_counter == 9) { sst_FOTACtx.b_verifyOk = true; }
 
+      LOG_INF("FOTA thread going to sleep for 1 second");
       k_sleep(K_SECONDS(1));
+      LOG_INF("FOTA thread woke up");
    }
 }
 
