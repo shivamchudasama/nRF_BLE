@@ -28,9 +28,10 @@ ZBUS_CHAN_DEFINE(FOTAEventChannel,           // Name of the channel
                  FOTAEvent_T,                // Type of message that will be published on this channel
                  NULL,                       // Validator function
                  NULL,                       // User data
-                 ZBUS_OBSERVERS_EMPTY,       // Observers - No observers at the time of channel definition,
+                 ZBUS_OBSERVERS(FOTAEventChannelSub),
+                                             // Observers - No observers at the time of channel definition,
                                              // but they can be added later using zbus_chan_add_observer()
-                 ZBUS_MSG_INIT(0)          // Initial message
+                 ZBUS_MSG_INIT(0)            // Initial message
                );
 
 /******************************************************************************/

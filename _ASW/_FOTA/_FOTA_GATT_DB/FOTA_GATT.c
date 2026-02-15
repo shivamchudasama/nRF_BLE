@@ -358,6 +358,15 @@ static ssize_t st_FOTACtrlWrite(struct bt_conn *stpt_connHandle,
 		// Update the current length of the data in the buffer.
 		stpt_charCtx->u16_curLen = u16_length;
 
+		// SDC:
+		// Added just for testing purposes - to simulate the presence of Control Packets
+		stpt_charCtx->u8pt_data[0] = 5;
+		stpt_charCtx->u8pt_data[1] = 1;
+		stpt_charCtx->u8pt_data[2] = 0xAA;
+		stpt_charCtx->u8pt_data[3] = 0xBB;
+		stpt_charCtx->u8pt_data[4] = 0xCC;
+		stpt_charCtx->u8pt_data[5] = 0xDD;
+
 		// Check if parsing the Control Packets from the incoming data and
 		// populating the temporary CP list structure completed successfully. 
 		if (eTP_OK == ge_TP_ParseCPList(stpt_charCtx->u8pt_data, stpt_charCtx->u16_curLen, &st_CPList))

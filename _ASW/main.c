@@ -71,6 +71,12 @@ LOG_MODULE_REGISTER(APP_LOG, LOG_LEVEL_INF);
  */
 #define FOTA_THREAD_PRIO                     (5)
 
+/**
+ * @def           FOTAEventChannelSub
+ * @brief         Subscribber for FOTAEventChannel with queue size of 4.
+ */
+ZBUS_SUBSCRIBER_DEFINE(FOTAEventChannelSub, 4);
+
 /******************************************************************************/
 /*                                                                            */
 /*                                   ENUMS                                    */
@@ -335,6 +341,23 @@ static void sv_Recycled(void)
  */
 static void sv_FOTAThread(void *p1, void *p2, void *p3)
 {
+   const struct zbus_channel *stpt_channel;
+   FOTAEvent_T st_FOTAEvent;
+
+   // Wait for FOTA events from the FOTAEventChannel and process them
+	while (0 == zbus_sub_wait(&FOTAEventChannelSub, &stpt_channel, K_FOREVER))
+   {
+      // Check if the event is from FOTAEventChannel
+		if (&FOTAEventChannel == stpt_channel)
+      {
+			/* Read the latest message from the channel */
+			zbus_chan_read(&FOTAEventChannel, &st_FOTAEvent, K_NO_WAIT);
+
+         LOG_INF("Received FOTA Event from ZBUS channel: Event Type: %d", st_FOTAEvent.e_evt);
+         LOG_INF("Received FOTA Event payload: 0x%08x", st_FOTAEvent.u_FOTAEvents.st_FOTAStart.u32_FOTAStartSignal);
+		}
+	}
+
    ARG_UNUSED(p1);
    ARG_UNUSED(p2);
    ARG_UNUSED(p3);
