@@ -228,6 +228,8 @@ static enum smf_state_result se_eFS_IDLE_Run(void *vpt_obj)
       if (FOTA_START_SIGNATURE ==
          stpt_FOTAStateMachineCtx->st_FOTAEvent.u_FOTAEventsPayload.st_FOTAStart.u32_FOTAStartSignal)
       {
+         // Clear the event pending flag
+         stpt_FOTAStateMachineCtx->b_isEventPending = false;
          LOG_INF("Start request received, transitioning to eFS_RECEIVING_METADATA state");
          smf_set_state(SMF_CTX(stpt_FOTAStateMachineCtx), &gst_FOTAStates[eFS_RECEIVING_METADATA]);
       }
@@ -287,6 +289,8 @@ static enum smf_state_result se_eFS_RECEIVING_METADATA_Run(void *vpt_obj)
    if ((stpt_FOTAStateMachineCtx->b_isEventPending) &&
       (eFE_METADATA == stpt_FOTAStateMachineCtx->st_FOTAEvent.e_evt))
    {
+      // Clear the event pending flag
+      stpt_FOTAStateMachineCtx->b_isEventPending = false;
       // As there might be more than one metadata packets received. We need to parst it.
       ge_TP_ParseCPList(stpt_FOTAStateMachineCtx->st_FOTAEvent.u_FOTAEventsPayload.st_metadata.u8ar_metadataPkt,
          stpt_FOTAStateMachineCtx->st_FOTAEvent.u16_payloadLength, &st_CPList);
@@ -628,8 +632,8 @@ static void sv_FOTAStateMachineThread(void *vpt_entryParam1, void *vpt_entryPara
             // Mark the pending event flag
             sst_FOTAStateMachineCtx.b_isEventPending = true;
 
-            LOG_INF("Received FOTA Event from ZBUS channel: Event Type: %d", st_FOTAEvent.e_evt);
-            LOG_INF("Received FOTA Event payload: 0x%08x", st_FOTAEvent.u_FOTAEventsPayload.st_FOTAStart.u32_FOTAStartSignal);
+            LOG_INF("Received FOTA Event from ZBUS channel: Event Type: %d", sst_FOTAStateMachineCtx.st_FOTAEvent.e_evt);
+            LOG_INF("Received FOTA Event payload: 0x%08x", sst_FOTAStateMachineCtx.st_FOTAEvent.u_FOTAEventsPayload.st_FOTAStart.u32_FOTAStartSignal);
 
             LOG_INF("Running FOTA state machine");
 
@@ -651,7 +655,7 @@ static void sv_FOTAStateMachineThread(void *vpt_entryParam1, void *vpt_entryPara
       // if (si_counter == 9) { sst_FOTAStateMachineCtx.b_verifyOk = true; }
 
       // LOG_INF("FOTA thread going to sleep for 1 second");
-      // k_sleep(K_SECONDS(1));
+      k_sleep(K_MSEC(100));
       // LOG_INF("FOTA thread woke up");
    }
 }
