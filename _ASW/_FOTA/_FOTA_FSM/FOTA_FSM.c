@@ -220,12 +220,28 @@ static enum smf_state_result se_eFS_IDLE_Run(void *vpt_obj)
 
    LOG_INF("sv_eFS_IDLE running");
 
-   // if (stpt_FOTAStateMachineCtx->b_startReq)
-   // {
-   //    LOG_INF("Start request received, transitioning to eFS_RECEIVING_METADATA state");
-   //    smf_set_state(SMF_CTX(stpt_FOTAStateMachineCtx), &gst_FOTAStates[eFS_RECEIVING_METADATA]);
-   //    e_retVal = SMF_EVENT_HANDLED;
-   // }
+   // Check if any event is pending to handle and that is FOTA START command
+   if ((stpt_FOTAStateMachineCtx->b_isEventPending) &&
+      (eFE_FOTA_START == stpt_FOTAStateMachineCtx->st_FOTAEvent.e_evt))
+   {
+      // Check if FOTA start signature has been received
+      if (FOTA_START_SIGNATURE ==
+         stpt_FOTAStateMachineCtx->st_FOTAEvent.u_FOTAEvents.st_FOTAStart.u32_FOTAStartSignal)
+      {
+         LOG_INF("Start request received, transitioning to eFS_RECEIVING_METADATA state");
+         smf_set_state(SMF_CTX(stpt_FOTAStateMachineCtx), &gst_FOTAStates[eFS_RECEIVING_METADATA]);
+      }
+      else
+      {
+         LOG_INF("Invalid start signature.");
+      }
+
+      e_retVal = SMF_EVENT_HANDLED;
+   }
+   else
+   {
+      LOG_INF("Invalid activity");
+   }
 
    return e_retVal;
 }
@@ -602,6 +618,8 @@ static void sv_FOTAStateMachineThread(void *vpt_entryParam1, void *vpt_entryPara
             LOG_INF("Received FOTA Event payload: 0x%08x", st_FOTAEvent.u_FOTAEvents.st_FOTAStart.u32_FOTAStartSignal);
 
             LOG_INF("Running FOTA state machine");
+
+            // Execute the FOTA state machine
             smf_run_state(SMF_CTX(&sst_FOTAStateMachineCtx));
          }
       }

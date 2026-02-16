@@ -24,6 +24,11 @@
 /*                                  DEFINES                                   */
 /*                                                                            */
 /******************************************************************************/
+/**
+ * @def           FOTA_START_SIGNATURE
+ * @brief         Signature indicating the FOTA start.
+ */
+#define FOTA_START_SIGNATURE                 (0xAABBCCDDU)
 
 /******************************************************************************/
 /*                                                                            */
