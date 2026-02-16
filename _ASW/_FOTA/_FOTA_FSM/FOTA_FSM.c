@@ -92,37 +92,37 @@ ZBUS_SUBSCRIBER_DEFINE(FOTAEventChannelSub, 4);
 /*                       PRIVATE FUNCTION DECLARATIONS                        */
 /*                                                                            */
 /******************************************************************************/
-static void sv_eFS_IDLE_Entry(void *obj);
-static enum smf_state_result se_eFS_IDLE_Run(void *obj);
-static void sv_eFS_IDLE_Exit(void *obj);
+static void sv_eFS_IDLE_Entry(void *vpt_obj);
+static enum smf_state_result se_eFS_IDLE_Run(void *vpt_obj);
+static void sv_eFS_IDLE_Exit(void *vpt_obj);
 
-static void sv_eFS_RECEIVING_METADATA_Entry(void *obj);
-static enum smf_state_result se_eFS_RECEIVING_METADATA_Run(void *obj);
-static void sv_eFS_RECEIVING_METADATA_Exit(void *obj);
+static void sv_eFS_RECEIVING_METADATA_Entry(void *vpt_obj);
+static enum smf_state_result se_eFS_RECEIVING_METADATA_Run(void *vpt_obj);
+static void sv_eFS_RECEIVING_METADATA_Exit(void *vpt_obj);
 
-static void sv_eFS_RECEIVING_MANIFEST_Entry(void *obj);
-static enum smf_state_result se_eFS_RECEIVING_MANIFEST_Run(void *obj);
-static void sv_eFS_RECEIVING_MANIFEST_Exit(void *obj);
+static void sv_eFS_RECEIVING_MANIFEST_Entry(void *vpt_obj);
+static enum smf_state_result se_eFS_RECEIVING_MANIFEST_Run(void *vpt_obj);
+static void sv_eFS_RECEIVING_MANIFEST_Exit(void *vpt_obj);
 
-static void sv_eFS_RECEIVING_DATA_Entry(void *obj);
-static enum smf_state_result se_eFS_RECEIVING_DATA_Run(void *obj);
-static void sv_eFS_RECEIVING_DATA_Exit(void *obj);
+static void sv_eFS_RECEIVING_DATA_Entry(void *vpt_obj);
+static enum smf_state_result se_eFS_RECEIVING_DATA_Run(void *vpt_obj);
+static void sv_eFS_RECEIVING_DATA_Exit(void *vpt_obj);
 
-static void sv_eFS_VALIDATE_IMAGE_Entry(void *obj);
-static enum smf_state_result se_eFS_VALIDATE_IMAGE_Run(void *obj);
-static void sv_eFS_VALIDATE_IMAGE_Exit(void *obj);
+static void sv_eFS_VALIDATE_IMAGE_Entry(void *vpt_obj);
+static enum smf_state_result se_eFS_VALIDATE_IMAGE_Run(void *vpt_obj);
+static void sv_eFS_VALIDATE_IMAGE_Exit(void *vpt_obj);
 
-static void sv_eFS_STAGE_IMAGE_Entry(void *obj);
-static enum smf_state_result se_eFS_STAGE_IMAGE_Run(void *obj);
-static void sv_eFS_STAGE_IMAGE_Exit(void *obj);
+static void sv_eFS_STAGE_IMAGE_Entry(void *vpt_obj);
+static enum smf_state_result se_eFS_STAGE_IMAGE_Run(void *vpt_obj);
+static void sv_eFS_STAGE_IMAGE_Exit(void *vpt_obj);
 
-static void sv_eFS_COMPLETED_Entry(void *obj);
-static enum smf_state_result se_eFS_COMPLETED_Run(void *obj);
-static void sv_eFS_COMPLETED_Exit(void *obj);
+static void sv_eFS_COMPLETED_Entry(void *vpt_obj);
+static enum smf_state_result se_eFS_COMPLETED_Run(void *vpt_obj);
+static void sv_eFS_COMPLETED_Exit(void *vpt_obj);
 
-static void sv_eFS_ABORT_Entry(void *obj);
-static enum smf_state_result se_eFS_ABORT_Run(void *obj);
-static void sv_eFS_ABORT_Exit(void *obj);
+static void sv_eFS_ABORT_Entry(void *vpt_obj);
+static enum smf_state_result se_eFS_ABORT_Run(void *vpt_obj);
+static void sv_eFS_ABORT_Exit(void *vpt_obj);
 
 static void sv_FOTAStateMachineThread(void *vpt_entryParam1, void *vpt_entryParam2,
    void *vpt_entryParam3);
@@ -197,12 +197,12 @@ K_THREAD_STACK_DEFINE(sst_FOTAStateMachineThreadStack, FOTA_STATE_MACHINE_THREAD
 /**
  * @private       sv_eFS_IDLE_Entry
  * @brief         <Function details>.
- * @param[in]     <Input parameter details>.
+ * @param[in]     vpt_obj Pointer to user object declared for FOTA state machine.
  * @param[out]    <Output parameter details>.
  * @param[inout]  <Input-Output parameter details>.
  * @return        <Return details>.
  */
-static void sv_eFS_IDLE_Entry(void *obj)
+static void sv_eFS_IDLE_Entry(void *vpt_obj)
 {
    LOG_INF("sv_eFS_IDLE entry");
 }
@@ -210,24 +210,22 @@ static void sv_eFS_IDLE_Entry(void *obj)
 /**
  * @private       sv_eFS_IDLE_Run
  * @brief         <Function details>.
- * @param[in]     <Input parameter details>.
- * @param[out]    <Output parameter details>.
- * @param[inout]  <Input-Output parameter details>.
+ * @param[in]     vpt_obj Pointer to user object declared for FOTA state machine.
  * @return        <Return details>.
  */
-static enum smf_state_result se_eFS_IDLE_Run(void *obj)
+static enum smf_state_result se_eFS_IDLE_Run(void *vpt_obj)
 {
-   FOTAStateMachineCtx_T *stpt_FOTACtx = (FOTAStateMachineCtx_T *)obj;
+   FOTAStateMachineCtx_T *stpt_FOTAStateMachineCtx = (FOTAStateMachineCtx_T *)vpt_obj;
    enum smf_state_result e_retVal = SMF_EVENT_PROPAGATE;
 
    LOG_INF("sv_eFS_IDLE running");
 
-   if (stpt_FOTACtx->b_startReq)
-   {
-      LOG_INF("Start request received, transitioning to eFS_RECEIVING_METADATA state");
-      smf_set_state(SMF_CTX(stpt_FOTACtx), &gst_FOTAStates[eFS_RECEIVING_METADATA]);
-      e_retVal = SMF_EVENT_HANDLED;
-   }
+   // if (stpt_FOTAStateMachineCtx->b_startReq)
+   // {
+   //    LOG_INF("Start request received, transitioning to eFS_RECEIVING_METADATA state");
+   //    smf_set_state(SMF_CTX(stpt_FOTAStateMachineCtx), &gst_FOTAStates[eFS_RECEIVING_METADATA]);
+   //    e_retVal = SMF_EVENT_HANDLED;
+   // }
 
    return e_retVal;
 }
@@ -235,12 +233,10 @@ static enum smf_state_result se_eFS_IDLE_Run(void *obj)
 /**
  * @private       sv_eFS_IDLE_Exit
  * @brief         <Function details>.
- * @param[in]     <Input parameter details>.
- * @param[out]    <Output parameter details>.
- * @param[inout]  <Input-Output parameter details>.
+ * @param[in]     vpt_obj Pointer to user object declared for FOTA state machine.
  * @return        <Return details>.
  */
-static void sv_eFS_IDLE_Exit(void *obj)
+static void sv_eFS_IDLE_Exit(void *vpt_obj)
 {
    LOG_INF("sv_eFS_IDLE exit");
 }
@@ -249,12 +245,10 @@ static void sv_eFS_IDLE_Exit(void *obj)
 /**
  * @private       sv_eFS_RECEIVING_METADATA_Entry
  * @brief         <Function details>.
- * @param[in]     <Input parameter details>.
- * @param[out]    <Output parameter details>.
- * @param[inout]  <Input-Output parameter details>.
+ * @param[in]     vpt_obj Pointer to user object declared for FOTA state machine.
  * @return        <Return details>.
  */
-static void sv_eFS_RECEIVING_METADATA_Entry(void *obj)
+static void sv_eFS_RECEIVING_METADATA_Entry(void *vpt_obj)
 {
    LOG_INF("sv_eFS_RECEIVING_METADATA entry");
 }
@@ -262,24 +256,22 @@ static void sv_eFS_RECEIVING_METADATA_Entry(void *obj)
 /**
  * @private       sv_eFS_RECEIVING_METADATA_Run
  * @brief         <Function details>.
- * @param[in]     <Input parameter details>.
- * @param[out]    <Output parameter details>.
- * @param[inout]  <Input-Output parameter details>.
+ * @param[in]     vpt_obj Pointer to user object declared for FOTA state machine.
  * @return        <Return details>.
  */
-static enum smf_state_result se_eFS_RECEIVING_METADATA_Run(void *obj)
+static enum smf_state_result se_eFS_RECEIVING_METADATA_Run(void *vpt_obj)
 {
-   FOTAStateMachineCtx_T *stpt_FOTACtx = (FOTAStateMachineCtx_T *)obj;
+   FOTAStateMachineCtx_T *stpt_FOTAStateMachineCtx = (FOTAStateMachineCtx_T *)vpt_obj;
    enum smf_state_result e_retVal = SMF_EVENT_PROPAGATE;
 
    LOG_INF("sv_eFS_RECEIVING_METADATA running");
 
-   if (stpt_FOTACtx->b_dataComplete)
-   {
-      LOG_INF("Data complete received, transitioning to eFS_RECEIVING_MANIFEST state");
-      smf_set_state(SMF_CTX(stpt_FOTACtx), &gst_FOTAStates[eFS_RECEIVING_MANIFEST]);
-      e_retVal = SMF_EVENT_HANDLED;
-   }
+   // if (stpt_FOTAStateMachineCtx->b_dataComplete)
+   // {
+   //    LOG_INF("Data complete received, transitioning to eFS_RECEIVING_MANIFEST state");
+   //    smf_set_state(SMF_CTX(stpt_FOTAStateMachineCtx), &gst_FOTAStates[eFS_RECEIVING_MANIFEST]);
+   //    e_retVal = SMF_EVENT_HANDLED;
+   // }
 
    return e_retVal;
 }
@@ -287,12 +279,10 @@ static enum smf_state_result se_eFS_RECEIVING_METADATA_Run(void *obj)
 /**
  * @private       sv_eFS_RECEIVING_METADATA_Exit
  * @brief         <Function details>.
- * @param[in]     <Input parameter details>.
- * @param[out]    <Output parameter details>.
- * @param[inout]  <Input-Output parameter details>.
+ * @param[in]     vpt_obj Pointer to user object declared for FOTA state machine.
  * @return        <Return details>.
  */
-static void sv_eFS_RECEIVING_METADATA_Exit(void *obj)
+static void sv_eFS_RECEIVING_METADATA_Exit(void *vpt_obj)
 {
    LOG_INF("sv_eFS_RECEIVING_METADATA exit");
 }
@@ -301,12 +291,10 @@ static void sv_eFS_RECEIVING_METADATA_Exit(void *obj)
 /**
  * @private       sv_eFS_RECEIVING_MANIFEST_Entry
  * @brief         <Function details>.
- * @param[in]     <Input parameter details>.
- * @param[out]    <Output parameter details>.
- * @param[inout]  <Input-Output parameter details>.
+ * @param[in]     vpt_obj Pointer to user object declared for FOTA state machine.
  * @return        <Return details>.
  */
-static void sv_eFS_RECEIVING_MANIFEST_Entry(void *obj)
+static void sv_eFS_RECEIVING_MANIFEST_Entry(void *vpt_obj)
 {
    LOG_INF("sv_eFS_RECEIVING_MANIFEST entry");
 }
@@ -314,24 +302,22 @@ static void sv_eFS_RECEIVING_MANIFEST_Entry(void *obj)
 /**
  * @private       sv_eFS_RECEIVING_MANIFEST_Run
  * @brief         <Function details>.
- * @param[in]     <Input parameter details>.
- * @param[out]    <Output parameter details>.
- * @param[inout]  <Input-Output parameter details>.
+ * @param[in]     vpt_obj Pointer to user object declared for FOTA state machine.
  * @return        <Return details>.
  */
-static enum smf_state_result se_eFS_RECEIVING_MANIFEST_Run(void *obj)
+static enum smf_state_result se_eFS_RECEIVING_MANIFEST_Run(void *vpt_obj)
 {
-   FOTAStateMachineCtx_T *stpt_FOTACtx = (FOTAStateMachineCtx_T *)obj;
+   FOTAStateMachineCtx_T *stpt_FOTAStateMachineCtx = (FOTAStateMachineCtx_T *)vpt_obj;
    enum smf_state_result e_retVal = SMF_EVENT_PROPAGATE;
 
    LOG_INF("sv_eFS_RECEIVING_MANIFEST running");
 
-   if (stpt_FOTACtx->b_verifyOk)
-   {
-      LOG_INF("Verify OK received, transitioning to eFS_RECEIVING_DATA state");
-      smf_set_state(SMF_CTX(stpt_FOTACtx), &gst_FOTAStates[eFS_RECEIVING_DATA]);
-      e_retVal = SMF_EVENT_HANDLED;
-   }
+   // if (stpt_FOTAStateMachineCtx->b_verifyOk)
+   // {
+   //    LOG_INF("Verify OK received, transitioning to eFS_RECEIVING_DATA state");
+   //    smf_set_state(SMF_CTX(stpt_FOTAStateMachineCtx), &gst_FOTAStates[eFS_RECEIVING_DATA]);
+   //    e_retVal = SMF_EVENT_HANDLED;
+   // }
 
    return e_retVal;
 }
@@ -339,12 +325,10 @@ static enum smf_state_result se_eFS_RECEIVING_MANIFEST_Run(void *obj)
 /**
  * @private       sv_eFS_RECEIVING_MANIFEST_Exit
  * @brief         <Function details>.
- * @param[in]     <Input parameter details>.
- * @param[out]    <Output parameter details>.
- * @param[inout]  <Input-Output parameter details>.
+ * @param[in]     vpt_obj Pointer to user object declared for FOTA state machine.
  * @return        <Return details>.
  */
-static void sv_eFS_RECEIVING_MANIFEST_Exit(void *obj)
+static void sv_eFS_RECEIVING_MANIFEST_Exit(void *vpt_obj)
 {
    LOG_INF("sv_eFS_RECEIVING_MANIFEST exit");
 }
@@ -353,12 +337,10 @@ static void sv_eFS_RECEIVING_MANIFEST_Exit(void *obj)
 /**
  * @private       sv_eFS_RECEIVING_DATA_Entry
  * @brief         <Function details>.
- * @param[in]     <Input parameter details>.
- * @param[out]    <Output parameter details>.
- * @param[inout]  <Input-Output parameter details>.
+ * @param[in]     vpt_obj Pointer to user object declared for FOTA state machine.
  * @return        <Return details>.
  */
-static void sv_eFS_RECEIVING_DATA_Entry(void *obj)
+static void sv_eFS_RECEIVING_DATA_Entry(void *vpt_obj)
 {
    LOG_INF("sv_eFS_RECEIVING_DATA entry");
 }
@@ -366,24 +348,22 @@ static void sv_eFS_RECEIVING_DATA_Entry(void *obj)
 /**
  * @private       sv_eFS_RECEIVING_DATA_Run
  * @brief         <Function details>.
- * @param[in]     <Input parameter details>.
- * @param[out]    <Output parameter details>.
- * @param[inout]  <Input-Output parameter details>.
+ * @param[in]     vpt_obj Pointer to user object declared for FOTA state machine.
  * @return        <Return details>.
  */
-static enum smf_state_result se_eFS_RECEIVING_DATA_Run(void *obj)
+static enum smf_state_result se_eFS_RECEIVING_DATA_Run(void *vpt_obj)
 {
-   FOTAStateMachineCtx_T *stpt_FOTACtx = (FOTAStateMachineCtx_T *)obj;
+   FOTAStateMachineCtx_T *stpt_FOTAStateMachineCtx = (FOTAStateMachineCtx_T *)vpt_obj;
    enum smf_state_result e_retVal = SMF_EVENT_PROPAGATE;
 
    LOG_INF("sv_eFS_RECEIVING_DATA running");
 
-   if (stpt_FOTACtx->b_verifyOk)
-   {
-      LOG_INF("Verify OK received, transitioning to eFS_VALIDATE_IMAGE state");
-      smf_set_state(SMF_CTX(stpt_FOTACtx), &gst_FOTAStates[eFS_VALIDATE_IMAGE]);
-      e_retVal = SMF_EVENT_HANDLED;
-   }
+   // if (stpt_FOTAStateMachineCtx->b_verifyOk)
+   // {
+   //    LOG_INF("Verify OK received, transitioning to eFS_VALIDATE_IMAGE state");
+   //    smf_set_state(SMF_CTX(stpt_FOTAStateMachineCtx), &gst_FOTAStates[eFS_VALIDATE_IMAGE]);
+   //    e_retVal = SMF_EVENT_HANDLED;
+   // }
 
    return e_retVal;
 }
@@ -391,12 +371,10 @@ static enum smf_state_result se_eFS_RECEIVING_DATA_Run(void *obj)
 /**
  * @private       sv_eFS_RECEIVING_DATA_Exit
  * @brief         <Function details>.
- * @param[in]     <Input parameter details>.
- * @param[out]    <Output parameter details>.
- * @param[inout]  <Input-Output parameter details>.
+ * @param[in]     vpt_obj Pointer to user object declared for FOTA state machine.
  * @return        <Return details>.
  */
-static void sv_eFS_RECEIVING_DATA_Exit(void *obj)
+static void sv_eFS_RECEIVING_DATA_Exit(void *vpt_obj)
 {
    LOG_INF("sv_eFS_RECEIVING_DATA exit");
 }
@@ -405,12 +383,10 @@ static void sv_eFS_RECEIVING_DATA_Exit(void *obj)
 /**
  * @private       sv_eFS_VALIDATE_IMAGE_Entry
  * @brief         <Function details>.
- * @param[in]     <Input parameter details>.
- * @param[out]    <Output parameter details>.
- * @param[inout]  <Input-Output parameter details>.
+ * @param[in]     vpt_obj Pointer to user object declared for FOTA state machine.
  * @return        <Return details>.
  */
-static void sv_eFS_VALIDATE_IMAGE_Entry(void *obj)
+static void sv_eFS_VALIDATE_IMAGE_Entry(void *vpt_obj)
 {
    LOG_INF("sv_eFS_VALIDATE_IMAGE entry");
 }
@@ -418,24 +394,22 @@ static void sv_eFS_VALIDATE_IMAGE_Entry(void *obj)
 /**
  * @private       sv_eFS_VALIDATE_IMAGE_Run
  * @brief         <Function details>.
- * @param[in]     <Input parameter details>.
- * @param[out]    <Output parameter details>.
- * @param[inout]  <Input-Output parameter details>.
+ * @param[in]     vpt_obj Pointer to user object declared for FOTA state machine.
  * @return        <Return details>.
  */
-static enum smf_state_result se_eFS_VALIDATE_IMAGE_Run(void *obj)
+static enum smf_state_result se_eFS_VALIDATE_IMAGE_Run(void *vpt_obj)
 {
-   FOTAStateMachineCtx_T *stpt_FOTACtx = (FOTAStateMachineCtx_T *)obj;
+   FOTAStateMachineCtx_T *stpt_FOTAStateMachineCtx = (FOTAStateMachineCtx_T *)vpt_obj;
    enum smf_state_result e_retVal = SMF_EVENT_PROPAGATE;
 
    LOG_INF("sv_eFS_VALIDATE_IMAGE running");
 
-   if (stpt_FOTACtx->b_verifyOk)
-   {
-      LOG_INF("Verify OK received, transitioning to eFS_STAGE_IMAGE state");
-      smf_set_state(SMF_CTX(stpt_FOTACtx), &gst_FOTAStates[eFS_STAGE_IMAGE]);
-      e_retVal = SMF_EVENT_HANDLED;
-   }
+   // if (stpt_FOTAStateMachineCtx->b_verifyOk)
+   // {
+   //    LOG_INF("Verify OK received, transitioning to eFS_STAGE_IMAGE state");
+   //    smf_set_state(SMF_CTX(stpt_FOTAStateMachineCtx), &gst_FOTAStates[eFS_STAGE_IMAGE]);
+   //    e_retVal = SMF_EVENT_HANDLED;
+   // }
 
    return e_retVal;
 }
@@ -443,12 +417,10 @@ static enum smf_state_result se_eFS_VALIDATE_IMAGE_Run(void *obj)
 /**
  * @private       sv_eFS_VALIDATE_IMAGE_Exit
  * @brief         <Function details>.
- * @param[in]     <Input parameter details>.
- * @param[out]    <Output parameter details>.
- * @param[inout]  <Input-Output parameter details>.
+ * @param[in]     vpt_obj Pointer to user object declared for FOTA state machine.
  * @return        <Return details>.
  */
-static void sv_eFS_VALIDATE_IMAGE_Exit(void *obj)
+static void sv_eFS_VALIDATE_IMAGE_Exit(void *vpt_obj)
 {
    LOG_INF("sv_eFS_VALIDATE_IMAGE exit");
 }
@@ -457,12 +429,10 @@ static void sv_eFS_VALIDATE_IMAGE_Exit(void *obj)
 /**
  * @private       sv_eFS_STAGE_IMAGE_Entry
  * @brief         <Function details>.
- * @param[in]     <Input parameter details>.
- * @param[out]    <Output parameter details>.
- * @param[inout]  <Input-Output parameter details>.
+ * @param[in]     vpt_obj Pointer to user object declared for FOTA state machine.
  * @return        <Return details>.
  */
-static void sv_eFS_STAGE_IMAGE_Entry(void *obj)
+static void sv_eFS_STAGE_IMAGE_Entry(void *vpt_obj)
 {
    LOG_INF("sv_eFS_STAGE_IMAGE entry");
 }
@@ -470,24 +440,22 @@ static void sv_eFS_STAGE_IMAGE_Entry(void *obj)
 /**
  * @private       sv_eFS_STAGE_IMAGE_Run
  * @brief         <Function details>.
- * @param[in]     <Input parameter details>.
- * @param[out]    <Output parameter details>.
- * @param[inout]  <Input-Output parameter details>.
+ * @param[in]     vpt_obj Pointer to user object declared for FOTA state machine.
  * @return        <Return details>.
  */
-static enum smf_state_result se_eFS_STAGE_IMAGE_Run(void *obj)
+static enum smf_state_result se_eFS_STAGE_IMAGE_Run(void *vpt_obj)
 {
-   FOTAStateMachineCtx_T *stpt_FOTACtx = (FOTAStateMachineCtx_T *)obj;
+   FOTAStateMachineCtx_T *stpt_FOTAStateMachineCtx = (FOTAStateMachineCtx_T *)vpt_obj;
    enum smf_state_result e_retVal = SMF_EVENT_PROPAGATE;
 
    LOG_INF("sv_eFS_STAGE_IMAGE running");
 
-   if (stpt_FOTACtx->b_verifyOk)
-   {
-      LOG_INF("Verify OK received, transitioning to eFS_COMPLETED state");
-      smf_set_state(SMF_CTX(stpt_FOTACtx), &gst_FOTAStates[eFS_COMPLETED]);
-      e_retVal = SMF_EVENT_HANDLED;
-   }
+   // if (stpt_FOTAStateMachineCtx->b_verifyOk)
+   // {
+   //    LOG_INF("Verify OK received, transitioning to eFS_COMPLETED state");
+   //    smf_set_state(SMF_CTX(stpt_FOTAStateMachineCtx), &gst_FOTAStates[eFS_COMPLETED]);
+   //    e_retVal = SMF_EVENT_HANDLED;
+   // }
 
    return e_retVal;
 }
@@ -495,12 +463,10 @@ static enum smf_state_result se_eFS_STAGE_IMAGE_Run(void *obj)
 /**
  * @private       sv_eFS_STAGE_IMAGE_Exit
  * @brief         <Function details>.
- * @param[in]     <Input parameter details>.
- * @param[out]    <Output parameter details>.
- * @param[inout]  <Input-Output parameter details>.
+ * @param[in]     vpt_obj Pointer to user object declared for FOTA state machine.
  * @return        <Return details>.
  */
-static void sv_eFS_STAGE_IMAGE_Exit(void *obj)
+static void sv_eFS_STAGE_IMAGE_Exit(void *vpt_obj)
 {
    LOG_INF("sv_eFS_STAGE_IMAGE exit");
 }
@@ -509,12 +475,10 @@ static void sv_eFS_STAGE_IMAGE_Exit(void *obj)
 /**
  * @private       sv_eFS_COMPLETED_Entry
  * @brief         <Function details>.
- * @param[in]     <Input parameter details>.
- * @param[out]    <Output parameter details>.
- * @param[inout]  <Input-Output parameter details>.
+ * @param[in]     vpt_obj Pointer to user object declared for FOTA state machine.
  * @return        <Return details>.
  */
-static void sv_eFS_COMPLETED_Entry(void *obj)
+static void sv_eFS_COMPLETED_Entry(void *vpt_obj)
 {
    LOG_INF("sv_eFS_COMPLETED entry");
 }
@@ -522,24 +486,22 @@ static void sv_eFS_COMPLETED_Entry(void *obj)
 /**
  * @private       sv_eFS_COMPLETED_Run
  * @brief         <Function details>.
- * @param[in]     <Input parameter details>.
- * @param[out]    <Output parameter details>.
- * @param[inout]  <Input-Output parameter details>.
+ * @param[in]     vpt_obj Pointer to user object declared for FOTA state machine.
  * @return        <Return details>.
  */
-static enum smf_state_result se_eFS_COMPLETED_Run(void *obj)
+static enum smf_state_result se_eFS_COMPLETED_Run(void *vpt_obj)
 {
-   FOTAStateMachineCtx_T *stpt_FOTACtx = (FOTAStateMachineCtx_T *)obj;
+   FOTAStateMachineCtx_T *stpt_FOTAStateMachineCtx = (FOTAStateMachineCtx_T *)vpt_obj;
    enum smf_state_result e_retVal = SMF_EVENT_PROPAGATE;
 
    LOG_INF("sv_eFS_COMPLETED running");
 
-   if (stpt_FOTACtx->b_verifyOk)
-   {
-      LOG_INF("Verify OK received, transitioning to eFS_IDLE state");
-      smf_set_state(SMF_CTX(stpt_FOTACtx), &gst_FOTAStates[eFS_IDLE]);
-      e_retVal = SMF_EVENT_HANDLED;
-   }
+   // if (stpt_FOTAStateMachineCtx->b_verifyOk)
+   // {
+   //    LOG_INF("Verify OK received, transitioning to eFS_IDLE state");
+   //    smf_set_state(SMF_CTX(stpt_FOTAStateMachineCtx), &gst_FOTAStates[eFS_IDLE]);
+   //    e_retVal = SMF_EVENT_HANDLED;
+   // }
 
    return e_retVal;
 }
@@ -547,12 +509,10 @@ static enum smf_state_result se_eFS_COMPLETED_Run(void *obj)
 /**
  * @private       sv_eFS_COMPLETED_Exit
  * @brief         <Function details>.
- * @param[in]     <Input parameter details>.
- * @param[out]    <Output parameter details>.
- * @param[inout]  <Input-Output parameter details>.
+ * @param[in]     vpt_obj Pointer to user object declared for FOTA state machine.
  * @return        <Return details>.
  */
-static void sv_eFS_COMPLETED_Exit(void *obj)
+static void sv_eFS_COMPLETED_Exit(void *vpt_obj)
 {
    LOG_INF("sv_eFS_COMPLETED exit");
 }
@@ -561,12 +521,10 @@ static void sv_eFS_COMPLETED_Exit(void *obj)
 /**
  * @private       sv_eFS_ABORT_Entry
  * @brief         <Function details>.
- * @param[in]     <Input parameter details>.
- * @param[out]    <Output parameter details>.
- * @param[inout]  <Input-Output parameter details>.
+ * @param[in]     vpt_obj Pointer to user object declared for FOTA state machine.
  * @return        <Return details>.
  */
-static void sv_eFS_ABORT_Entry(void *obj)
+static void sv_eFS_ABORT_Entry(void *vpt_obj)
 {
    LOG_INF("sv_eFS_ABORT entry");
 }
@@ -574,24 +532,22 @@ static void sv_eFS_ABORT_Entry(void *obj)
 /**
  * @private       sv_eFS_ABORT_Run
  * @brief         <Function details>.
- * @param[in]     <Input parameter details>.
- * @param[out]    <Output parameter details>.
- * @param[inout]  <Input-Output parameter details>.
+ * @param[in]     vpt_obj Pointer to user object declared for FOTA state machine.
  * @return        <Return details>.
  */
-static enum smf_state_result se_eFS_ABORT_Run(void *obj)
+static enum smf_state_result se_eFS_ABORT_Run(void *vpt_obj)
 {
-   FOTAStateMachineCtx_T *stpt_FOTACtx = (FOTAStateMachineCtx_T *)obj;
+   FOTAStateMachineCtx_T *stpt_FOTAStateMachineCtx = (FOTAStateMachineCtx_T *)vpt_obj;
    enum smf_state_result e_retVal = SMF_EVENT_PROPAGATE;
 
    LOG_INF("sv_eFS_ABORT running");
 
-   if (stpt_FOTACtx->b_startReq)
-   {
-      LOG_INF("Start request received, transitioning to eFS_COMPLETED state");
-      smf_set_state(SMF_CTX(stpt_FOTACtx), &gst_FOTAStates[eFS_COMPLETED]);
-      e_retVal = SMF_EVENT_HANDLED;
-   }
+   // if (stpt_FOTAStateMachineCtx->b_startReq)
+   // {
+   //    LOG_INF("Start request received, transitioning to eFS_COMPLETED state");
+   //    smf_set_state(SMF_CTX(stpt_FOTAStateMachineCtx), &gst_FOTAStates[eFS_COMPLETED]);
+   //    e_retVal = SMF_EVENT_HANDLED;
+   // }
 
    return e_retVal;
 }
@@ -599,12 +555,10 @@ static enum smf_state_result se_eFS_ABORT_Run(void *obj)
 /**
  * @private       sv_eFS_ABORT_Exit
  * @brief         <Function details>.
- * @param[in]     <Input parameter details>.
- * @param[out]    <Output parameter details>.
- * @param[inout]  <Input-Output parameter details>.
+ * @param[in]     vpt_obj Pointer to user object declared for FOTA state machine.
  * @return        <Return details>.
  */
-static void sv_eFS_ABORT_Exit(void *obj)
+static void sv_eFS_ABORT_Exit(void *vpt_obj)
 {
    LOG_INF("sv_eFS_ABORT exit");
 }
@@ -637,8 +591,12 @@ static void sv_FOTAStateMachineThread(void *vpt_entryParam1, void *vpt_entryPara
          // Check if the event is from FOTAEventChannel
          if (&FOTAEventChannel == stpt_channel)
          {
-            /* Read the latest message from the channel */
-            zbus_chan_read(&FOTAEventChannel, &st_FOTAEvent, K_NO_WAIT);
+            // Read the latest message from the channel (populate the FOTA state
+            // machine with the latest event).
+            zbus_chan_read(&FOTAEventChannel, &sst_FOTAStateMachineCtx.st_FOTAEvent, K_NO_WAIT);
+
+            // Mark the pending event flag
+            sst_FOTAStateMachineCtx.b_isEventPending = true;
 
             LOG_INF("Received FOTA Event from ZBUS channel: Event Type: %d", st_FOTAEvent.e_evt);
             LOG_INF("Received FOTA Event payload: 0x%08x", st_FOTAEvent.u_FOTAEvents.st_FOTAStart.u32_FOTAStartSignal);

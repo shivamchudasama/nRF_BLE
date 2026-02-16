@@ -59,9 +59,9 @@ typedef enum
 typedef struct
 {
    struct smf_ctx st_SMFCtx;                 /**< State machine context */
-   bool b_startReq;                          /**< Flag to indicate if start request is received */
-   bool b_dataComplete;                      /**< Flag to indicate if all firmware data is received */
-   bool b_verifyOk;                          /**< Flag to indicate if firmware verification is successful */
+   bool b_isEventPending;                    /**< Flag to indicate if the event
+                                                   is pending to handle. */
+   FOTAEvent_T st_FOTAEvent;                 /**< FOTA event structure */
 } FOTAStateMachineCtx_T;
 
 /******************************************************************************/
