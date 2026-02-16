@@ -59,14 +59,6 @@ static ssize_t st_FOTAProgressRead(struct bt_conn *stpt_connHandle,
 /*                             PRIVATE VARIABLES                              */
 /*                                                                            */
 /******************************************************************************/
-// /**
-//  * @var           su8ar_FOTACtrl
-//  * @brief         An array mapped with FOTA Control characteristic. All the
-//  * 					Control Packets received from the peer device will be stored in
-//  * 					this buffer by the write callback of FOTA Control characteristic.
-//  */
-// static uint8_t su8ar_FOTACtrl[MAX_MTU_SIZE_WITH_DLE];
-
 /**
  * @var           sst_FOTACtrlCharCPList
  * @brief         An array mapped with FOTA Control characteristic. All the
@@ -87,18 +79,6 @@ static CharCtx_T sst_FOTACtrlCharCtx = {
 	.u16_maxLen = MAX_MTU_SIZE_WITH_DLE,
 	.u16_curLen = 0U
 };
-
-// /**
-//  * @var           sst_FOTACtrlCharCtx
-//  * @brief         A structure mapped with FOTA Control characteristic. It contains
-//  * 					pointer to the data buffer (su8ar_FOTACtrl) and its maximum and
-//  * 					current length.
-//  */
-// static CharCtx_T sst_FOTACtrlCharCtx = {
-// 	.u8pt_data = su8ar_FOTACtrl,
-// 	.u16_maxLen = sizeof(su8ar_FOTACtrl),
-// 	.u16_curLen = 0U
-// };
 
 /**
  * @var           su8ar_FOTADataXfer
@@ -270,17 +250,6 @@ BT_GATT_SERVICE_DEFINE(gstar_FOTASvc,
 /*                                   UNIONS                                   */
 /*                                                                            */
 /******************************************************************************/
-// Definition of all the unions
-/**
- * @union         <Union name>
- * @brief         <Union details>.
- */
-
-// Declarations of all the union variables
-/**
- * @var           <Variable name>
- * @brief         <Variable details>.
- */
 
 /******************************************************************************/
 /*                                                                            */
@@ -293,10 +262,6 @@ BT_GATT_SERVICE_DEFINE(gstar_FOTASvc,
 /*                              PUBLIC VARIABLES                              */
 /*                                                                            */
 /******************************************************************************/
-/**
- * @var           <Variable name>
- * @brief         <Variable details>.
- */
 
 /******************************************************************************/
 /*                                                                            */
@@ -374,49 +339,26 @@ static ssize_t st_FOTACtrlWrite(struct bt_conn *stpt_connHandle,
       // this characteristic, as we are directly parsing the incoming data buffer
       // and place this parsed information in the mapped data buffer of this
       // characteristic. This is done to avoid unnecessary copying of data and
-      // optimize memory usage.
+      // optimize memory usage. Later, we should also use mutexes to protect the static
+		//	structure which has been registered while defining the GATT database.
+		//	Only the pointer of this mutex is passed to the event over ZBUS to the
+		//	subscriber. The eubscribe shall use mutex to read the actual value of
+		//	received data over BLE.
       /************************************************************************/
-
-		// // Copy the incoming data to the mapped data buffer of this characteristic.
-		// // This will be used as input to FOTA FSM.
-		// memcpy(stpt_charCtx->u8pt_data, vpt_buf, u16_length);
 
 		// Update the current length of the data in the buffer.
 		stpt_charCtx->u16_curLen = u16_length;
 
-		// // SDC:
-		// // Added just for testing purposes - to simulate the presence of Control Packets
-      // stpt_charCtx->stpt_data.star_CPBlocks[0].u8_CPBlockLength = 5;
-      // stpt_charCtx->stpt_data.star_CPBlocks[0].e_CPType = eCPT_FOTA_START;
-      // stpt_charCtx->stpt_data.star_CPBlocks[0].u8ar_CPData[0] = 0xAA;
-      // stpt_charCtx->stpt_data.star_CPBlocks[0].u8ar_CPData[1] = 0xBB;
-      // stpt_charCtx->stpt_data.star_CPBlocks[0].u8ar_CPData[2] = 0xCC;
-      // stpt_charCtx->stpt_data.star_CPBlocks[0].u8ar_CPData[3] = 0xDD;
-		// stpt_charCtx->u8pt_data[0] = 5;
-		// stpt_charCtx->u8pt_data[1] = 1;
-		// stpt_charCtx->u8pt_data[2] = 0xAA;
-		// stpt_charCtx->u8pt_data[3] = 0xBB;
-		// stpt_charCtx->u8pt_data[4] = 0xCC;
-		// stpt_charCtx->u8pt_data[5] = 0xDD;
+		// SDC: For testing, we should send 0x05, 0x01, 0xAA, 0xBB, 0xCC, 0xDD over BLE
 
 		// Check if parsing the Control Packets from the incoming data and
 		// populating the temporary CP list structure completed successfully.
-		// if (eTP_OK == ge_TP_ParseCPList(stpt_charCtx->u8pt_data, stpt_charCtx->u16_curLen, &st_CPList))
       if (eTP_OK == ge_TP_ParseCPList((uint8_t *)vpt_buf, stpt_charCtx->u16_curLen, stpt_charCtx->stpt_data))
 		{
 			// Check if there is only 1 CP block in the parsed CP list
-			// if (1 == st_CPList.u8_count)
          if (1 == stpt_charCtx->stpt_data->u8_count)
 			{
 				// Populate the event
-				// // Check if the CP type of the single CP block in the parsed CP list is FOTA Start
-				// if (st_CPList.star_CPBlocks[0].e_CPType == eCPT_FOTA_START)
-				// {
-				// 	st_FOTAEvent.e_evt = eFE_FOTA_START;
-				// 	memcpy(&st_FOTAEvent.u_FOTAEventsPayload.st_FOTAStart, \
-				// 		st_CPList.star_CPBlocks[0].u8ar_CPData, \
-				// 		st_CPList.star_CPBlocks[0].u8_CPBlockLength);
-				// }
 				// Check if the CP type of the single CP block in the parsed CP list is FOTA Start
 				if (stpt_charCtx->stpt_data->star_CPBlocks[0].e_CPType == eCPT_FOTA_START)
 				{
@@ -427,14 +369,6 @@ static ssize_t st_FOTACtrlWrite(struct bt_conn *stpt_connHandle,
 						stpt_charCtx->stpt_data->star_CPBlocks[0].u8_CPBlockLength);
                st_FOTAEvent.u16_payloadLength = stpt_charCtx->u16_curLen;
 				}
-				// // Check if the CP type of the single CP block in the parsed CP list is Metadata
-				// else if (st_CPList.star_CPBlocks[0].e_CPType == eCPT_METADATA)
-				// {
-				// 	st_FOTAEvent.e_evt = eFE_METADATA;
-				// 	memcpy(&st_FOTAEvent.u_FOTAEventsPayload.st_metadata, \
-				// 		st_CPList.star_CPBlocks[0].u8ar_CPData, \
-				// 		st_CPList.star_CPBlocks[0].u8_CPBlockLength);
-				// }
 				// Check if the CP type of the single CP block in the parsed CP list is Metadata
 				else if (stpt_charCtx->stpt_data->star_CPBlocks[0].e_CPType == eCPT_METADATA)
 				{
@@ -445,14 +379,6 @@ static ssize_t st_FOTACtrlWrite(struct bt_conn *stpt_connHandle,
 						stpt_charCtx->stpt_data->star_CPBlocks[0].u8_CPBlockLength);
                st_FOTAEvent.u16_payloadLength = stpt_charCtx->u16_curLen;
 				}
-				// // Check if the CP type of the single CP block in the parsed CP list is Manifest
-				// else if (st_CPList.star_CPBlocks[0].e_CPType == eCPT_MANIFEST)
-				// {
-				// 	st_FOTAEvent.e_evt = eFE_MANIFEST;
-				// 	memcpy(&st_FOTAEvent.u_FOTAEventsPayload.st_manifest, \
-				// 		st_CPList.star_CPBlocks[0].u8ar_CPData, \
-				// 		st_CPList.star_CPBlocks[0].u8_CPBlockLength);
-				// }
 				// Check if the CP type of the single CP block in the parsed CP list is Manifest
 				else if (stpt_charCtx->stpt_data->star_CPBlocks[0].e_CPType == eCPT_MANIFEST)
 				{
@@ -463,14 +389,6 @@ static ssize_t st_FOTACtrlWrite(struct bt_conn *stpt_connHandle,
 						stpt_charCtx->stpt_data->star_CPBlocks[0].u8_CPBlockLength);
                st_FOTAEvent.u16_payloadLength = stpt_charCtx->u16_curLen;
 				}
-				// // Check if the CP type of the single CP block in the parsed CP list is FOTA Data
-				// else if (st_CPList.star_CPBlocks[0].e_CPType == eCPT_FOTA_DATA)
-				// {
-				// 	st_FOTAEvent.e_evt = eFE_FOTA_DATA;
-				// 	memcpy(&st_FOTAEvent.u_FOTAEventsPayload.st_FOTAData, \
-				// 		st_CPList.star_CPBlocks[0].u8ar_CPData, \
-				// 		st_CPList.star_CPBlocks[0].u8_CPBlockLength);
-				// }
 				// Check if the CP type of the single CP block in the parsed CP list is FOTA Data
 				else if (stpt_charCtx->stpt_data->star_CPBlocks[0].e_CPType == eCPT_FOTA_DATA)
 				{

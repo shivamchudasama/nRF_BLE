@@ -41,51 +41,18 @@ ZBUS_SUBSCRIBER_DEFINE(FOTAEventChannelSub, 4);
 /*                                   ENUMS                                    */
 /*                                                                            */
 /******************************************************************************/
-// Definition of all the enums
-/**
- * @enum          <Enum name>
- * @brief         <Enum details>.
- */
-
-// Declarations of all the enum variables
-/**
- * @var           <Variable name>
- * @brief         <Variable details>.
- */
 
 /******************************************************************************/
 /*                                                                            */
 /*                                 STRUCTURES                                 */
 /*                                                                            */
 /******************************************************************************/
-// Definition of all the structures
-/**
- * @struct        <Structure name>
- * @brief         <Structure details>.
- */
-
-// Declarations of all the structure variables
-/**
- * @var           <Variable name>
- * @brief         <Variable details>.
- */
 
 /******************************************************************************/
 /*                                                                            */
 /*                                   UNIONS                                   */
 /*                                                                            */
 /******************************************************************************/
-// Definition of all the unions
-/**
- * @union         <Union name>
- * @brief         <Union details>.
- */
-
-// Declarations of all the union variables
-/**
- * @var           <Variable name>
- * @brief         <Variable details>.
- */
 
 /******************************************************************************/
 /*                                                                            */
@@ -646,17 +613,7 @@ static void sv_FOTAStateMachineThread(void *vpt_entryParam1, void *vpt_entryPara
          LOG_INF("No FOTA Event received from ZBUS channel");
       }
 
-      // /* test triggers (keep only for bring-up) */
-      // static int si_counter;
-      // si_counter++;
-
-      // if (si_counter == 3) { sst_FOTAStateMachineCtx.b_startReq = true; }
-      // if (si_counter == 6) { sst_FOTAStateMachineCtx.b_dataComplete = true; }
-      // if (si_counter == 9) { sst_FOTAStateMachineCtx.b_verifyOk = true; }
-
-      // LOG_INF("FOTA thread going to sleep for 1 second");
       k_sleep(K_MSEC(100));
-      // LOG_INF("FOTA thread woke up");
    }
 }
 
