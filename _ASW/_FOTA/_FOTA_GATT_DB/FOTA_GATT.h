@@ -15,11 +15,11 @@
 /*                                                                            */
 /******************************************************************************/
 #include <zephyr/bluetooth/gatt.h>
-#include <zephyr/logging/log.h>
 #include <string.h>
 #include "FOTA_GATT_Types.h"
 #include "FOTA_TP.h"
 #include "FOTAEvent.h"
+#include "AppLog.h"
 
 /******************************************************************************/
 /*                                                                            */

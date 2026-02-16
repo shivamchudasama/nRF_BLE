@@ -1,27 +1,33 @@
 /**
- * @file          FOTA_FSM.h
- * @brief         Header file containing FOTA FSM related definitions and declarations
- * @date          13/02/2026
+ * @file          AppLog.h
+ * @brief         Header file containing application log module related definitions
+ *                and declarations.
+ * @date          16/02/2026
  * @author        Shivam Chudasama [SC]
  * @copyright     Bajaj Auto Technology Limited (BATL)
  */
 
-#ifndef _FOTA_FSM_H
-#define _FOTA_FSM_H
+#ifndef _APP_LOG_H
+#define _APP_LOG_H
 
 /******************************************************************************/
 /*                                                                            */
 /*                                  INCLUDES                                  */
 /*                                                                            */
 /******************************************************************************/
-#include <zephyr/smf.h>
-#include "AppLog.h"
+#include <zephyr/logging/log.h>
 
 /******************************************************************************/
 /*                                                                            */
 /*                                  DEFINES                                   */
 /*                                                                            */
 /******************************************************************************/
+/**
+ * @def           APP_LOG
+ * @brief         Declare - already registered - the application log module.
+ *                Module name is APP_LOG. Log level is set to INFO.
+ */
+LOG_MODULE_DECLARE(APP_LOG);
 
 /******************************************************************************/
 /*                                                                            */
@@ -29,21 +35,9 @@
 /*                                                                            */
 /******************************************************************************/
 /**
- * @enum          FOTAState_E
- * @brief         FOTA state machine states.
+ * @enum          <Enum name>
+ * @brief         <Enum details>.
  */
-typedef enum
-{
-   eFS_IDLE,                                 /**< Idle state */
-   eFS_RECEIVING_METADATA,                   /**< Receiving firmware metadata */
-   eFS_RECEIVING_MANIFEST,                   /**< Receiving firmware manifest */
-   eFS_RECEIVING_DATA,                       /**< Receiving firmware data */
-   eFS_VALIDATE_IMAGE,                       /**< Validating received firmware image */
-   eFS_STAGE_IMAGE,                          /**< Staging firmware image for update */
-   eFS_COMPLETED,                            /**< FOTA completed */
-   eFS_ABORT,                                /**< FOTA aborted */
-   eFS_STATE_MAX                             /**< Maximum state value */
-} FOTAState_E;
 
 /******************************************************************************/
 /*                                                                            */
@@ -51,16 +45,9 @@ typedef enum
 /*                                                                            */
 /******************************************************************************/
 /**
- * @struct        FOTACtx_T
- * @brief         FOTA context structure.
+ * @struct        <Structure name>
+ * @brief         <Structure details>.
  */
-typedef struct
-{
-   struct smf_ctx st_SMFCtx;                 /**< State machine context */
-   bool b_startReq;                          /**< Flag to indicate if start request is received */
-   bool b_dataComplete;                      /**< Flag to indicate if all firmware data is received */
-   bool b_verifyOk;                          /**< Flag to indicate if firmware verification is successful */
-} FOTACtx_T;
 
 /******************************************************************************/
 /*                                                                            */
@@ -77,7 +64,6 @@ typedef struct
 /*                              EXTERN VARIABLES                              */
 /*                                                                            */
 /******************************************************************************/
-extern const struct smf_state gst_FOTAStates[eFS_STATE_MAX];
 
 /******************************************************************************/
 /*                                                                            */
@@ -85,7 +71,7 @@ extern const struct smf_state gst_FOTAStates[eFS_STATE_MAX];
 /*                                                                            */
 /******************************************************************************/
 
-#endif //!_FOTA_FSM_H
+#endif //!_APP_LOG_H
 
 /**
  * Copyright(c) Bajaj Auto Technology Limited (BATL) as an unpublished work.

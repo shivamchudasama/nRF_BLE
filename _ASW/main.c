@@ -14,51 +14,19 @@
 #include <zephyr/kernel.h>
 #include <zephyr/types.h>
 #include <zephyr/sys/printk.h>
-#include <zephyr/logging/log.h>
 #include <zephyr/bluetooth/bluetooth.h>
 #include <zephyr/bluetooth/conn.h>
 #include <zephyr/bluetooth/gatt.h>
 #include "FOTA_GATT.h"
 #include "GAP_GATT.h"
 #include "FOTA_FSM.h"
+#include "AppLog.h"
 
 /******************************************************************************/
 /*                                                                            */
 /*                                  DEFINES                                   */
 /*                                                                            */
 /******************************************************************************/
-/**
- * @def           APP_LOG
- * @brief         Register the application log module. Module name is APP_LOG.
- *                Log level is set to INFO.
- */
-LOG_MODULE_REGISTER(APP_LOG, LOG_LEVEL_INF);
-
-/* Custom 128-bit UUIDs */
-/**
- * @def           BT_UUID_CUSTOM_SERVICE_VAL
- * @brief         Register the application log module. Module name is APP_LOG.
- *                Log level is set to INFO.
- */
-#define BT_UUID_CUSTOM_SERVICE_VAL           BT_UUID_128_ENCODE( \
-                                                0x1d2a0001, \
-                                                0x8d24, \
-                                                0x4b4f, \
-                                                0x9e36, \
-                                                0x6b1c6a5b9f01)
-
-/**
- * @def           BT_UUID_CUSTOM_CHAR_VAL
- * @brief         Register the application log module. Module name is APP_LOG.
- *                Log level is set to INFO.
- */
-#define BT_UUID_CUSTOM_CHAR_VAL              BT_UUID_128_ENCODE( \
-                                                0x1d2a0002, \
-                                                0x8d24, \
-                                                0x4b4f, \
-                                                0x9e36, \
-                                                0x6b1c6a5b9f01)
-
 /**
  * @def           FOTA_THREAD_STACK_SIZE
  * @brief         Stack size of the thread running the FOTA state machine.
@@ -82,51 +50,18 @@ ZBUS_SUBSCRIBER_DEFINE(FOTAEventChannelSub, 4);
 /*                                   ENUMS                                    */
 /*                                                                            */
 /******************************************************************************/
-// Definition of all the enums
-/**
- * @enum          <Enum name>
- * @brief         <Enum details>.
- */
-
-// Declarations of all the enum variables
-/**
- * @var           <Variable name>
- * @brief         <Variable details>.
- */
 
 /******************************************************************************/
 /*                                                                            */
 /*                                 STRUCTURES                                 */
 /*                                                                            */
 /******************************************************************************/
-// Definition of all the structures
-/**
- * @struct        <Structure name>
- * @brief         <Structure details>.
- */
-
-// Declarations of all the structure variables
-/**
- * @var           <Variable name>
- * @brief         <Variable details>.
- */
 
 /******************************************************************************/
 /*                                                                            */
 /*                                   UNIONS                                   */
 /*                                                                            */
 /******************************************************************************/
-// Definition of all the unions
-/**
- * @union         <Union name>
- * @brief         <Union details>.
- */
-
-// Declarations of all the union variables
-/**
- * @var           <Variable name>
- * @brief         <Variable details>.
- */
 
 /******************************************************************************/
 /*                                                                            */

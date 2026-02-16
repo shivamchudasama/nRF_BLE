@@ -18,12 +18,6 @@
 /*                                  DEFINES                                   */
 /*                                                                            */
 /******************************************************************************/
-/**
- * @def           APP_LOG
- * @brief         Declare - already registered - the application log module.
- *                Module name is APP_LOG. Log level is set to INFO.
- */
-LOG_MODULE_DECLARE(APP_LOG);
 
 /******************************************************************************/
 /*                                                                            */
@@ -504,7 +498,7 @@ static enum smf_state_result se_eFS_COMPLETED_Run(void *obj)
 
    if (stpt_FOTACtx->b_verifyOk)
    {
-      LOG_INF("Verify OK received, transitioning to eFS_IDLE state");  
+      LOG_INF("Verify OK received, transitioning to eFS_IDLE state");
       smf_set_state(SMF_CTX(stpt_FOTACtx), &gst_FOTAStates[eFS_IDLE]);
       e_retVal = SMF_EVENT_HANDLED;
    }

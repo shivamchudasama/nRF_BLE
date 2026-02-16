@@ -18,12 +18,6 @@
 /*                                  DEFINES                                   */
 /*                                                                            */
 /******************************************************************************/
-/**
- * @def           APP_LOG
- * @brief         Declare - already registered - the application log module.
- *                Module name is APP_LOG. Log level is set to INFO.
- */
-LOG_MODULE_DECLARE(APP_LOG);
 
 /******************************************************************************/
 /*                                                                            */
@@ -317,7 +311,10 @@ BT_GATT_SERVICE_DEFINE(gstar_FOTASvc,
 /******************************************************************************/
 /**
  * @private       st_FOTACtrlWrite
- * @brief         <Function details>.
+ * @brief         Callback function for write operation on FOTA Control characteristic.
+ *                It will parse the incoming data as Control Packets and populate a
+ *                FOTA event structure with the parsed information. This event can
+ *                then be used as an input to FOTA state machine.
  * @param[inout]  stpt_connHandle Connection handle.
  * @param[in]    	stpt_attr The attribute being written to.
  * @param[in]    	vpt_buf The buffer containing the data being written.
@@ -371,6 +368,14 @@ static ssize_t st_FOTACtrlWrite(struct bt_conn *stpt_connHandle,
 		// Writing to this characteristic will considered as an input to FOTA state machine.
 
 		LOG_INF("Received data from FOTA Control characteristic.");
+
+      /************************************************************************/
+      // Note: We are not copying the incoming data to the mapped data buffer of
+      // this characteristic, as we are directly parsing the incoming data buffer
+      // and place this parsed information in the mapped data buffer of this
+      // characteristic. This is done to avoid unnecessary copying of data and
+      // optimize memory usage.
+      /************************************************************************/
 
 		// // Copy the incoming data to the mapped data buffer of this characteristic.
 		// // This will be used as input to FOTA FSM.

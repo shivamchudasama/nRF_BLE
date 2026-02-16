@@ -15,9 +15,9 @@
 /*                                                                            */
 /******************************************************************************/
 #include <zephyr/bluetooth/gatt.h>
-#include <zephyr/logging/log.h>
 #include "PublicServiceUUIDs.h"
 #include "PublicCharacteristicUUIDs.h"
+#include "AppLog.h"
 
 /******************************************************************************/
 /*                                                                            */

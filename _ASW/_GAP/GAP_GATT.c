@@ -18,7 +18,6 @@
 /*                                  DEFINES                                   */
 /*                                                                            */
 /******************************************************************************/
-LOG_MODULE_DECLARE(APP_LOG);
 
 /******************************************************************************/
 /*                                                                            */
@@ -100,9 +99,9 @@ BT_GATT_SERVICE_DEFINE(gstar_GAPSvc,
 		// Permissions - Read
 		BT_GATT_PERM_READ,
 		// Read callback - st_DeviceNameRead
-		st_DeviceNameRead, 
+		st_DeviceNameRead,
 		// Write callback - NULL
-		NULL, 
+		NULL,
 		// User data - su8ar_deviceName
 		su8ar_deviceName
 	),
@@ -121,7 +120,7 @@ BT_GATT_SERVICE_DEFINE(gstar_GAPSvc,
 		// Read callback - st_AppearanceRead
 		st_AppearanceRead,
 		// Write callback - NULL
-		NULL, 
+		NULL,
 		// User data - su16_appearance
 		&su16_appearance
 	),
@@ -171,7 +170,7 @@ BT_GATT_SERVICE_DEFINE(gstar_deviceInfoSvc,
 		// Read callback - st_ManufacturerNameRead
 		st_ManufacturerNameRead,
 		// Write callback - NULL
-		NULL, 
+		NULL,
 		// User data - scar_manufacturerName
 		scar_manufacturerName
 	),
@@ -207,7 +206,7 @@ BT_GATT_SERVICE_DEFINE(gstar_deviceInfoSvc,
 		// Permissions - Read
 		BT_GATT_PERM_READ,
 		// Read callback - st_FWRevisionRead
-		st_FWRevisionRead, 
+		st_FWRevisionRead,
 		// Write callback - NULL
 		NULL,
 		// User data - scar_FWRevision
