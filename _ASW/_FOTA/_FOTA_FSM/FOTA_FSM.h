@@ -16,6 +16,7 @@
 /******************************************************************************/
 #include <zephyr/smf.h>
 #include "AppLog.h"
+#include "FOTAEvent.h"
 
 /******************************************************************************/
 /*                                                                            */
@@ -84,6 +85,8 @@ extern const struct smf_state gst_FOTAStates[eFS_STATE_MAX];
 /*                              EXTERN FUNCTIONS                              */
 /*                                                                            */
 /******************************************************************************/
+extern void gv_FOTAThread(void *vpt_entryParam1, void *vpt_entryParam2, void *vpt_entryParam3);
+extern void vt_CreateFOTAThread();
 
 #endif //!_FOTA_FSM_H
 

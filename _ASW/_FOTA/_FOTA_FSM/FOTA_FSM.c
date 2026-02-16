@@ -18,6 +18,23 @@
 /*                                  DEFINES                                   */
 /*                                                                            */
 /******************************************************************************/
+/**
+ * @def           FOTAEventChannelSub
+ * @brief         Subscribber for FOTAEventChannel with queue size of 4.
+ */
+ZBUS_SUBSCRIBER_DEFINE(FOTAEventChannelSub, 4);
+
+/**
+ * @def           FOTA_THREAD_STACK_SIZE
+ * @brief         Stack size of the thread running the FOTA state machine.
+ */
+#define FOTA_THREAD_STACK_SIZE               (1024)
+
+/**
+ * @def           FOTA_THREAD_PRIO
+ * @brief         Priority of the thread running the FOTA state machine.
+ */
+#define FOTA_THREAD_PRIO                     (5)
 
 /******************************************************************************/
 /*                                                                            */
@@ -143,6 +160,24 @@ const struct smf_state gst_FOTAStates[eFS_STATE_MAX] =
    [eFS_COMPLETED] = SMF_CREATE_STATE(sv_eFS_COMPLETED_Entry, se_eFS_COMPLETED_Run, sv_eFS_COMPLETED_Exit, NULL, NULL),
    [eFS_ABORT] = SMF_CREATE_STATE(sv_eFS_ABORT_Entry, se_eFS_ABORT_Run, sv_eFS_ABORT_Exit, NULL, NULL),
 };
+
+/**
+ * @var           sst_FOTACtx
+ * @brief         FOTA SMF context structure.
+ */
+static FOTACtx_T sst_FOTACtx = { 0 };
+
+/**
+ * @var           sst_FOTAThreadData
+ * @brief         FOTA state machine thread structure.
+ */
+static struct k_thread sst_FOTAThreadData;
+
+/**
+ * @var           sst_FOTAThreadStack
+ * @brief         FOTA state machine thread stack.
+ */
+K_THREAD_STACK_DEFINE(sst_FOTAThreadStack, FOTA_THREAD_STACK_SIZE);
 
 /******************************************************************************/
 /*                                                                            */
@@ -577,13 +612,79 @@ static void sv_eFS_ABORT_Exit(void *obj)
 /*                                                                            */
 /******************************************************************************/
 /**
- * @public        <Function name>
- * @brief         <Function details>.
- * @param[in]     <Input parameter details>.
- * @param[out]    <Output parameter details>.
- * @param[inout]  <Input-Output parameter details>.
- * @return        <Return details>.
+ * @public        gv_FOTAThread
+ * @brief         FOTA thread function. This function is called when the FOTA
+ *                thread is running. It waits for publisher to publish events on
+ *                FOTAEventChannelSub and reads it if published. It also runs
+ *                FOTA state machine.
+ * @return        Number of bytes written.
  */
+void gv_FOTAThread(void *vpt_entryParam1, void *vpt_entryParam2, void *vpt_entryParam3)
+{
+   const struct zbus_channel *stpt_channel;
+   FOTAEvent_T st_FOTAEvent;
+
+   while (1)
+   {
+      LOG_INF("FOTA Thread started");
+
+      // Wait for FOTA events from the FOTAEventChannel and process them
+      if (0 == zbus_sub_wait(&FOTAEventChannelSub, &stpt_channel, K_NO_WAIT))
+      {
+         // Check if the event is from FOTAEventChannel
+         if (&FOTAEventChannel == stpt_channel)
+         {
+            /* Read the latest message from the channel */
+            zbus_chan_read(&FOTAEventChannel, &st_FOTAEvent, K_NO_WAIT);
+
+            LOG_INF("Received FOTA Event from ZBUS channel: Event Type: %d", st_FOTAEvent.e_evt);
+            LOG_INF("Received FOTA Event payload: 0x%08x", st_FOTAEvent.u_FOTAEvents.st_FOTAStart.u32_FOTAStartSignal);
+         }
+      }
+      else
+      {
+         LOG_INF("No FOTA Event received from ZBUS channel");
+      }
+
+      ARG_UNUSED(vpt_entryParam1);
+      ARG_UNUSED(vpt_entryParam2);
+      ARG_UNUSED(vpt_entryParam3);
+
+      LOG_INF("Running FOTA state machine");
+      smf_run_state(SMF_CTX(&sst_FOTACtx));
+
+      /* test triggers (keep only for bring-up) */
+      static int si_counter;
+      si_counter++;
+
+      if (si_counter == 3) { sst_FOTACtx.b_startReq = true; }
+      if (si_counter == 6) { sst_FOTACtx.b_dataComplete = true; }
+      if (si_counter == 9) { sst_FOTACtx.b_verifyOk = true; }
+
+      LOG_INF("FOTA thread going to sleep for 1 second");
+      k_sleep(K_SECONDS(1));
+      LOG_INF("FOTA thread woke up");
+   }
+}
+
+/**
+ * @public        vt_CreateFOTAThread
+ * @brief         Initialise SMF for FOTA and creates FOTA thread.
+ * @return        THread ID.
+ */
+void vt_CreateFOTAThread()
+{
+   LOG_INF("Initializing FOTA state machine");
+   smf_set_initial(SMF_CTX(&sst_FOTACtx), &gst_FOTAStates[eFS_IDLE]);
+
+   // Create a thread to run the FOTA state machine
+   k_thread_create(&sst_FOTAThreadData, sst_FOTAThreadStack,
+      K_THREAD_STACK_SIZEOF(sst_FOTAThreadStack), gv_FOTAThread, NULL, NULL, NULL,
+      FOTA_THREAD_PRIO, 0, K_NO_WAIT);
+
+   // Set the name of the FOTA thread for debugging purposes
+   k_thread_name_set(&sst_FOTAThreadData, "FOTAThread");
+}
 
 /**
  * Copyright(c) Bajaj Auto Technology Limited (BATL) as an unpublished work.
