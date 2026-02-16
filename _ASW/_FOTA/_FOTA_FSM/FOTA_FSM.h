@@ -18,6 +18,7 @@
 #include <zephyr/smf.h>
 #include "AppLog.h"
 #include "FOTAEvent.h"
+#include "FOTA_TP.h"
 
 /******************************************************************************/
 /*                                                                            */

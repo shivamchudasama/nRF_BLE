@@ -226,7 +226,7 @@ static enum smf_state_result se_eFS_IDLE_Run(void *vpt_obj)
    {
       // Check if FOTA start signature has been received
       if (FOTA_START_SIGNATURE ==
-         stpt_FOTAStateMachineCtx->st_FOTAEvent.u_FOTAEvents.st_FOTAStart.u32_FOTAStartSignal)
+         stpt_FOTAStateMachineCtx->st_FOTAEvent.u_FOTAEventsPayload.st_FOTAStart.u32_FOTAStartSignal)
       {
          LOG_INF("Start request received, transitioning to eFS_RECEIVING_METADATA state");
          smf_set_state(SMF_CTX(stpt_FOTAStateMachineCtx), &gst_FOTAStates[eFS_RECEIVING_METADATA]);
@@ -279,15 +279,29 @@ static enum smf_state_result se_eFS_RECEIVING_METADATA_Run(void *vpt_obj)
 {
    FOTAStateMachineCtx_T *stpt_FOTAStateMachineCtx = (FOTAStateMachineCtx_T *)vpt_obj;
    enum smf_state_result e_retVal = SMF_EVENT_PROPAGATE;
+   CPList_T st_CPList = { 0 };
 
    LOG_INF("sv_eFS_RECEIVING_METADATA running");
 
-   // if (stpt_FOTAStateMachineCtx->b_dataComplete)
-   // {
-   //    LOG_INF("Data complete received, transitioning to eFS_RECEIVING_MANIFEST state");
-   //    smf_set_state(SMF_CTX(stpt_FOTAStateMachineCtx), &gst_FOTAStates[eFS_RECEIVING_MANIFEST]);
-   //    e_retVal = SMF_EVENT_HANDLED;
-   // }
+   // Check if any event is pending to handle and that is METADATA command
+   if ((stpt_FOTAStateMachineCtx->b_isEventPending) &&
+      (eFE_METADATA == stpt_FOTAStateMachineCtx->st_FOTAEvent.e_evt))
+   {
+      // As there might be more than one metadata packets received. We need to parst it.
+      ge_TP_ParseCPList(stpt_FOTAStateMachineCtx->st_FOTAEvent.u_FOTAEventsPayload.st_metadata.u8ar_metadataPkt,
+         stpt_FOTAStateMachineCtx->st_FOTAEvent.u16_payloadLength, &st_CPList);
+
+      // After parsing the CP blocks, push each blocks to the filesystem
+
+      LOG_INF("Start request received, transitioning to eFS_RECEIVING_METADATA state");
+      smf_set_state(SMF_CTX(stpt_FOTAStateMachineCtx), &gst_FOTAStates[eFS_RECEIVING_METADATA]);
+
+      e_retVal = SMF_EVENT_HANDLED;
+   }
+   else
+   {
+      LOG_INF("Invalid activity");
+   }
 
    return e_retVal;
 }
@@ -615,7 +629,7 @@ static void sv_FOTAStateMachineThread(void *vpt_entryParam1, void *vpt_entryPara
             sst_FOTAStateMachineCtx.b_isEventPending = true;
 
             LOG_INF("Received FOTA Event from ZBUS channel: Event Type: %d", st_FOTAEvent.e_evt);
-            LOG_INF("Received FOTA Event payload: 0x%08x", st_FOTAEvent.u_FOTAEvents.st_FOTAStart.u32_FOTAStartSignal);
+            LOG_INF("Received FOTA Event payload: 0x%08x", st_FOTAEvent.u_FOTAEventsPayload.st_FOTAStart.u32_FOTAStartSignal);
 
             LOG_INF("Running FOTA state machine");
 
