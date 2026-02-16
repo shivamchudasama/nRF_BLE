@@ -15,6 +15,7 @@
 /*                                                                            */
 /******************************************************************************/
 #include <stdint.h>
+#include "FOTA_TP_Types.h"
 
 /******************************************************************************/
 /*                                                                            */
@@ -39,7 +40,8 @@
  */
 typedef struct
 {
-   uint8_t *u8pt_data;                       /**< Pointer to the data buffer */
+   // uint8_t *u8pt_data;                       /**< Pointer to the data buffer */
+   CPList_T *stpt_data;                      /**< Pointer to the data buffer */
    uint16_t u16_maxLen;                      /**< Maximum length of the data buffer */
    uint16_t u16_curLen;                      /**< Current length of valid data in the buffer */
 } CharCtx_T;

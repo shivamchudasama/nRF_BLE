@@ -48,7 +48,7 @@ LOG_MODULE_DECLARE(APP_LOG);
 /*                                                                            */
 /******************************************************************************/
 static ssize_t st_FOTACtrlWrite(struct bt_conn *stpt_connHandle,
-	const struct bt_gatt_attr *stpt_attr, const void *vpt_buf, uint16_t u16_length, 
+	const struct bt_gatt_attr *stpt_attr, const void *vpt_buf, uint16_t u16_length,
 	uint16_t u16_offset, uint8_t u8_flags);
 static ssize_t st_FOTADataTransferWrite(struct bt_conn *stpt_connHandle,
 	const struct bt_gatt_attr *stpt_attr, 	const void *vpt_buf, uint16_t u16_length,
@@ -65,13 +65,22 @@ static ssize_t st_FOTAProgressRead(struct bt_conn *stpt_connHandle,
 /*                             PRIVATE VARIABLES                              */
 /*                                                                            */
 /******************************************************************************/
+// /**
+//  * @var           su8ar_FOTACtrl
+//  * @brief         An array mapped with FOTA Control characteristic. All the
+//  * 					Control Packets received from the peer device will be stored in
+//  * 					this buffer by the write callback of FOTA Control characteristic.
+//  */
+// static uint8_t su8ar_FOTACtrl[MAX_MTU_SIZE_WITH_DLE];
+
 /**
- * @var           su8ar_FOTACtrl
+ * @var           sst_FOTACtrlCharCPList
  * @brief         An array mapped with FOTA Control characteristic. All the
  * 					Control Packets received from the peer device will be stored in
- * 					this buffer by the write callback of FOTA Control characteristic.
+ * 					this structure after parsing it in the write callback of FOTA
+ *                Control characteristic.
  */
-static uint8_t su8ar_FOTACtrl[MAX_MTU_SIZE_WITH_DLE];
+static CPList_T sst_FOTACtrlCharCPList = { 0 };
 
 /**
  * @var           sst_FOTACtrlCharCtx
@@ -80,10 +89,22 @@ static uint8_t su8ar_FOTACtrl[MAX_MTU_SIZE_WITH_DLE];
  * 					current length.
  */
 static CharCtx_T sst_FOTACtrlCharCtx = {
-	.u8pt_data = su8ar_FOTACtrl,
-	.u16_maxLen = sizeof(su8ar_FOTACtrl),
+	.stpt_data = &sst_FOTACtrlCharCPList,
+	.u16_maxLen = MAX_MTU_SIZE_WITH_DLE,
 	.u16_curLen = 0U
 };
+
+// /**
+//  * @var           sst_FOTACtrlCharCtx
+//  * @brief         A structure mapped with FOTA Control characteristic. It contains
+//  * 					pointer to the data buffer (su8ar_FOTACtrl) and its maximum and
+//  * 					current length.
+//  */
+// static CharCtx_T sst_FOTACtrlCharCtx = {
+// 	.u8pt_data = su8ar_FOTACtrl,
+// 	.u16_maxLen = sizeof(su8ar_FOTACtrl),
+// 	.u16_curLen = 0U
+// };
 
 /**
  * @var           su8ar_FOTADataXfer
@@ -100,7 +121,7 @@ static uint8_t su8ar_FOTADataXfer[MAX_MTU_SIZE_WITH_DLE];
  * 					current length.
  */
 static CharCtx_T sst_FOTADataXferCharCtx = {
-	.u8pt_data = su8ar_FOTADataXfer,
+	.stpt_data = su8ar_FOTADataXfer,
 	.u16_maxLen = sizeof(su8ar_FOTADataXfer),
 	.u16_curLen = 0U
 };
@@ -119,7 +140,7 @@ static uint8_t su8ar_FOTAStatus[4];
  * 					current length.
  */
 static CharCtx_T sst_FOTAStatusCharCtx = {
-	.u8pt_data = su8ar_FOTAStatus,
+	.stpt_data = su8ar_FOTAStatus,
 	.u16_maxLen = sizeof(su8ar_FOTAStatus),
 	.u16_curLen = 0U
 };
@@ -138,7 +159,7 @@ static uint8_t su8ar_FOTAProgress[4];
  * 					current length.
  */
 static CharCtx_T sst_FOTAProgressCharCtx = {
-	.u8pt_data = su8ar_FOTAProgress,
+	.stpt_data = su8ar_FOTAProgress,
 	.u16_maxLen = sizeof(su8ar_FOTAProgress),
 	.u16_curLen = 0U
 };
@@ -168,9 +189,9 @@ BT_GATT_SERVICE_DEFINE(gstar_FOTASvc,
 		// Permissions - Write
 		BT_GATT_PERM_WRITE,
 		// Read callback - NULL
-		NULL, 
+		NULL,
 		// Write callback - st_FOTACtrlWrite
-		st_FOTACtrlWrite, 
+		st_FOTACtrlWrite,
 		// User data - sst_FOTACtrlCharCtx
 		&sst_FOTACtrlCharCtx
 	),
@@ -189,7 +210,7 @@ BT_GATT_SERVICE_DEFINE(gstar_FOTASvc,
 		// Read callback - NULL
 		NULL,
 		// Write callback - st_FOTADataTransferWrite
-		st_FOTADataTransferWrite, 
+		st_FOTADataTransferWrite,
 		// User data - sst_FOTADataXferCharCtx
 		&sst_FOTADataXferCharCtx
 	),
@@ -208,7 +229,7 @@ BT_GATT_SERVICE_DEFINE(gstar_FOTASvc,
 		// Read callback - st_FOTAStsRead
 		st_FOTAStsRead,
 		// Write callback - NULL
-		NULL, 
+		NULL,
 		// User data - sst_FOTAStatusCharCtx
 		&sst_FOTAStatusCharCtx
 	),
@@ -219,7 +240,7 @@ BT_GATT_SERVICE_DEFINE(gstar_FOTASvc,
 	// Client Characteristic Configuration Descriptor for FOTA Status characteristic
 	BT_GATT_CCC(
 		// Configuration changed callback - NULL
-		NULL, 
+		NULL,
 		// Permissions - Read and Write
 		BT_GATT_PERM_READ | BT_GATT_PERM_WRITE
 	),
@@ -244,7 +265,7 @@ BT_GATT_SERVICE_DEFINE(gstar_FOTASvc,
 	),
 	BT_GATT_CCC(
 		// Configuration changed callback - NULL
-		NULL, 
+		NULL,
 		// Permissions - Read and Write
 		BT_GATT_PERM_READ | BT_GATT_PERM_WRITE
 	),
@@ -306,7 +327,7 @@ BT_GATT_SERVICE_DEFINE(gstar_FOTASvc,
  * @return        Either BT_GATT_ERR() or the number of bytes written.
  */
 static ssize_t st_FOTACtrlWrite(struct bt_conn *stpt_connHandle,
-	const struct bt_gatt_attr *stpt_attr, const void *vpt_buf, uint16_t u16_length, 
+	const struct bt_gatt_attr *stpt_attr, const void *vpt_buf, uint16_t u16_length,
 	uint16_t u16_offset, uint8_t u8_flags)
 {
 	ssize_t t_retVal = 0;
@@ -351,61 +372,101 @@ static ssize_t st_FOTACtrlWrite(struct bt_conn *stpt_connHandle,
 
 		LOG_INF("Received data from FOTA Control characteristic.");
 
-		// Copy the incoming data to the mapped data buffer of this characteristic.
-		// This will be used as input to FOTA FSM.
-		memcpy(stpt_charCtx->u8pt_data, vpt_buf, u16_length);
+		// // Copy the incoming data to the mapped data buffer of this characteristic.
+		// // This will be used as input to FOTA FSM.
+		// memcpy(stpt_charCtx->u8pt_data, vpt_buf, u16_length);
 
 		// Update the current length of the data in the buffer.
 		stpt_charCtx->u16_curLen = u16_length;
 
-		// SDC:
-		// Added just for testing purposes - to simulate the presence of Control Packets
-		stpt_charCtx->u8pt_data[0] = 5;
-		stpt_charCtx->u8pt_data[1] = 1;
-		stpt_charCtx->u8pt_data[2] = 0xAA;
-		stpt_charCtx->u8pt_data[3] = 0xBB;
-		stpt_charCtx->u8pt_data[4] = 0xCC;
-		stpt_charCtx->u8pt_data[5] = 0xDD;
+		// // SDC:
+		// // Added just for testing purposes - to simulate the presence of Control Packets
+      // stpt_charCtx->stpt_data.star_CPBlocks[0].u8_CPBlockLength = 5;
+      // stpt_charCtx->stpt_data.star_CPBlocks[0].e_CPType = eCPT_FOTA_START;
+      // stpt_charCtx->stpt_data.star_CPBlocks[0].u8ar_CPData[0] = 0xAA;
+      // stpt_charCtx->stpt_data.star_CPBlocks[0].u8ar_CPData[1] = 0xBB;
+      // stpt_charCtx->stpt_data.star_CPBlocks[0].u8ar_CPData[2] = 0xCC;
+      // stpt_charCtx->stpt_data.star_CPBlocks[0].u8ar_CPData[3] = 0xDD;
+		// stpt_charCtx->u8pt_data[0] = 5;
+		// stpt_charCtx->u8pt_data[1] = 1;
+		// stpt_charCtx->u8pt_data[2] = 0xAA;
+		// stpt_charCtx->u8pt_data[3] = 0xBB;
+		// stpt_charCtx->u8pt_data[4] = 0xCC;
+		// stpt_charCtx->u8pt_data[5] = 0xDD;
 
 		// Check if parsing the Control Packets from the incoming data and
-		// populating the temporary CP list structure completed successfully. 
-		if (eTP_OK == ge_TP_ParseCPList(stpt_charCtx->u8pt_data, stpt_charCtx->u16_curLen, &st_CPList))
+		// populating the temporary CP list structure completed successfully.
+		// if (eTP_OK == ge_TP_ParseCPList(stpt_charCtx->u8pt_data, stpt_charCtx->u16_curLen, &st_CPList))
+      if (eTP_OK == ge_TP_ParseCPList((uint8_t *)vpt_buf, stpt_charCtx->u16_curLen, stpt_charCtx->stpt_data))
 		{
 			// Check if there is only 1 CP block in the parsed CP list
-			if (1 == st_CPList.u8_count)
+			// if (1 == st_CPList.u8_count)
+         if (1 == stpt_charCtx->stpt_data->u8_count)
 			{
 				// Populate the event
+				// // Check if the CP type of the single CP block in the parsed CP list is FOTA Start
+				// if (st_CPList.star_CPBlocks[0].e_CPType == eCPT_FOTA_START)
+				// {
+				// 	st_FOTAEvent.e_evt = eFE_FOTA_START;
+				// 	memcpy(&st_FOTAEvent.u_FOTAEvents.st_FOTAStart, \
+				// 		st_CPList.star_CPBlocks[0].u8ar_CPData, \
+				// 		st_CPList.star_CPBlocks[0].u8_CPBlockLength);
+				// }
 				// Check if the CP type of the single CP block in the parsed CP list is FOTA Start
-				if (st_CPList.star_CPBlocks[0].e_CPType == eCPT_FOTA_START)
+				if (stpt_charCtx->stpt_data->star_CPBlocks[0].e_CPType == eCPT_FOTA_START)
 				{
 					st_FOTAEvent.e_evt = eFE_FOTA_START;
 					memcpy(&st_FOTAEvent.u_FOTAEvents.st_FOTAStart, \
-						st_CPList.star_CPBlocks[0].u8ar_CPData, \
-						st_CPList.star_CPBlocks[0].u8_CPBlockLength);
+						stpt_charCtx->stpt_data->star_CPBlocks[0].u8ar_CPData, \
+						stpt_charCtx->stpt_data->star_CPBlocks[0].u8_CPBlockLength);
 				}
+				// // Check if the CP type of the single CP block in the parsed CP list is Metadata
+				// else if (st_CPList.star_CPBlocks[0].e_CPType == eCPT_METADATA)
+				// {
+				// 	st_FOTAEvent.e_evt = eFE_METADATA;
+				// 	memcpy(&st_FOTAEvent.u_FOTAEvents.st_metadata, \
+				// 		st_CPList.star_CPBlocks[0].u8ar_CPData, \
+				// 		st_CPList.star_CPBlocks[0].u8_CPBlockLength);
+				// }
 				// Check if the CP type of the single CP block in the parsed CP list is Metadata
-				else if (st_CPList.star_CPBlocks[0].e_CPType == eCPT_METADATA)
+				else if (stpt_charCtx->stpt_data->star_CPBlocks[0].e_CPType == eCPT_METADATA)
 				{
 					st_FOTAEvent.e_evt = eFE_METADATA;
 					memcpy(&st_FOTAEvent.u_FOTAEvents.st_metadata, \
-						st_CPList.star_CPBlocks[0].u8ar_CPData, \
-						st_CPList.star_CPBlocks[0].u8_CPBlockLength);
+						stpt_charCtx->stpt_data->star_CPBlocks[0].u8ar_CPData, \
+						stpt_charCtx->stpt_data->star_CPBlocks[0].u8_CPBlockLength);
 				}
+				// // Check if the CP type of the single CP block in the parsed CP list is Manifest
+				// else if (st_CPList.star_CPBlocks[0].e_CPType == eCPT_MANIFEST)
+				// {
+				// 	st_FOTAEvent.e_evt = eFE_MANIFEST;
+				// 	memcpy(&st_FOTAEvent.u_FOTAEvents.st_manifest, \
+				// 		st_CPList.star_CPBlocks[0].u8ar_CPData, \
+				// 		st_CPList.star_CPBlocks[0].u8_CPBlockLength);
+				// }
 				// Check if the CP type of the single CP block in the parsed CP list is Manifest
-				else if (st_CPList.star_CPBlocks[0].e_CPType == eCPT_MANIFEST)
+				else if (stpt_charCtx->stpt_data->star_CPBlocks[0].e_CPType == eCPT_MANIFEST)
 				{
 					st_FOTAEvent.e_evt = eFE_MANIFEST;
 					memcpy(&st_FOTAEvent.u_FOTAEvents.st_manifest, \
-						st_CPList.star_CPBlocks[0].u8ar_CPData, \
-						st_CPList.star_CPBlocks[0].u8_CPBlockLength);
+						stpt_charCtx->stpt_data->star_CPBlocks[0].u8ar_CPData, \
+						stpt_charCtx->stpt_data->star_CPBlocks[0].u8_CPBlockLength);
 				}
+				// // Check if the CP type of the single CP block in the parsed CP list is FOTA Data
+				// else if (st_CPList.star_CPBlocks[0].e_CPType == eCPT_FOTA_DATA)
+				// {
+				// 	st_FOTAEvent.e_evt = eFE_FOTA_DATA;
+				// 	memcpy(&st_FOTAEvent.u_FOTAEvents.st_FOTAData, \
+				// 		st_CPList.star_CPBlocks[0].u8ar_CPData, \
+				// 		st_CPList.star_CPBlocks[0].u8_CPBlockLength);
+				// }
 				// Check if the CP type of the single CP block in the parsed CP list is FOTA Data
-				else if (st_CPList.star_CPBlocks[0].e_CPType == eCPT_FOTA_DATA)
+				else if (stpt_charCtx->stpt_data->star_CPBlocks[0].e_CPType == eCPT_FOTA_DATA)
 				{
 					st_FOTAEvent.e_evt = eFE_FOTA_DATA;
 					memcpy(&st_FOTAEvent.u_FOTAEvents.st_FOTAData, \
-						st_CPList.star_CPBlocks[0].u8ar_CPData, \
-						st_CPList.star_CPBlocks[0].u8_CPBlockLength);
+						stpt_charCtx->stpt_data->star_CPBlocks[0].u8ar_CPData, \
+						stpt_charCtx->stpt_data->star_CPBlocks[0].u8_CPBlockLength);
 				}
 				else
 				{
@@ -457,11 +518,12 @@ static ssize_t st_FOTADataTransferWrite(struct bt_conn *stpt_connHandle,
 	const struct bt_gatt_attr *stpt_attr, const void *vpt_buf, uint16_t u16_length,
 	uint16_t u16_offset, uint8_t u8_flags)
 {
+#if 0
 	ssize_t t_retVal = 0;
 	// Take a pointer to the user data of this attribute and consider it as a byte array,
 	//	as we are expecting byte array input for this characteristic.
 	CharCtx_T *stpt_charCtx = stpt_attr->user_data;
-	
+
 	// Perform all the basic checks for the incoming write request parameters before processing the data.
 	// Check if the connection handle, attribute pointer, input buffer pointer or
 	// characteristic context pointer is NULL.
@@ -512,6 +574,7 @@ static ssize_t st_FOTADataTransferWrite(struct bt_conn *stpt_connHandle,
 	}
 
 	return t_retVal;
+#endif // 0
 }
 
 /* ================= Read Handlers ================= */
@@ -529,6 +592,7 @@ static ssize_t st_FOTAStsRead(struct bt_conn *stpt_connHandle,
 	const struct bt_gatt_attr *stpt_attr, void *vpt_buf, uint16_t u16_length,
 	uint16_t u16_offset)
 {
+#if 0
 	ssize_t t_retVal = 0;
 	// Take a pointer to the user data of this attribute and consider it as a byte array,
 	//	as we are expecting byte array input for this characteristic.
@@ -561,6 +625,7 @@ static ssize_t st_FOTAStsRead(struct bt_conn *stpt_connHandle,
 	}
 
 	return t_retVal;
+#endif // 0
 }
 
 /**
@@ -577,6 +642,7 @@ static ssize_t st_FOTAProgressRead(struct bt_conn *stpt_connHandle,
 	const struct bt_gatt_attr *stpt_attr, void *vpt_buf, uint16_t u16_length,
 	uint16_t u16_offset)
 {
+#if 0
 	ssize_t t_retVal = 0;
 	// Take a pointer to the user data of this attribute and consider it as a byte array,
 	//	as we are expecting byte array input for this characteristic.
@@ -609,6 +675,7 @@ static ssize_t st_FOTAProgressRead(struct bt_conn *stpt_connHandle,
 	}
 
 	return t_retVal;
+#endif // 0
 }
 
 /******************************************************************************/
