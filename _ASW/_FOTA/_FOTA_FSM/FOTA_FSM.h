@@ -14,6 +14,7 @@
 /*                                  INCLUDES                                  */
 /*                                                                            */
 /******************************************************************************/
+#include <zephyr/kernel.h>
 #include <zephyr/smf.h>
 #include "AppLog.h"
 #include "FOTAEvent.h"
@@ -52,8 +53,8 @@ typedef enum
 /*                                                                            */
 /******************************************************************************/
 /**
- * @struct        FOTACtx_T
- * @brief         FOTA context structure.
+ * @struct        FOTAStateMachineCtx_T
+ * @brief         FOTA state machine context structure.
  */
 typedef struct
 {
@@ -61,7 +62,7 @@ typedef struct
    bool b_startReq;                          /**< Flag to indicate if start request is received */
    bool b_dataComplete;                      /**< Flag to indicate if all firmware data is received */
    bool b_verifyOk;                          /**< Flag to indicate if firmware verification is successful */
-} FOTACtx_T;
+} FOTAStateMachineCtx_T;
 
 /******************************************************************************/
 /*                                                                            */
@@ -85,8 +86,7 @@ extern const struct smf_state gst_FOTAStates[eFS_STATE_MAX];
 /*                              EXTERN FUNCTIONS                              */
 /*                                                                            */
 /******************************************************************************/
-extern void gv_FOTAThread(void *vpt_entryParam1, void *vpt_entryParam2, void *vpt_entryParam3);
-extern void vt_CreateFOTAThread();
+extern void vt_CreateFOTAStateMachineThread();
 
 #endif //!_FOTA_FSM_H
 
