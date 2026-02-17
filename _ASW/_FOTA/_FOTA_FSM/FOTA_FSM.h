@@ -92,7 +92,7 @@ extern const struct smf_state gst_FOTAStates[eFS_STATE_MAX];
 /*                              EXTERN FUNCTIONS                              */
 /*                                                                            */
 /******************************************************************************/
-extern void vt_CreateFOTAStateMachineThread();
+extern void gv_CreateFOTAStateMachineThread();
 
 #endif //!_FOTA_FSM_H
 

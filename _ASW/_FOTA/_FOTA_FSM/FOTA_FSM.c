@@ -623,11 +623,11 @@ static void sv_FOTAStateMachineThread(void *vpt_entryParam1, void *vpt_entryPara
 /*                                                                            */
 /******************************************************************************/
 /**
- * @public        vt_CreateFOTAStateMachineThread
+ * @public        gv_CreateFOTAStateMachineThread
  * @brief         Initialise SMF for FOTA and creates FOTA thread.
  * @return        THread ID.
  */
-void vt_CreateFOTAStateMachineThread()
+void gv_CreateFOTAStateMachineThread()
 {
    LOG_INF("Initializing FOTA state machine");
    smf_set_initial(SMF_CTX(&sst_FOTAStateMachineCtx), &gst_FOTAStates[eFS_IDLE]);

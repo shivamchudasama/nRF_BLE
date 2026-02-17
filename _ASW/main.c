@@ -222,7 +222,7 @@ int main(void)
    LOG_INF("Advertising started");
 
    // Create FOTA state machine thread
-   vt_CreateFOTAStateMachineThread();
+   gv_CreateFOTAStateMachineThread();
 
    return 0;
 }
