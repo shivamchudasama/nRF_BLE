@@ -41,6 +41,7 @@
 /*                       PRIVATE FUNCTION DECLARATIONS                        */
 /*                                                                            */
 /******************************************************************************/
+// static void sv_PopulateFOTAEvent();
 static ssize_t st_FOTACtrlWrite(struct bt_conn *stpt_connHandle,
 	const struct bt_gatt_attr *stpt_attr, const void *vpt_buf, uint16_t u16_length,
 	uint16_t u16_offset, uint8_t u8_flags);
@@ -71,8 +72,7 @@ static CPList_T sst_FOTACtrlCharCPList = { 0 };
 /**
  * @var           sst_FOTACtrlCharCtx
  * @brief         A structure mapped with FOTA Control characteristic. It contains
- * 					pointer to the data buffer (su8ar_FOTACtrl) and its maximum and
- * 					current length.
+ * 					pointer to the data buffer and its maximum and current length.
  */
 static CharCtx_T sst_FOTACtrlCharCtx = {
 	.stpt_data = &sst_FOTACtrlCharCPList,
@@ -81,60 +81,62 @@ static CharCtx_T sst_FOTACtrlCharCtx = {
 };
 
 /**
- * @var           su8ar_FOTADataXfer
+ * @var           sst_FOTADataXferCharCPList
  * @brief         An array mapped with FOTA Data Transfer characteristic. All the
  * 					Data Packets received from the peer device will be stored in
- * 					this buffer by the write callback of FOTA Data Transfer characteristic.
+ * 					this structure after parsing it in the write callback of FOTA
+ *                Data Transfer characteristic.
  */
-static uint8_t su8ar_FOTADataXfer[MAX_MTU_SIZE_WITH_DLE];
+static CPList_T sst_FOTADataXferCharCPList = { 0 };
 
 /**
  * @var           sst_FOTADataXferCharCtx
  * @brief         A structure mapped with FOTA Data Transfer characteristic. It contains
- * 					pointer to the data buffer (su8ar_FOTADataXfer) and its maximum and
- * 					current length.
+ * 					pointer to the data buffer and its maximum and current length.
  */
 static CharCtx_T sst_FOTADataXferCharCtx = {
-	.stpt_data = su8ar_FOTADataXfer,
-	.u16_maxLen = sizeof(su8ar_FOTADataXfer),
+	.stpt_data = &sst_FOTADataXferCharCPList,
+	.u16_maxLen = MAX_MTU_SIZE_WITH_DLE,
 	.u16_curLen = 0U
 };
 
 /**
- * @var           su8ar_FOTAStatus
- * @brief         An array mapped with FOTA Status characteristic. All the status
- * 					inquired by FOTA Status characteristic will be stored in this buffer.
+ * @var           sst_FOTAStatusCharCPList
+ * @brief         An array mapped with FOTA Status characteristic. All the
+ * 					Data Packets received from the peer device will be stored in
+ * 					this structure after parsing it in the write callback of FOTA
+ *                Status characteristic.
  */
-static uint8_t su8ar_FOTAStatus[4];
+static CPList_T sst_FOTAStatusCharCPList = { 0 };
 
 /**
  * @var           sst_FOTAStatusCharCtx
  * @brief         A structure mapped with FOTA Status characteristic. It contains
- * 					pointer to the data buffer (su8ar_FOTAStatus) and its maximum and
- * 					current length.
+ * 					pointer to the data buffer and its maximum and current length.
  */
 static CharCtx_T sst_FOTAStatusCharCtx = {
-	.stpt_data = su8ar_FOTAStatus,
-	.u16_maxLen = sizeof(su8ar_FOTAStatus),
+	.stpt_data = &sst_FOTAStatusCharCPList,
+	.u16_maxLen = 4,
 	.u16_curLen = 0U
 };
 
 /**
- * @var           su8ar_FOTAProgress
- * @brief         An array mapped with FOTA Progress characteristic. All the progress
- * 					inquired by FOTA Progress characteristic will be stored in this buffer.
+ * @var           sst_FOTAProgressCharCPList
+ * @brief         An array mapped with FOTA Progress characteristic. All the
+ * 					Data Packets received from the peer device will be stored in
+ * 					this structure after parsing it in the write callback of FOTA
+ *                Progress characteristic.
  */
-static uint8_t su8ar_FOTAProgress[4];
+static CPList_T sst_FOTAProgressCharCPList = { 0 };
 
 /**
  * @var           sst_FOTAProgressCharCtx
  * @brief         A structure mapped with FOTA Progress characteristic. It contains
- * 					pointer to the data buffer (su8ar_FOTAProgress) and its maximum and
- * 					current length.
+ * 					pointer to the data buffer and its maximum and current length.
  */
 static CharCtx_T sst_FOTAProgressCharCtx = {
-	.stpt_data = su8ar_FOTAProgress,
-	.u16_maxLen = sizeof(su8ar_FOTAProgress),
+	.stpt_data = &sst_FOTAProgressCharCPList,
+	.u16_maxLen = 4,
 	.u16_curLen = 0U
 };
 
@@ -154,6 +156,7 @@ BT_GATT_SERVICE_DEFINE(gstar_FOTASvc,
 		// UUID
 		BT_UUID_FOTA_SERVICE
 	),
+   // FOTA control characteristic
 	// Characteristic declaration for FOTA control
 	BT_GATT_CHARACTERISTIC(
 		// UUID
@@ -173,6 +176,7 @@ BT_GATT_SERVICE_DEFINE(gstar_FOTASvc,
 		"FOTA Control",
 		BT_GATT_PERM_READ
 	),
+   // FOTA data transfer characteristic
 	// Characteristic declaration for FOTA data transfer
 	BT_GATT_CHARACTERISTIC(
 		// UUID
@@ -192,16 +196,17 @@ BT_GATT_SERVICE_DEFINE(gstar_FOTASvc,
 		"FOTA Data Transfer",
 		BT_GATT_PERM_READ
 	),
+   // FOTA status characteristic
 	// Characteristic declaration for FOTA Status
 	BT_GATT_CHARACTERISTIC(
 		// UUID
 		BT_UUID_FOTA_STATUS_CHAR,
-		// Properties - Read
-		BT_GATT_CHRC_READ,
-		// Permissions - Read
-		BT_GATT_PERM_READ,
-		// Read callback - st_FOTAStsRead
-		st_FOTAStsRead,
+		// Properties - Notify or Indicate
+		BT_GATT_CHRC_NOTIFY | BT_GATT_CHRC_INDICATE,
+		// Permissions - None
+		BT_GATT_PERM_NONE,
+		// Read callback - NULL
+		NULL,
 		// Write callback - NULL
 		NULL,
 		// User data - sst_FOTAStatusCharCtx
@@ -218,6 +223,7 @@ BT_GATT_SERVICE_DEFINE(gstar_FOTASvc,
 		// Permissions - Read and Write
 		BT_GATT_PERM_READ | BT_GATT_PERM_WRITE
 	),
+   // FOTA progress characteristic
 	// Characteristic declaration for FOTA Progress
 	BT_GATT_CHARACTERISTIC(
 		// UUID
@@ -274,6 +280,101 @@ BT_GATT_SERVICE_DEFINE(gstar_FOTASvc,
 /*                        PRIVATE FUNCTION DEFINITIONS                        */
 /*                                                                            */
 /******************************************************************************/
+#if 0
+/**
+ * @private       sv_PopulateFOTAEvent
+ * @brief         Callback function for write operation on FOTA Control characteristic.
+ *                It will parse the incoming data as Control Packets and populate a
+ *                FOTA event structure with the parsed information. This event can
+ *                then be used as an input to FOTA state machine.
+ * @param[inout]  stpt_connHandle Connection handle.
+ * @param[in]    	stpt_attr The attribute being written to.
+ * @param[in]    	vpt_buf The buffer containing the data being written.
+ * @param[in]    	u16_length The length of the data being written.
+ * @param[in]    	u16_offset The offset at which the data is being written.
+ * @param[in]    	u8_flags Write flags, see @ref bt_gatt_attr_write_flag.
+ * @return        Either BT_GATT_ERR() or the number of bytes written.
+ */
+static void sv_PopulateFOTAEvent(CharCtx_T *stpt_charCtx, FOTAEvent_T *stpt_FOTAEvent)
+{
+   // Populate the event
+   // Check if the CP type of the single CP block in the parsed CP list is FOTA Start
+   switch (stpt_charCtx->stpt_data->star_CPBlocks[0].e_CPType)
+   {
+      case eCPT_FOTA_START:
+      {
+
+      }
+      break;
+
+      case eCPT_METADATA:
+      {
+
+      }
+      break;
+
+      case eCPT_MANIFEST:
+      {
+
+      }
+      break;
+
+      case eCPT_FOTA_DATA:
+      {
+
+      }
+      break;
+
+      default:
+      break;
+   }
+   if (stpt_charCtx->stpt_data->star_CPBlocks[0].e_CPType == eCPT_FOTA_START)
+   {
+      // Populate the event
+      stpt_FOTAEvent->e_evt = eFE_FOTA_START;
+      memcpy(&stpt_FOTAEvent->u_FOTAEventsPayload.st_FOTAStart, \
+         stpt_charCtx->stpt_data->star_CPBlocks[0].u8ar_CPData, \
+         stpt_charCtx->stpt_data->star_CPBlocks[0].u8_CPBlockLength);
+      stpt_FOTAEvent->u16_payloadLength = stpt_charCtx->u16_curLen;
+   }
+   // Check if the CP type of the single CP block in the parsed CP list is Metadata
+   else if (stpt_charCtx->stpt_data->star_CPBlocks[0].e_CPType == eCPT_METADATA)
+   {
+      // Populate the event
+      stpt_FOTAEvent->e_evt = eFE_METADATA;
+      memcpy(&stpt_FOTAEvent->u_FOTAEventsPayload.st_metadata, \
+         stpt_charCtx->stpt_data->star_CPBlocks[0].u8ar_CPData, \
+         stpt_charCtx->stpt_data->star_CPBlocks[0].u8_CPBlockLength);
+      stpt_FOTAEvent->u16_payloadLength = stpt_charCtx->u16_curLen;
+   }
+   // Check if the CP type of the single CP block in the parsed CP list is Manifest
+   else if (stpt_charCtx->stpt_data->star_CPBlocks[0].e_CPType == eCPT_MANIFEST)
+   {
+      // Populate the event
+      stpt_FOTAEvent->e_evt = eFE_MANIFEST;
+      memcpy(&stpt_FOTAEvent->u_FOTAEventsPayload.st_manifest, \
+         stpt_charCtx->stpt_data->star_CPBlocks[0].u8ar_CPData, \
+         stpt_charCtx->stpt_data->star_CPBlocks[0].u8_CPBlockLength);
+      stpt_FOTAEvent->u16_payloadLength = stpt_charCtx->u16_curLen;
+   }
+   // Check if the CP type of the single CP block in the parsed CP list is FOTA Data
+   else if (stpt_charCtx->stpt_data->star_CPBlocks[0].e_CPType == eCPT_FOTA_DATA)
+   {
+      // Populate the event
+      stpt_FOTAEvent->e_evt = eFE_FOTA_DATA;
+      memcpy(&stpt_FOTAEvent->u_FOTAEventsPayload.st_FOTAData, \
+         stpt_charCtx->stpt_data->star_CPBlocks[0].u8ar_CPData, \
+         stpt_charCtx->stpt_data->star_CPBlocks[0].u8_CPBlockLength);
+      stpt_FOTAEvent->u16_payloadLength = stpt_charCtx->u16_curLen;
+   }
+   else
+   {
+      LOG_INF("Unsupported Control Packet type received in FOTA Control characteristic data. "
+         "Received CP type: %u", st_CPList.star_CPBlocks[0].e_CPType);
+   }
+}
+#endif // 0
+
 /**
  * @private       st_FOTACtrlWrite
  * @brief         Callback function for write operation on FOTA Control characteristic.
@@ -449,7 +550,7 @@ static ssize_t st_FOTADataTransferWrite(struct bt_conn *stpt_connHandle,
 	const struct bt_gatt_attr *stpt_attr, const void *vpt_buf, uint16_t u16_length,
 	uint16_t u16_offset, uint8_t u8_flags)
 {
-#if 0
+#if 1
 	ssize_t t_retVal = 0;
 	// Take a pointer to the user data of this attribute and consider it as a byte array,
 	//	as we are expecting byte array input for this characteristic.
