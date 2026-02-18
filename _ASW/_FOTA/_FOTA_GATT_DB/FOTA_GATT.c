@@ -220,20 +220,20 @@ BT_GATT_SERVICE_DEFINE(gstar_FOTASvc,
 	BT_GATT_CCC(
 		// Configuration changed callback - NULL
 		NULL,
-		// Permissions - Read and Write
-		BT_GATT_PERM_READ | BT_GATT_PERM_WRITE
+		// Permissions - Read
+		BT_GATT_PERM_READ
 	),
    // FOTA progress characteristic
 	// Characteristic declaration for FOTA Progress
 	BT_GATT_CHARACTERISTIC(
 		// UUID
 		BT_UUID_FOTA_PROGRESS_CHAR,
-		// Properties - Read
-		BT_GATT_CHRC_READ,
-		// Permissions - Read
-		BT_GATT_PERM_READ,
-		// Read callback - st_FOTAProgressRead
-		st_FOTAProgressRead,
+		// Properties - Notify or Indicate
+		BT_GATT_CHRC_NOTIFY | BT_GATT_CHRC_INDICATE,
+		// Permissions - None
+		BT_GATT_PERM_NONE,
+		// Read callback - NULL
+		NULL,
 		// Write callback - NULL
 		NULL,
 		// User data - sst_FOTAProgressCharCtx
@@ -246,8 +246,8 @@ BT_GATT_SERVICE_DEFINE(gstar_FOTASvc,
 	BT_GATT_CCC(
 		// Configuration changed callback - NULL
 		NULL,
-		// Permissions - Read and Write
-		BT_GATT_PERM_READ | BT_GATT_PERM_WRITE
+		// Permissions - Read
+		BT_GATT_PERM_READ
 	),
 );
 
