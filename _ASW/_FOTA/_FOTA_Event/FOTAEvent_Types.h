@@ -22,9 +22,18 @@
 /*                                                                            */
 /******************************************************************************/
 /**
- * @def           <Define name>
- * @brief         <Define details>.
+ * @def           MAX_SECTIONS_IN_IMAGE
+ * @brief         This is part of image metadata. It will indicate the maximum
+ *                sections possible for a single HEX file.
  */
+#define MAX_SECTIONS_IN_IMAGE                (10)
+
+/**
+ * @def           MAX_DATA_PACKET_IN_ONE_MTU
+ * @brief         This is part of data packet. It will indicate the maximum
+ *                data available in one MTU.
+ */
+#define MAX_DATA_PACKET_IN_ONE_MTU           (242)
 
 /******************************************************************************/
 /*                                                                            */
@@ -38,11 +47,25 @@
 typedef enum
 {
    eFE_FOTA_START = 0x01,                    /**< FOTA start packet */
-   eFE_METADATA,                             /**< Metadata packet */
    eFE_MANIFEST,                             /**< Manifest packet */
+   eFE_METADATA,                             /**< Metadata packet */
    eFE_FOTA_DATA,                            /**< FOTA data packet */
    // More FOTA Events can be added here as needed
 } FOTAEvent_E;
+
+/**
+ * @enum          TargetECU_E
+ * @brief         Enumeration of different ECUs.
+ */
+typedef enum
+{
+   eTE_UNKNOWN = 0x00,                       /**< Unknown ECU */
+   eTE_VCU,                                  /**< VCU */
+   eTE_MCU,                                  /**< MCU */
+   eTE_TEL,                                  /**< TEL */
+   eTE_BMS,                                  /**< BMS */
+   // More ECUs can be added here as needed
+} TargetECU_E;
 
 /******************************************************************************/
 /*                                                                            */
@@ -59,37 +82,42 @@ typedef struct
 } FOTAStart_T;
 
 /**
- * @struct        Metadata_T
- * @brief         Structure containing FOTA Metadata details.
+ * @struct        Version_U
+ * @brief         Union containing versioning information.
  */
-typedef struct
+typedef union
 {
-   // As of now, this is written as an array of 128 bytes, but it can be modified
-   // as per the actual metadata details to be stored.
-   uint8_t u8ar_metadataPkt[128];            /**< Metadata packet */
-} Metadata_T;
+   struct Version_T
+   {
+      uint8_t u8_majorVer;                   /**< Major version */
+      uint8_t u8_minorVer;                   /**< Minor version */
+      uint8_t u8_revisionVer;                /**< Revision version */
+      uint8_t u8_reserved;                   /**< Reserved for future use */
+   } st_version;                             /**< Structure containing version info */
+   uint32_t u32_version;                     /**< 32-bit version info */
+} Version_U;
 
 /**
  * @struct        Manifest_T
- * @brief         Structure containing FOTA Manifest details.
+ * @brief         Structure containing Manifest details.
  */
 typedef struct
 {
-   // As of now, this is written as an array of 128 bytes, but it can be modified
-   // as per the actual manifest details to be stored.
-   uint8_t u8ar_manifestPkt[128];            /**< Manifest packet */
+   TargetECU_E e_targetECU;                  /**< Target ECU */
+   uint32_t u32_imageSize;                   /**< Image Size */
+   Version_U u_appVersion;                   /**< Application version */
+   uint32_t u32_imageSign;                   /**< Image signature */
 } Manifest_T;
 
 /**
- * @struct        FOTAData_T
- * @brief         Structure containing FOTA Data details.
+ * @struct        Metadata_T
+ * @brief         Structure containing Metadata details.
  */
 typedef struct
 {
-   // As of now, this is written as an array of 128 bytes, but it can be modified
-   // as per the actual data details to be stored.
-   uint8_t u8ar_dataPkt[128];                /**< FOTA Data packet */
-} FOTAData_T;
+   uint32_t u32_startAddr;                   /**< Start address */
+   uint32_t u32_sectionSize;                 /**< Size of the section */
+} Metadata_T;
 
 /**
  * @struct        FOTAAbort_T
@@ -112,9 +140,11 @@ typedef struct
    union FOTAEventPayload_U
    {
       FOTAStart_T st_FOTAStart;              /**< FOTA Start Event payload */
-      Metadata_T st_metadata;                /**< Metadata payload */
       Manifest_T st_manifest;                /**< Manifest payload */
-      FOTAData_T st_FOTAData;                /**< FOTA Data payload */
+      Metadata_T star_metadata[MAX_SECTIONS_IN_IMAGE];
+                                             /**< Metadata payload */
+      uint8_t u8ar_data[MAX_DATA_PACKET_IN_ONE_MTU];
+                                             /**< FOTA Data payload */
       FOTAAbort_T st_FOTAAbort;              /**< FOTA Abort payload */
       // More FOTA Event details can be added here as needed
    } u_FOTAEventsPayload;                    /**< FOTA events payload */

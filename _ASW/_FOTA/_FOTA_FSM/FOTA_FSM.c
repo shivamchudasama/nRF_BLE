@@ -122,8 +122,8 @@ static void sv_FOTAStateMachineThread(void *vpt_entryParam1, void *vpt_entryPara
 const struct smf_state gst_FOTAStates[eFS_STATE_MAX] =
 {
    [eFS_IDLE] = SMF_CREATE_STATE(sv_eFS_IDLE_Entry, se_eFS_IDLE_Run, sv_eFS_IDLE_Exit, NULL, NULL),
-   [eFS_RECEIVING_METADATA] = SMF_CREATE_STATE(sv_eFS_RECEIVING_METADATA_Entry, se_eFS_RECEIVING_METADATA_Run, sv_eFS_RECEIVING_METADATA_Exit, NULL, NULL),
    [eFS_RECEIVING_MANIFEST] = SMF_CREATE_STATE(sv_eFS_RECEIVING_MANIFEST_Entry, se_eFS_RECEIVING_MANIFEST_Run, sv_eFS_RECEIVING_MANIFEST_Exit, NULL, NULL),
+   [eFS_RECEIVING_METADATA] = SMF_CREATE_STATE(sv_eFS_RECEIVING_METADATA_Entry, se_eFS_RECEIVING_METADATA_Run, sv_eFS_RECEIVING_METADATA_Exit, NULL, NULL),
    [eFS_RECEIVING_DATA] = SMF_CREATE_STATE(sv_eFS_RECEIVING_DATA_Entry, se_eFS_RECEIVING_DATA_Run, sv_eFS_RECEIVING_DATA_Exit, NULL, NULL),
    [eFS_VALIDATE_IMAGE] = SMF_CREATE_STATE(sv_eFS_VALIDATE_IMAGE_Entry, se_eFS_VALIDATE_IMAGE_Run, sv_eFS_VALIDATE_IMAGE_Exit, NULL, NULL),
    [eFS_STAGE_IMAGE] = SMF_CREATE_STATE(sv_eFS_STAGE_IMAGE_Entry, se_eFS_STAGE_IMAGE_Run, sv_eFS_STAGE_IMAGE_Exit, NULL, NULL),
@@ -197,8 +197,8 @@ static enum smf_state_result se_eFS_IDLE_Run(void *vpt_obj)
       {
          // Clear the event pending flag
          stpt_FOTAStateMachineCtx->b_isEventPending = false;
-         LOG_INF("Start request received, transitioning to eFS_RECEIVING_METADATA state");
-         smf_set_state(SMF_CTX(stpt_FOTAStateMachineCtx), &gst_FOTAStates[eFS_RECEIVING_METADATA]);
+         LOG_INF("Start request received, transitioning to eFS_RECEIVING_MANIFEST state");
+         smf_set_state(SMF_CTX(stpt_FOTAStateMachineCtx), &gst_FOTAStates[eFS_RECEIVING_MANIFEST]);
       }
       else
       {
@@ -224,69 +224,6 @@ static enum smf_state_result se_eFS_IDLE_Run(void *vpt_obj)
 static void sv_eFS_IDLE_Exit(void *vpt_obj)
 {
    LOG_INF("sv_eFS_IDLE exit");
-}
-
-// eFS_RECEIVING_METADATA state handlers
-/**
- * @private       sv_eFS_RECEIVING_METADATA_Entry
- * @brief         <Function details>.
- * @param[in]     vpt_obj Pointer to user object declared for FOTA state machine.
- * @return        <Return details>.
- */
-static void sv_eFS_RECEIVING_METADATA_Entry(void *vpt_obj)
-{
-   LOG_INF("sv_eFS_RECEIVING_METADATA entry");
-}
-
-/**
- * @private       sv_eFS_RECEIVING_METADATA_Run
- * @brief         <Function details>.
- * @param[in]     vpt_obj Pointer to user object declared for FOTA state machine.
- * @return        <Return details>.
- */
-static enum smf_state_result se_eFS_RECEIVING_METADATA_Run(void *vpt_obj)
-{
-   FOTAStateMachineCtx_T *stpt_FOTAStateMachineCtx = (FOTAStateMachineCtx_T *)vpt_obj;
-   enum smf_state_result e_retVal = SMF_EVENT_PROPAGATE;
-   CPList_T st_CPList = { 0 };
-
-   LOG_INF("sv_eFS_RECEIVING_METADATA running");
-
-   // Check if any event is pending to handle and that is METADATA command
-   if ((stpt_FOTAStateMachineCtx->b_isEventPending) &&
-      (eFE_METADATA == stpt_FOTAStateMachineCtx->st_FOTAEvent.e_evt))
-   {
-      // Clear the event pending flag
-      stpt_FOTAStateMachineCtx->b_isEventPending = false;
-      // As there might be more than one metadata packets received. We need to parst it.
-      ge_TP_ParseCPList(stpt_FOTAStateMachineCtx->st_FOTAEvent.u_FOTAEventsPayload.st_metadata.u8ar_metadataPkt,
-         stpt_FOTAStateMachineCtx->st_FOTAEvent.u16_payloadLength, &st_CPList);
-
-      // As this is a Metadata, there are multiple CP blocks in it. After parsing
-      // them, we need to send them to the FS FSM.
-
-      LOG_INF("Metadata received, transitioning to eFS_RECEIVING_MANIFEST state");
-      smf_set_state(SMF_CTX(stpt_FOTAStateMachineCtx), &gst_FOTAStates[eFS_RECEIVING_MANIFEST]);
-
-      e_retVal = SMF_EVENT_HANDLED;
-   }
-   else
-   {
-      LOG_INF("Invalid activity");
-   }
-
-   return e_retVal;
-}
-
-/**
- * @private       sv_eFS_RECEIVING_METADATA_Exit
- * @brief         <Function details>.
- * @param[in]     vpt_obj Pointer to user object declared for FOTA state machine.
- * @return        <Return details>.
- */
-static void sv_eFS_RECEIVING_METADATA_Exit(void *vpt_obj)
-{
-   LOG_INF("sv_eFS_RECEIVING_METADATA exit");
 }
 
 // eFS_RECEIVING_MANIFEST state handlers
@@ -317,19 +254,19 @@ static enum smf_state_result se_eFS_RECEIVING_MANIFEST_Run(void *vpt_obj)
 
    // Check if any event is pending to handle and that is MANIFEST command
    if ((stpt_FOTAStateMachineCtx->b_isEventPending) &&
-      (eFE_MANIFEST == stpt_FOTAStateMachineCtx->st_FOTAEvent.e_evt))
+      (eFE_METADATA == stpt_FOTAStateMachineCtx->st_FOTAEvent.e_evt))
    {
       // Clear the event pending flag
       stpt_FOTAStateMachineCtx->b_isEventPending = false;
       // As there might be more than one manifest packets received. We need to parst it.
-      ge_TP_ParseCPList(stpt_FOTAStateMachineCtx->st_FOTAEvent.u_FOTAEventsPayload.st_manifest.u8ar_manifestPkt,
+      ge_TP_ParseCPList(&stpt_FOTAStateMachineCtx->st_FOTAEvent.u_FOTAEventsPayload.star_metadata[0],
          stpt_FOTAStateMachineCtx->st_FOTAEvent.u16_payloadLength, &st_CPList);
 
-      // As this is a Manifest, there are multiple CP blocks in it. After parsing
+      // As this is a Metadata, there are multiple CP blocks in it. After parsing
       // them, we need to send them to the FS FSM.
 
-      LOG_INF("Manifest received, transitioning to eFS_RECEIVING_DATA state");
-      smf_set_state(SMF_CTX(stpt_FOTAStateMachineCtx), &gst_FOTAStates[eFS_RECEIVING_DATA]);
+      LOG_INF("Metadata received, transitioning to eFS_RECEIVING_METADATA state");
+      smf_set_state(SMF_CTX(stpt_FOTAStateMachineCtx), &gst_FOTAStates[eFS_RECEIVING_METADATA]);
 
       e_retVal = SMF_EVENT_HANDLED;
    }
@@ -346,6 +283,69 @@ static enum smf_state_result se_eFS_RECEIVING_MANIFEST_Run(void *vpt_obj)
 static void sv_eFS_RECEIVING_MANIFEST_Exit(void *vpt_obj)
 {
    LOG_INF("sv_eFS_RECEIVING_MANIFEST exit");
+}
+
+// eFS_RECEIVING_METADATA state handlers
+/**
+ * @private       sv_eFS_RECEIVING_METADATA_Entry
+ * @brief         <Function details>.
+ * @param[in]     vpt_obj Pointer to user object declared for FOTA state machine.
+ * @return        <Return details>.
+ */
+static void sv_eFS_RECEIVING_METADATA_Entry(void *vpt_obj)
+{
+   LOG_INF("sv_eFS_RECEIVING_METADATA entry");
+}
+
+/**
+ * @private       sv_eFS_RECEIVING_METADATA_Run
+ * @brief         <Function details>.
+ * @param[in]     vpt_obj Pointer to user object declared for FOTA state machine.
+ * @return        <Return details>.
+ */
+static enum smf_state_result se_eFS_RECEIVING_METADATA_Run(void *vpt_obj)
+{
+   FOTAStateMachineCtx_T *stpt_FOTAStateMachineCtx = (FOTAStateMachineCtx_T *)vpt_obj;
+   enum smf_state_result e_retVal = SMF_EVENT_PROPAGATE;
+   CPList_T st_CPList = { 0 };
+
+   LOG_INF("sv_eFS_RECEIVING_METADATA running");
+
+   // Check if any event is pending to handle and that is METADATA command
+   if ((stpt_FOTAStateMachineCtx->b_isEventPending) &&
+      (eFE_MANIFEST == stpt_FOTAStateMachineCtx->st_FOTAEvent.e_evt))
+   {
+      // Clear the event pending flag
+      stpt_FOTAStateMachineCtx->b_isEventPending = false;
+      // As there might be more than one metadata packets received. We need to parst it.
+      ge_TP_ParseCPList(&stpt_FOTAStateMachineCtx->st_FOTAEvent.u_FOTAEventsPayload.st_manifest,
+         stpt_FOTAStateMachineCtx->st_FOTAEvent.u16_payloadLength, &st_CPList);
+
+      // As this is a Manifest, there are multiple CP blocks in it. After parsing
+      // them, we need to send them to the FS FSM.
+
+      LOG_INF("Manifest received, transitioning to eFS_RECEIVING_DATA state");
+      smf_set_state(SMF_CTX(stpt_FOTAStateMachineCtx), &gst_FOTAStates[eFS_RECEIVING_DATA]);
+
+      e_retVal = SMF_EVENT_HANDLED;
+   }
+   else
+   {
+      LOG_INF("Invalid activity");
+   }
+
+   return e_retVal;
+}
+
+/**
+ * @private       sv_eFS_RECEIVING_METADATA_Exit
+ * @brief         <Function details>.
+ * @param[in]     vpt_obj Pointer to user object declared for FOTA state machine.
+ * @return        <Return details>.
+ */
+static void sv_eFS_RECEIVING_METADATA_Exit(void *vpt_obj)
+{
+   LOG_INF("sv_eFS_RECEIVING_METADATA exit");
 }
 
 // eFS_RECEIVING_DATA state handlers

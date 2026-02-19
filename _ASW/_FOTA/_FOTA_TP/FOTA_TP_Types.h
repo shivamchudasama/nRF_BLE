@@ -58,7 +58,7 @@
 typedef enum
 {
    eCPT_FOTA_START = 0x01,                   /**< FOTA start packet */
-   eCPT_METADATA,                            /**< Metadata packet */
+   eCPT_MANIFEST,                            /**< Manifest packet */
    eCPT_TARGET_ECU,                          /**< Target ECU identifier packet */
    eCPT_IMAGE_SIZE,                          /**< Image size packet */
    eCPT_FW_VERSION,                          /**< Firmware version packet */
@@ -67,7 +67,7 @@ typedef enum
    eCPT_HASH,                                /**< Hash packet */
    eCPT_SIGNATURE,                           /**< Signature packet */
    eCPT_DEPENDENCY_INFO,                     /**< Dependency information packet */
-   eCPT_MANIFEST,                            /**< Manifest packet */
+   eCPT_METADATA,                            /**< Metadata packet */
    eCPT_SECTION_START_ADDR,                  /**< Section start address packet */
    eCPT_SECTION_SIZE,                        /**< Section size packet */
    eCPT_FOTA_DATA,                           /**< FOTA data packet */
