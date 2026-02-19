@@ -16,6 +16,7 @@
 /******************************************************************************/
 #include <zephyr/bluetooth/gatt.h>
 #include <string.h>
+#include "BaseUUIDs.h"
 #include "FOTA_GATT_Types.h"
 #include "FOTA_TP.h"
 #include "FOTAEvent.h"
@@ -26,33 +27,6 @@
 /*                                  DEFINES                                   */
 /*                                                                            */
 /******************************************************************************/
-// Note: To keep the UUIDs of all the services and characteristics v4 compliant
-// (RFC 4122 compliant), we've decided the base UUIDs of last 96-bits. Only the
-// first 32-bits would be changed throughout the project.
-/**
- * @def           BASE_UUID_SECOND_PART_16BIT
- * @brief         Second part of base UUID (16-bits).
- */
-#define BASE_UUID_SECOND_PART_16BIT          (0X16A1)
-
-/**
- * @def           BASE_UUID_THIRD_PART_16BIT
- * @brief         Third part of base UUID (16-bits).
- */
-#define BASE_UUID_THIRD_PART_16BIT           (0X4812)
-
-/**
- * @def           BASE_UUID_FOURTH_PART_16BIT
- * @brief         Fourth part of base UUID (16-bits).
- */
-#define BASE_UUID_FOURTH_PART_16BIT          (0XAF35)
-
-/**
- * @def           BASE_UUID_FIFTH_PART_48BIT
- * @brief         Fifth part of base UUID (48-bits).
- */
-#define BASE_UUID_FIFTH_PART_48BIT           (0XF3F29A92F6CA)
-
 /* ================= FOTA SERVICE UUID ================= */
 /**
  * @def           FOTA_SERVICE_UUID_FIRST_PART_32BIT
