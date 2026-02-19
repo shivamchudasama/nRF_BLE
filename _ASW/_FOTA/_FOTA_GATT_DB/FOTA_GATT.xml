@@ -13,7 +13,7 @@
   <!-- =================================================== -->
   <service
       name="FOTA_Service"
-      uuid="12345678-0000-1000-8000-00805F9B34FB"
+      uuid="00000001-16A1-4812-AF35-F3F29A92F6CA"
       advertise="true">
 
     <!-- ================================================= -->
@@ -21,7 +21,7 @@
     <!-- ================================================= -->
     <characteristic
         name="FOTA_Control"
-        uuid="12345678-0001-1000-8000-00805F9B34FB"
+        uuid="00000002-16A1-4812-AF35-F3F29A92F6CA"
         properties="write"
         permissions="write">
 
@@ -32,11 +32,11 @@
     </characteristic>
 
     <!-- ================================================= -->
-    <!-- ECU IDENTIFIER (TLS STRING)                       -->
+    <!-- FOTA DATA TRANSFER CHARACTERISTIC                 -->
     <!-- ================================================= -->
     <characteristic
         name="FOTA_Data_Transfer"
-        uuid="12345678-0002-1000-8000-00805F9B34FB"
+        uuid="00000003-16A1-4812-AF35-F3F29A92F6CA"
         properties="write"
         permissions="write">
 
@@ -47,12 +47,11 @@
     </characteristic>
 
     <!-- ================================================= -->
-    <!-- FOTA STATUS                                       -->
+    <!-- FOTA STATUS CHARACTERISTIC                        -->
     <!-- ================================================= -->
-    <!-- IDLE/ RECEIVING/ STAGING/ ERROR                -->
     <characteristic
         name="FOTA_Status"
-        uuid="12345678-0003-1000-8000-00805F9B34FB"
+        uuid="00000004-16A1-4812-AF35-F3F29A92F6CA"
         properties="notify indicate"
         permissions="none">
 
@@ -67,12 +66,11 @@
     </characteristic>
 
     <!-- ================================================= -->
-    <!-- FOTA PROGRESS                                     -->
+    <!-- FOTA PROGRESS CHARACTERISTIC                      -->
     <!-- ================================================= -->
-    <!-- Bytes Received -->
     <characteristic
         name="FOTA_Progress"
-        uuid="12345678-0004-1000-8000-00805F9B34FB"
+        uuid="00000005-16A1-4812-AF35-F3F29A92F6CA"
         properties="notify indicate"
         permissions="none">
 

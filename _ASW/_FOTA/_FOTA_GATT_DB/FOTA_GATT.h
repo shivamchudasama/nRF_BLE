@@ -26,17 +26,50 @@
 /*                                  DEFINES                                   */
 /*                                                                            */
 /******************************************************************************/
+// Note: To keep the UUIDs of all the services and characteristics v4 compliant
+// (RFC 4122 compliant), we've decided the base UUIDs of last 96-bits. Only the
+// first 32-bits would be changed throughout the project.
+/**
+ * @def           BASE_UUID_SECOND_PART_16BIT
+ * @brief         Second part of base UUID (16-bits).
+ */
+#define BASE_UUID_SECOND_PART_16BIT          (0X16A1)
+
+/**
+ * @def           BASE_UUID_THIRD_PART_16BIT
+ * @brief         Third part of base UUID (16-bits).
+ */
+#define BASE_UUID_THIRD_PART_16BIT           (0X4812)
+
+/**
+ * @def           BASE_UUID_FOURTH_PART_16BIT
+ * @brief         Fourth part of base UUID (16-bits).
+ */
+#define BASE_UUID_FOURTH_PART_16BIT          (0XAF35)
+
+/**
+ * @def           BASE_UUID_FIFTH_PART_48BIT
+ * @brief         Fifth part of base UUID (48-bits).
+ */
+#define BASE_UUID_FIFTH_PART_48BIT           (0XF3F29A92F6CA)
+
 /* ================= FOTA SERVICE UUID ================= */
+/**
+ * @def           FOTA_SERVICE_UUID_FIRST_PART_32BIT
+ * @brief         First part of FOTA Service UUID (32-bits).
+ */
+#define FOTA_SERVICE_UUID_FIRST_PART_32BIT   (0x00000001)
+
 /**
  * @def           BT_UUID_FOTA_SERVICE_VAL
  * @brief         128-bit value encoding for FOTA service UUID.
  */
 #define BT_UUID_FOTA_SERVICE_VAL            	BT_UUID_128_ENCODE( \
-                                                0x12345678, \
-                                                0x0001, \
-                                                0x8000, \
-                                                0x0080, \
-                                                0x5F9B34FB)
+                                                FOTA_SERVICE_UUID_FIRST_PART_32BIT, \
+                                                BASE_UUID_SECOND_PART_16BIT, \
+                                                BASE_UUID_THIRD_PART_16BIT, \
+                                                BASE_UUID_FOURTH_PART_16BIT, \
+                                                BASE_UUID_FIFTH_PART_48BIT)
 
 /**
  * @def           BT_UUID_FOTA_SERVICE
@@ -47,51 +80,71 @@
 
 /* ================= CHARACTERISTIC UUIDs ============== */
 /**
+ * @def           FOTA_CONTROL_CHAR_UUID_FIRST_PART_32BIT
+ * @brief         First part of FOTA Control UUID (32-bits).
+ */
+#define FOTA_CONTROL_CHAR_UUID_FIRST_PART_32BIT \
+                                             (0x00000002)
+
+/**
  * @def           BT_UUID_FOTA_CONTROL_CHAR_VAL
- * @brief         128-bit value encoding for FOTA control characteristic UUID.
+ * @brief         128-bit value encoding for FOTA Control characteristic UUID.
  */
 #define BT_UUID_FOTA_CONTROL_CHAR_VAL        BT_UUID_128_ENCODE( \
-                                                0x12345678, \
-                                                0x0002, \
-                                                0x8000, \
-                                                0x0080, \
-                                                0x5F9B34FB)
+                                                FOTA_CONTROL_CHAR_UUID_FIRST_PART_32BIT, \
+                                                BASE_UUID_SECOND_PART_16BIT, \
+                                                BASE_UUID_THIRD_PART_16BIT, \
+                                                BASE_UUID_FOURTH_PART_16BIT, \
+                                                BASE_UUID_FIFTH_PART_48BIT)
 
 /**
  * @def           BT_UUID_FOTA_CONTROL
  * @brief         Creating UUID structure pointer (const struct bt_uuid *) for
- * 					FOTA control characteristic.
+ * 					FOTA Control characteristic.
  */
 #define BT_UUID_FOTA_CONTROL_CHAR            BT_UUID_DECLARE_128(BT_UUID_FOTA_CONTROL_CHAR_VAL)
 
 /**
+ * @def           FOTA_DATA_TRANSFER_UUID_FIRST_PART_32BIT
+ * @brief         First part of FOTA Data Transfer UUID (32-bits).
+ */
+#define FOTA_DATA_TRANSFER_UUID_FIRST_PART_32BIT \
+                                             (0x00000003)
+
+/**
  * @def           BT_UUID_FOTA_DATA_TRANSFER_CHAR_VAL
- * @brief         128-bit value encoding for FOTA data transfer characteristic UUID.
+ * @brief         128-bit value encoding for FOTA Data Transfer characteristic UUID.
  */
 #define BT_UUID_FOTA_DATA_TRANSFER_CHAR_VAL  BT_UUID_128_ENCODE( \
-                                                0x12345678, \
-                                                0x0003, \
-                                                0x8000, \
-                                                0x0080, \
-                                                0x5F9B34FB)
+                                                FOTA_DATA_TRANSFER_UUID_FIRST_PART_32BIT, \
+                                                BASE_UUID_SECOND_PART_16BIT, \
+                                                BASE_UUID_THIRD_PART_16BIT, \
+                                                BASE_UUID_FOURTH_PART_16BIT, \
+                                                BASE_UUID_FIFTH_PART_48BIT)
 
 /**
  * @def           BT_UUID_FOTA_DATA_TRANSFER_CHAR
  * @brief         Creating UUID structure pointer (const struct bt_uuid *) for
- * 					FOTA data transfer characteristic.
+ * 					FOTA Data Transfer characteristic.
  */
 #define BT_UUID_FOTA_DATA_TRANSFER_CHAR      BT_UUID_DECLARE_128(BT_UUID_FOTA_DATA_TRANSFER_CHAR_VAL)
 
 /**
+ * @def           FOTA_STATUS_UUID_FIRST_PART_32BIT
+ * @brief         First part of FOTA Status UUID (32-bits).
+ */
+#define FOTA_STATUS_UUID_FIRST_PART_32BIT    (0x00000004)
+
+/**
  * @def           BT_UUID_FOTA_STATUS_CHAR_VAL
- * @brief         128-bit value encoding for FOTA status characteristic UUID.
+ * @brief         128-bit value encoding for FOTA Status characteristic UUID.
  */
 #define BT_UUID_FOTA_STATUS_CHAR_VAL         BT_UUID_128_ENCODE( \
-                                                0x12345678, \
-                                                0x0004, \
-                                                0x8000, \
-                                                0x0080, \
-                                                0x5F9B34FB)
+                                                FOTA_STATUS_UUID_FIRST_PART_32BIT, \
+                                                BASE_UUID_SECOND_PART_16BIT, \
+                                                BASE_UUID_THIRD_PART_16BIT, \
+                                                BASE_UUID_FOURTH_PART_16BIT, \
+                                                BASE_UUID_FIFTH_PART_48BIT)
 
 /**
  * @def           BT_UUID_FOTA_STATUS_CHAR
@@ -101,15 +154,21 @@
 #define BT_UUID_FOTA_STATUS_CHAR             BT_UUID_DECLARE_128(BT_UUID_FOTA_STATUS_CHAR_VAL)
 
 /**
+ * @def           FOTA_PROGRESS_UUID_FIRST_PART_32BIT
+ * @brief         First part of FOTA Progress UUID (32-bits).
+ */
+#define FOTA_PROGRESS_UUID_FIRST_PART_32BIT  (0x00000005)
+
+/**
  * @def           BT_UUID_FOTA_PROGRESS_CHAR_VAL
  * @brief         128-bit value encoding for FOTA progress characteristic UUID.
  */
 #define BT_UUID_FOTA_PROGRESS_CHAR_VAL       BT_UUID_128_ENCODE( \
-                                                0x12345678, \
-                                                0x0005, \
-                                                0x8000, \
-                                                0x0080, \
-                                                0x5F9B34FB)
+                                                FOTA_PROGRESS_UUID_FIRST_PART_32BIT, \
+                                                BASE_UUID_SECOND_PART_16BIT, \
+                                                BASE_UUID_THIRD_PART_16BIT, \
+                                                BASE_UUID_FOURTH_PART_16BIT, \
+                                                BASE_UUID_FIFTH_PART_48BIT)
 
 /**
  * @def           BT_UUID_FOTA_PROGRESS_CHAR
