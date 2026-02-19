@@ -606,14 +606,14 @@ static void sv_FOTAStateMachineThread(void *vpt_entryParam1, void *vpt_entryPara
       LOG_INF("FOTA Thread started");
 
       // Wait for FOTA events from the FOTAEventChannel and process them
-      if (0 == zbus_sub_wait(&FOTAEventChannelSub, &stpt_channel, K_NO_WAIT))
+      if (0 == zbus_sub_wait(&FOTAEventChannelSub, &stpt_channel, K_FOREVER))
       {
          // Check if the event is from FOTAEventChannel
          if (&FOTAEventChannel == stpt_channel)
          {
             // Read the latest message from the channel (populate the FOTA state
             // machine with the latest event).
-            zbus_chan_read(&FOTAEventChannel, &sst_FOTAStateMachineCtx.st_FOTAEvent, K_NO_WAIT);
+            zbus_chan_read(&FOTAEventChannel, &sst_FOTAStateMachineCtx.st_FOTAEvent, K_FOREVER);
 
             // Mark the pending event flag
             sst_FOTAStateMachineCtx.b_isEventPending = true;
@@ -631,8 +631,6 @@ static void sv_FOTAStateMachineThread(void *vpt_entryParam1, void *vpt_entryPara
       {
          LOG_INF("No FOTA Event received from ZBUS channel");
       }
-
-      k_sleep(K_MSEC(100));
    }
 }
 
