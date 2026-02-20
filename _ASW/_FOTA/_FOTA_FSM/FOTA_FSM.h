@@ -19,6 +19,7 @@
 #include "AppLog.h"
 #include "FOTAEvent.h"
 #include "FOTA_TP.h"
+#include "Helpers.h"
 
 /******************************************************************************/
 /*                                                                            */

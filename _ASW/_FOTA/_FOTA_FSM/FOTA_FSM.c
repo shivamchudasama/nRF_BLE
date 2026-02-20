@@ -191,6 +191,11 @@ static enum smf_state_result se_eFS_IDLE_Run(void *vpt_obj)
    if ((stpt_FOTAStateMachineCtx->b_isEventPending) &&
       (eFE_FOTA_START == stpt_FOTAStateMachineCtx->st_FOTAEvent.e_evt))
    {
+      // Reverse the byte order
+      gv_ReverseByteOrder(&stpt_FOTAStateMachineCtx->st_FOTAEvent.u_FOTAEventsPayload.st_FOTAStart.u32_FOTAStartSignal,
+         &stpt_FOTAStateMachineCtx->st_FOTAEvent.u_FOTAEventsPayload.st_FOTAStart.u32_FOTAStartSignal,
+         sizeof(stpt_FOTAStateMachineCtx->st_FOTAEvent.u_FOTAEventsPayload.st_FOTAStart.u32_FOTAStartSignal));
+
       // Check if FOTA start signature has been received
       if (FOTA_START_SIGNATURE ==
          stpt_FOTAStateMachineCtx->st_FOTAEvent.u_FOTAEventsPayload.st_FOTAStart.u32_FOTAStartSignal)
