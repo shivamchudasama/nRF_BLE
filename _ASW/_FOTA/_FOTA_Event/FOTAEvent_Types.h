@@ -137,18 +137,20 @@ typedef struct
 typedef struct
 {
    FOTAEvent_E e_evt;                        /**< FOTA Event type */
-   union FOTAEventPayload_U
-   {
-      FOTAStart_T st_FOTAStart;              /**< FOTA Start Event payload */
-      Manifest_T st_manifest;                /**< Manifest payload */
-      Metadata_T star_metadata[MAX_SECTIONS_IN_IMAGE];
-                                             /**< Metadata payload */
-      uint8_t u8ar_data[MAX_DATA_PACKET_IN_ONE_MTU];
-                                             /**< FOTA Data payload */
-      FOTAAbort_T st_FOTAAbort;              /**< FOTA Abort payload */
-      // More FOTA Event details can be added here as needed
-   } u_FOTAEventsPayload;                    /**< FOTA events payload */
    uint16_t u16_payloadLength;               /**< Length of event payload */
+   uint8_t u8ar_Payload[MAX_DATA_PACKET_IN_ONE_MTU];
+                                             /**< Payload for the event */
+   // union FOTAEventPayload_U
+   // {
+   //    FOTAStart_T st_FOTAStart;              /**< FOTA Start Event payload */
+   //    Manifest_T st_manifest;                /**< Manifest payload */
+   //    Metadata_T star_metadata[MAX_SECTIONS_IN_IMAGE];
+   //                                           /**< Metadata payload */
+   //    uint8_t u8ar_data[MAX_DATA_PACKET_IN_ONE_MTU];
+   //                                           /**< FOTA Data payload */
+   //    FOTAAbort_T st_FOTAAbort;              /**< FOTA Abort payload */
+   //    // More FOTA Event details can be added here as needed
+   // } u_FOTAEventsPayload;                    /**< FOTA events payload */
 } FOTAEvent_T;
 
 /******************************************************************************/

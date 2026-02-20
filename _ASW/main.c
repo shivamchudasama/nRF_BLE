@@ -51,9 +51,15 @@
 /*                       PRIVATE FUNCTION DECLARATIONS                        */
 /*                                                                            */
 /******************************************************************************/
-static void sv_Connected(struct bt_conn *conn, uint8_t err);
-static void sv_Disconnected(struct bt_conn *conn, uint8_t reason);
+static void sv_RequestDataLenUpdate(struct bt_conn *stpt_conn);
+static void sv_MTUExchangeCallback(struct bt_conn *stpt_conn, uint8_t u8_err,
+   struct bt_gatt_exchange_params *stpt_exchangeParams);
+static void sv_UpdateMTU(struct bt_conn *stpt_conn);
+static void sv_Connected(struct bt_conn *stpt_conn, uint8_t err);
+static void sv_Disconnected(struct bt_conn *stpt_conn, uint8_t reason);
 static void sv_Recycled(void);
+static void sv_DataLengthUpdated(struct bt_conn *stpt_conn,
+   struct bt_conn_le_data_len_info *stpt_info);
 
 /******************************************************************************/
 /*                                                                            */
@@ -108,7 +114,20 @@ BT_CONN_CB_DEFINE(sst_connCallbacks) = {
 	.connected = sv_Connected,
 	.disconnected = sv_Disconnected,
    .recycled = sv_Recycled,
+   .le_data_len_updated = sv_DataLengthUpdated,
 };
+
+/**
+ * @var           sstpt_currentConn
+ * @brief         Pointer to current connection handle.
+ */
+static struct bt_conn *sstpt_currentConn;
+
+/**
+ * @var           exchange_params
+ * @brief         Pointer to current connection handle.
+ */
+static struct bt_gatt_exchange_params exchange_params;
 
 /******************************************************************************/
 /*                                                                            */
@@ -122,19 +141,94 @@ BT_CONN_CB_DEFINE(sst_connCallbacks) = {
 /*                                                                            */
 /******************************************************************************/
 /**
+ * @private       sv_RequestDataLenUpdate
+ * @brief         Function requests the connection for data length update.3
+ * @param[in]     stpt_conn Connection handle
+ * @return        None.
+ */
+static void sv_RequestDataLenUpdate(struct bt_conn *stpt_conn)
+{
+   int i_err;
+
+   // Update the maximum data length
+   i_err = bt_conn_le_data_len_update(stpt_conn, BT_LE_DATA_LEN_PARAM_MAX);
+
+   // Check if any error
+   if (i_err)
+   {
+      LOG_ERR("LE data length update request failed: %d", i_err);
+   }
+   else
+   {
+      LOG_INF("LE data length update requested");
+   }
+}
+
+/**
+ * @private       sv_MTUExchangeCallback
+ * @brief         Callback function to be called after exchanging MTU
+ * @param[in]     stpt_conn Connection handle
+ * @return        None.
+ */
+static void sv_MTUExchangeCallback(struct bt_conn *stpt_conn, uint8_t u8_err,
+   struct bt_gatt_exchange_params *stpt_exchangeParams)
+{
+   LOG_INF("MTU exchange %s", (u8_err == 0 ? "successful" : "failed"));
+
+   // Check if no error
+   if (!u8_err)
+   {
+      // Get the current MTU size
+      uint16_t u16_payloadMTU = bt_gatt_get_mtu(stpt_conn) - 3;  /* 3 bytes ATT header */
+      LOG_INF("New MTU payload: %d bytes", u16_payloadMTU);
+   }
+}
+
+/**
+ * @private       sv_UpdateMTU
+ * @brief         Function requests the connection for data length update.
+ * @param[in]     stpt_conn Connection handle
+ * @return        None.
+ */
+static void sv_UpdateMTU(struct bt_conn *stpt_conn)
+{
+   int i_err;
+
+   exchange_params.func = sv_MTUExchangeCallback;
+
+   // Exchange MTU parameters
+   i_err = bt_gatt_exchange_mtu(stpt_conn, &exchange_params);
+
+   // Check if any error occured
+   if (i_err)
+   {
+      LOG_ERR("Failed to exchange MTU: Error code is (err %d)", i_err);
+   }
+   else
+   {
+      LOG_INF("MTU exchange requested");
+   }
+}
+
+/**
  * @private       sv_Connected
  * @brief         Callback for handling new connections. This function is called when a
  *                new connection is established.
  * @return        Number of bytes written.
  */
-static void sv_Connected(struct bt_conn *conn, uint8_t err)
+static void sv_Connected(struct bt_conn *stpt_conn, uint8_t u8_err)
 {
-	if (err)
+	if (u8_err)
    {
-		LOG_ERR("Connection failed (err %u)", err);
+		LOG_ERR("Connection failed (err %u)", u8_err);
 		return;
 	}
 	LOG_INF("Connected");
+   sstpt_currentConn = bt_conn_ref(stpt_conn);
+
+   // Initiate DLE and MTU exchange from the peripheral side
+   // sv_RequestDataLenUpdate(stpt_conn);
+   // sv_UpdateMTU(stpt_conn);
 }
 
 /**
@@ -143,9 +237,16 @@ static void sv_Connected(struct bt_conn *conn, uint8_t err)
  *                connection is disconnected.
  * @return        Number of bytes written.
  */
-static void sv_Disconnected(struct bt_conn *conn, uint8_t reason)
+static void sv_Disconnected(struct bt_conn *stpt_conn, uint8_t reason)
 {
-	LOG_INF("Disconnected (reason %u)", reason);
+	LOG_INF("Disconnected (reason 0x%x)", reason);
+
+   // Check if the current connection is still not cleared
+   if (sstpt_currentConn)
+   {
+      bt_conn_unref(sstpt_currentConn);
+      sstpt_currentConn = NULL;
+   }
 }
 
 /**
@@ -176,6 +277,23 @@ static void sv_Recycled(void)
 	}
 
    LOG_INF("Advertising restarted");
+}
+
+/**
+ * @private       sv_DataLengthUpdated
+ * @brief         Callback tobe called upon data length updated
+ * @return        None.
+ */
+static void sv_DataLengthUpdated(struct bt_conn *stpt_conn,
+   struct bt_conn_le_data_len_info *stpt_info)
+{
+   uint16_t u16_txLen = stpt_info->tx_max_len;
+   uint16_t u16_txTime = stpt_info->tx_max_time;
+   uint16_t u16_rxLen = stpt_info->rx_max_len;
+   uint16_t u16_rxTime = stpt_info->rx_max_time;
+
+   LOG_INF("Data length updated. Len TX/ RX: %d/ %d bytes, time TX/ RX: %d/ %d us",
+      u16_txLen, u16_rxLen, u16_txTime, u16_rxTime);
 }
 
 /******************************************************************************/

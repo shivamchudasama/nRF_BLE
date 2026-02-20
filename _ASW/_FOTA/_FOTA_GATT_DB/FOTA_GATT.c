@@ -464,30 +464,39 @@ static ssize_t st_FOTACtrlWrite(struct bt_conn *stpt_connHandle,
 				{
                // Populate the event
 					st_FOTAEvent.e_evt = eFE_FOTA_START;
-					memcpy(&st_FOTAEvent.u_FOTAEventsPayload.st_FOTAStart, \
-						stpt_charCtx->stpt_data->star_CPBlocks[0].u8ar_CPData, \
+               memcpy(&st_FOTAEvent.u8ar_Payload[0], \
+						&stpt_charCtx->stpt_data->star_CPBlocks[0].u8ar_CPData[0], \
 						stpt_charCtx->stpt_data->star_CPBlocks[0].u8_CPBlockLength);
-               st_FOTAEvent.u16_payloadLength = stpt_charCtx->u16_curLen;
+					// memcpy(&st_FOTAEvent.u_FOTAEventsPayload.st_FOTAStart, \
+					// 	stpt_charCtx->stpt_data->star_CPBlocks[0].u8ar_CPData, \
+					// 	stpt_charCtx->stpt_data->star_CPBlocks[0].u8_CPBlockLength);
+               st_FOTAEvent.u16_payloadLength = stpt_charCtx->stpt_data->star_CPBlocks[0].u8_CPBlockLength;
 				}
 				// Check if the CP type of the single CP block in the parsed CP list is Manifest
 				else if (stpt_charCtx->stpt_data->star_CPBlocks[0].e_CPType == eCPT_MANIFEST)
 				{
                // Populate the event
 					st_FOTAEvent.e_evt = eFE_MANIFEST;
-					memcpy(&st_FOTAEvent.u_FOTAEventsPayload.st_manifest, \
-						stpt_charCtx->stpt_data->star_CPBlocks[0].u8ar_CPData, \
+               memcpy(&st_FOTAEvent.u8ar_Payload[0], \
+						&stpt_charCtx->stpt_data->star_CPBlocks[0].u8ar_CPData[0], \
 						stpt_charCtx->stpt_data->star_CPBlocks[0].u8_CPBlockLength);
-               st_FOTAEvent.u16_payloadLength = stpt_charCtx->u16_curLen;
+					// memcpy(&st_FOTAEvent.u_FOTAEventsPayload.st_manifest, \
+					// 	stpt_charCtx->stpt_data->star_CPBlocks[0].u8ar_CPData, \
+					// 	stpt_charCtx->stpt_data->star_CPBlocks[0].u8_CPBlockLength);
+               st_FOTAEvent.u16_payloadLength = stpt_charCtx->stpt_data->star_CPBlocks[0].u8_CPBlockLength;
 				}
 				// Check if the CP type of the single CP block in the parsed CP list is Metadata
 				else if (stpt_charCtx->stpt_data->star_CPBlocks[0].e_CPType == eCPT_METADATA)
 				{
                // Populate the event
 					st_FOTAEvent.e_evt = eFE_METADATA;
-					memcpy(&st_FOTAEvent.u_FOTAEventsPayload.star_metadata[0], \
-						stpt_charCtx->stpt_data->star_CPBlocks[0].u8ar_CPData, \
+               memcpy(&st_FOTAEvent.u8ar_Payload[0], \
+						&stpt_charCtx->stpt_data->star_CPBlocks[0].u8ar_CPData[0], \
 						stpt_charCtx->stpt_data->star_CPBlocks[0].u8_CPBlockLength);
-               st_FOTAEvent.u16_payloadLength = stpt_charCtx->u16_curLen;
+					// memcpy(&st_FOTAEvent.u_FOTAEventsPayload.star_metadata[0], \
+					// 	stpt_charCtx->stpt_data->star_CPBlocks[0].u8ar_CPData, \
+					// 	stpt_charCtx->stpt_data->star_CPBlocks[0].u8_CPBlockLength);
+               st_FOTAEvent.u16_payloadLength = stpt_charCtx->stpt_data->star_CPBlocks[0].u8_CPBlockLength;
 				}
 				else
 				{
@@ -597,9 +606,12 @@ static ssize_t st_FOTADataTransferWrite(struct bt_conn *stpt_connHandle,
 				{
                // Populate the event
 					st_FOTAEvent.e_evt = eFE_FOTA_DATA;
-					memcpy(&st_FOTAEvent.u_FOTAEventsPayload.u8ar_data, \
-						stpt_charCtx->stpt_data->star_CPBlocks[0].u8ar_CPData, \
+               memcpy(&st_FOTAEvent.u8ar_Payload[0], \
+						&stpt_charCtx->stpt_data->star_CPBlocks[0].u8ar_CPData[0], \
 						stpt_charCtx->stpt_data->star_CPBlocks[0].u8_CPBlockLength);
+					// memcpy(&st_FOTAEvent.u_FOTAEventsPayload.u8ar_data, \
+					// 	stpt_charCtx->stpt_data->star_CPBlocks[0].u8ar_CPData, \
+					// 	stpt_charCtx->stpt_data->star_CPBlocks[0].u8_CPBlockLength);
                st_FOTAEvent.u16_payloadLength = stpt_charCtx->u16_curLen;
 				}
             else

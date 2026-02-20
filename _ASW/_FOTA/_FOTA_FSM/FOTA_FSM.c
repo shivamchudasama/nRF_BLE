@@ -28,7 +28,7 @@ ZBUS_SUBSCRIBER_DEFINE(FOTAEventChannelSub, 4);
  * @def           FOTA_STATE_MACHINE_THREAD_STACK_SIZE
  * @brief         Stack size of the thread running the FOTA state machine.
  */
-#define FOTA_STATE_MACHINE_THREAD_STACK_SIZE (1024)
+#define FOTA_STATE_MACHINE_THREAD_STACK_SIZE (1024 * 2)
 
 /**
  * @def           FOTA_STATE_MACHINE_THREAD_PRIO
@@ -184,6 +184,7 @@ static enum smf_state_result se_eFS_IDLE_Run(void *vpt_obj)
 {
    FOTAStateMachineCtx_T *stpt_FOTAStateMachineCtx = (FOTAStateMachineCtx_T *)vpt_obj;
    enum smf_state_result e_retVal = SMF_EVENT_PROPAGATE;
+   uint32_t u32_FOTAStartSign = 0;
 
    LOG_INF("sv_eFS_IDLE running");
 
@@ -191,14 +192,8 @@ static enum smf_state_result se_eFS_IDLE_Run(void *vpt_obj)
    if ((stpt_FOTAStateMachineCtx->b_isEventPending) &&
       (eFE_FOTA_START == stpt_FOTAStateMachineCtx->st_FOTAEvent.e_evt))
    {
-      // Reverse the byte order
-      gv_ReverseByteOrder(&stpt_FOTAStateMachineCtx->st_FOTAEvent.u_FOTAEventsPayload.st_FOTAStart.u32_FOTAStartSignal,
-         &stpt_FOTAStateMachineCtx->st_FOTAEvent.u_FOTAEventsPayload.st_FOTAStart.u32_FOTAStartSignal,
-         sizeof(stpt_FOTAStateMachineCtx->st_FOTAEvent.u_FOTAEventsPayload.st_FOTAStart.u32_FOTAStartSignal));
-
       // Check if FOTA start signature has been received
-      if (FOTA_START_SIGNATURE ==
-         stpt_FOTAStateMachineCtx->st_FOTAEvent.u_FOTAEventsPayload.st_FOTAStart.u32_FOTAStartSignal)
+      if (FOTA_START_SIGNATURE == *(uint32_t *)(&stpt_FOTAStateMachineCtx->st_FOTAEvent.u8ar_Payload[0]))
       {
          // Clear the event pending flag
          stpt_FOTAStateMachineCtx->b_isEventPending = false;
@@ -259,13 +254,16 @@ static enum smf_state_result se_eFS_RECEIVING_MANIFEST_Run(void *vpt_obj)
 
    // Check if any event is pending to handle and that is MANIFEST command
    if ((stpt_FOTAStateMachineCtx->b_isEventPending) &&
-      (eFE_METADATA == stpt_FOTAStateMachineCtx->st_FOTAEvent.e_evt))
+      (eFE_MANIFEST == stpt_FOTAStateMachineCtx->st_FOTAEvent.e_evt))
    {
       // Clear the event pending flag
       stpt_FOTAStateMachineCtx->b_isEventPending = false;
       // As there might be more than one manifest packets received. We need to parst it.
-      ge_TP_ParseCPList(&stpt_FOTAStateMachineCtx->st_FOTAEvent.u_FOTAEventsPayload.star_metadata[0],
+      ge_TP_ParseCPList(&stpt_FOTAStateMachineCtx->st_FOTAEvent.u8ar_Payload[0],
          stpt_FOTAStateMachineCtx->st_FOTAEvent.u16_payloadLength, &st_CPList);
+      // // As there might be more than one manifest packets received. We need to parst it.
+      // ge_TP_ParseCPList(&stpt_FOTAStateMachineCtx->st_FOTAEvent.u_FOTAEventsPayload.star_metadata[0],
+      //    stpt_FOTAStateMachineCtx->st_FOTAEvent.u16_payloadLength, &st_CPList);
 
       // As this is a Metadata, there are multiple CP blocks in it. After parsing
       // them, we need to send them to the FS FSM.
@@ -274,6 +272,10 @@ static enum smf_state_result se_eFS_RECEIVING_MANIFEST_Run(void *vpt_obj)
       smf_set_state(SMF_CTX(stpt_FOTAStateMachineCtx), &gst_FOTAStates[eFS_RECEIVING_METADATA]);
 
       e_retVal = SMF_EVENT_HANDLED;
+   }
+   else
+   {
+      LOG_INF("Invalid activity");
    }
 
    return e_retVal;
@@ -323,8 +325,11 @@ static enum smf_state_result se_eFS_RECEIVING_METADATA_Run(void *vpt_obj)
       // Clear the event pending flag
       stpt_FOTAStateMachineCtx->b_isEventPending = false;
       // As there might be more than one metadata packets received. We need to parst it.
-      ge_TP_ParseCPList(&stpt_FOTAStateMachineCtx->st_FOTAEvent.u_FOTAEventsPayload.st_manifest,
+      ge_TP_ParseCPList(&stpt_FOTAStateMachineCtx->st_FOTAEvent.u8ar_Payload[0],
          stpt_FOTAStateMachineCtx->st_FOTAEvent.u16_payloadLength, &st_CPList);
+      // // As there might be more than one metadata packets received. We need to parst it.
+      // ge_TP_ParseCPList(&stpt_FOTAStateMachineCtx->st_FOTAEvent.u_FOTAEventsPayload.st_manifest,
+      //    stpt_FOTAStateMachineCtx->st_FOTAEvent.u16_payloadLength, &st_CPList);
 
       // As this is a Manifest, there are multiple CP blocks in it. After parsing
       // them, we need to send them to the FS FSM.
@@ -388,6 +393,10 @@ static enum smf_state_result se_eFS_RECEIVING_DATA_Run(void *vpt_obj)
       smf_set_state(SMF_CTX(stpt_FOTAStateMachineCtx), &gst_FOTAStates[eFS_VALIDATE_IMAGE]);
 
       e_retVal = SMF_EVENT_HANDLED;
+   }
+   else
+   {
+      LOG_INF("Invalid activity");
    }
 
    return e_retVal;
@@ -623,8 +632,12 @@ static void sv_FOTAStateMachineThread(void *vpt_entryParam1, void *vpt_entryPara
             // Mark the pending event flag
             sst_FOTAStateMachineCtx.b_isEventPending = true;
 
-            LOG_INF("Received FOTA Event from ZBUS channel: Event Type: %d", sst_FOTAStateMachineCtx.st_FOTAEvent.e_evt);
-            LOG_INF("Received FOTA Event payload: 0x%08x", sst_FOTAStateMachineCtx.st_FOTAEvent.u_FOTAEventsPayload.st_FOTAStart.u32_FOTAStartSignal);
+            LOG_INF("Received FOTA Event from ZBUS channel: Event Type: %d",
+               sst_FOTAStateMachineCtx.st_FOTAEvent.e_evt);
+
+            LOG_HEXDUMP_INF(&sst_FOTAStateMachineCtx.st_FOTAEvent.u8ar_Payload[0],
+               sst_FOTAStateMachineCtx.st_FOTAEvent.u16_payloadLength,
+               "Received FOTA Event payload: ");
 
             LOG_INF("Running FOTA state machine");
 
