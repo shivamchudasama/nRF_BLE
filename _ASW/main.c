@@ -54,7 +54,7 @@
 static void sv_RequestDataLenUpdate(struct bt_conn *stpt_conn);
 static void sv_MTUExchangeCallback(struct bt_conn *stpt_conn, uint8_t u8_err,
    struct bt_gatt_exchange_params *stpt_exchangeParams);
-static void sv_UpdateMTU(struct bt_conn *stpt_conn);
+static void sv_ReqMTUUpdate(struct bt_conn *stpt_conn);
 static void sv_Connected(struct bt_conn *stpt_conn, uint8_t err);
 static void sv_Disconnected(struct bt_conn *stpt_conn, uint8_t reason);
 static void sv_Recycled(void);
@@ -100,6 +100,12 @@ static struct bt_data sstar_scanRespData[] =
    BT_DATA(BT_DATA_NAME_COMPLETE, CONFIG_BT_DEVICE_NAME,
       sizeof(CONFIG_BT_DEVICE_NAME) - 1),
 };
+
+/**
+ * @var           sb_isMTUUpdated
+ * @brief         Flag to check if the MTU updated.
+ */
+static uint8_t sb_isMTUUpdated = false;
 
 /******************************************************************************/
 /*                                                                            */
@@ -181,19 +187,25 @@ static void sv_MTUExchangeCallback(struct bt_conn *stpt_conn, uint8_t u8_err,
       // Get the current MTU size
       uint16_t u16_payloadMTU = bt_gatt_get_mtu(stpt_conn) - 3;  /* 3 bytes ATT header */
       LOG_INF("New MTU payload: %d bytes", u16_payloadMTU);
+
+      if (1)
+      {
+         sb_isMTUUpdated = true;
+      }
    }
 }
 
 /**
- * @private       sv_UpdateMTU
+ * @private       sv_ReqMTUUpdate
  * @brief         Function requests the connection for data length update.
  * @param[in]     stpt_conn Connection handle
  * @return        None.
  */
-static void sv_UpdateMTU(struct bt_conn *stpt_conn)
+static void sv_ReqMTUUpdate(struct bt_conn *stpt_conn)
 {
    int i_err;
 
+   // Set MTU update function
    exchange_params.func = sv_MTUExchangeCallback;
 
    // Exchange MTU parameters
@@ -227,8 +239,14 @@ static void sv_Connected(struct bt_conn *stpt_conn, uint8_t u8_err)
    sstpt_currentConn = bt_conn_ref(stpt_conn);
 
    // Initiate DLE and MTU exchange from the peripheral side
-   // sv_RequestDataLenUpdate(stpt_conn);
-   // sv_UpdateMTU(stpt_conn);
+   sv_ReqMTUUpdate(stpt_conn);
+
+   // while (!sb_isMTUUpdated)
+   // {
+
+   // }
+
+   sv_RequestDataLenUpdate(stpt_conn);
 }
 
 /**
