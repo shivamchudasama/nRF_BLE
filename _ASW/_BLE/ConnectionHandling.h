@@ -1,48 +1,68 @@
 /**
- * @file          main.c
- * @brief         Source file containing main thread of Zephyr
- * @date          10/02/2026
+ * @file          ConnectionHandling.h
+ * @brief         Header file containing all the connection handling related functions.
+ * @date          21/02/2026
  * @author        Shivam Chudasama [SC]
  * @copyright     Bajaj Auto Technology Limited (BATL)
  */
+
+#ifndef _CONNECTION_HANDLING_H
+#define _CONNECTION_HANDLING_H
 
 /******************************************************************************/
 /*                                                                            */
 /*                                  INCLUDES                                  */
 /*                                                                            */
 /******************************************************************************/
-#include "FOTA_FSM.h"
-#include "ConnectionHandling.h"
+#include <zephyr/kernel.h>
+#include <zephyr/types.h>
+#include <zephyr/sys/printk.h>
+#include <zephyr/bluetooth/bluetooth.h>
+#include <zephyr/bluetooth/conn.h>
+#include <zephyr/bluetooth/gatt.h>
+#include "FOTA_GATT.h"
+#include "GAP_GATT.h"
+#include "AppLog.h"
 
 /******************************************************************************/
 /*                                                                            */
 /*                                  DEFINES                                   */
 /*                                                                            */
 /******************************************************************************/
+/**
+ * @def           <Define name>
+ * @brief         <Define details>.
+ */
 
 /******************************************************************************/
 /*                                                                            */
 /*                                   ENUMS                                    */
 /*                                                                            */
 /******************************************************************************/
+/**
+ * @enum          <Enum name>
+ * @brief         <Enum details>.
+ */
 
 /******************************************************************************/
 /*                                                                            */
 /*                                 STRUCTURES                                 */
 /*                                                                            */
 /******************************************************************************/
+/**
+ * @struct        <Structure name>
+ * @brief         <Structure details>.
+ */
 
 /******************************************************************************/
 /*                                                                            */
 /*                                   UNIONS                                   */
 /*                                                                            */
 /******************************************************************************/
-
-/******************************************************************************/
-/*                                                                            */
-/*                       PRIVATE FUNCTION DECLARATIONS                        */
-/*                                                                            */
-/******************************************************************************/
+/**
+ * @union         <Union name>
+ * @brief         <Union details>.
+ */
 
 /******************************************************************************/
 /*                                                                            */
@@ -52,49 +72,12 @@
 
 /******************************************************************************/
 /*                                                                            */
-/*                              PUBLIC VARIABLES                              */
-/*                                                                            */
-/******************************************************************************/
-
-/******************************************************************************/
-/*                                                                            */
-/*                             PRIVATE VARIABLES                              */
-/*                                                                            */
-/******************************************************************************/
-
-/******************************************************************************/
-/*                                                                            */
 /*                              EXTERN FUNCTIONS                              */
 /*                                                                            */
 /******************************************************************************/
+extern void gv_BLEInitStartAdv(void);
 
-/******************************************************************************/
-/*                                                                            */
-/*                        PRIVATE FUNCTION DEFINITIONS                        */
-/*                                                                            */
-/******************************************************************************/
-
-/******************************************************************************/
-/*                                                                            */
-/*                        PUBLIC FUNCTION DEFINITIONS                         */
-/*                                                                            */
-/******************************************************************************/
-/**
- * @public        main
- * @brief         Main thread. It initializes and start BLE advertisement. It will
- *                also create FOTA state machine thread.
- * @return        <Return details>.
- */
-int main(void)
-{
-   // Init and start BLE advertising
-   gv_BLEInitStartAdv();
-
-   // Create FOTA state machine thread
-   gv_CreateFOTAStateMachineThread();
-
-   return 0;
-}
+#endif //!_CONNECTION_HANDLING_H
 
 /**
  * Copyright(c) Bajaj Auto Technology Limited (BATL) as an unpublished work.
@@ -104,4 +87,3 @@ int main(void)
  *
  * @author:Shivam Chudasama [SC]
  */
-
