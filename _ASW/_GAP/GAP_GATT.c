@@ -146,7 +146,7 @@ static const char scar_HWRevision[] = "0.1.1";
  * @var           scar_FWRevision
  * @brief         Revision of the firmware.
  */
-static const char scar_FWRevision[] = "0.1.1";
+static const char scar_FWRevision[] = "0.1.2";
 
 /**
  * @var           gstar_deviceInfoSvc
