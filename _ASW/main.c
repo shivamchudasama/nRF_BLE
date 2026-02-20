@@ -130,10 +130,10 @@ BT_CONN_CB_DEFINE(sst_connCallbacks) = {
 static struct bt_conn *sstpt_currentConn;
 
 /**
- * @var           exchange_params
- * @brief         Pointer to current connection handle.
+ * @var           sst_exchangeParams
+ * @brief         Structure for GATT exchange parameters.
  */
-static struct bt_gatt_exchange_params exchange_params;
+static struct bt_gatt_exchange_params sst_exchangeParams;
 
 /******************************************************************************/
 /*                                                                            */
@@ -148,7 +148,7 @@ static struct bt_gatt_exchange_params exchange_params;
 /******************************************************************************/
 /**
  * @private       sv_RequestDataLenUpdate
- * @brief         Function requests the connection for data length update.3
+ * @brief         Function requests the connection for data length update.
  * @param[in]     stpt_conn Connection handle
  * @return        None.
  */
@@ -206,10 +206,10 @@ static void sv_ReqMTUUpdate(struct bt_conn *stpt_conn)
    int i_err;
 
    // Set MTU update function
-   exchange_params.func = sv_MTUExchangeCallback;
+   sst_exchangeParams.func = sv_MTUExchangeCallback;
 
    // Exchange MTU parameters
-   i_err = bt_gatt_exchange_mtu(stpt_conn, &exchange_params);
+   i_err = bt_gatt_exchange_mtu(stpt_conn, &sst_exchangeParams);
 
    // Check if any error occured
    if (i_err)
@@ -238,14 +238,9 @@ static void sv_Connected(struct bt_conn *stpt_conn, uint8_t u8_err)
 	LOG_INF("Connected");
    sstpt_currentConn = bt_conn_ref(stpt_conn);
 
-   // Initiate DLE and MTU exchange from the peripheral side
+   // Request MTu update
    sv_ReqMTUUpdate(stpt_conn);
-
-   // while (!sb_isMTUUpdated)
-   // {
-
-   // }
-
+   // Initiate DLE and MTU exchange from the peripheral side
    sv_RequestDataLenUpdate(stpt_conn);
 }
 
